@@ -28,7 +28,10 @@ public class ElasticityScheduler implements IScheduler {
 	@Override
 	public void schedule(Topologies topologies, Cluster cluster) {
 		LOG.info("\n\n\nRerunning scheduling...");
-		
+
+		GetStats gs = new GetStats();
+		gs.getStatistics();
+
 		for (TopologyDetails topo : topologies.getTopologies()) {
 			LOG.info("Unassigned Executors for {}: ", topo.getName());
 			for (Map.Entry<ExecutorDetails, String> k : cluster.getNeedsSchedulingExecutorToComponents(topo).entrySet()) {
@@ -39,8 +42,7 @@ public class ElasticityScheduler implements IScheduler {
 		for (Map.Entry<String, SchedulerAssignment> k : cluster.getAssignments().entrySet()) {
 			LOG.info("{} -> {}", k.getKey(), k.getValue().getExecutors());
 		}
-	
-		
+
 		//new EvenScheduler().schedule(topologies, cluster);
 	}
 }
