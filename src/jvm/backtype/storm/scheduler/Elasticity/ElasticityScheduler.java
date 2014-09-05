@@ -10,7 +10,7 @@ import backtype.storm.scheduler.ExecutorDetails;
 import backtype.storm.scheduler.IScheduler;
 import backtype.storm.scheduler.SchedulerAssignment;
 import backtype.storm.scheduler.Topologies;
-//import backtype.storm.scheduler.EvenScheduler;
+import backtype.storm.scheduler.EvenScheduler;
 import backtype.storm.scheduler.TopologyDetails;
 
 
@@ -43,6 +43,6 @@ public class ElasticityScheduler implements IScheduler {
 			LOG.info("{} -> {}", k.getKey(), k.getValue().getExecutors());
 		}
 
-		//new EvenScheduler().schedule(topologies, cluster);
+		new EvenScheduler().schedule(topologies, cluster);
 	}
 }
