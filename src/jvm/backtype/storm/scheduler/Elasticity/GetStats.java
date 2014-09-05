@@ -82,9 +82,6 @@ public class GetStats {
 
 	            if (transfer.get(":all-time").get("default") != null) {
 
-	              System.out.println((host + ':' + port + ':' + componentId + ":"
-	                  + topo.get_id() + ":" + taskId + "," + transfer.get(
-	                  ":all-time").get("default")));
 	              LOG.info((host + ':' + port + ':' + componentId + ":"
 	                  + topo.get_id() + ":" + taskId + "," + transfer.get(
 	                  ":all-time").get("default")));
@@ -97,7 +94,7 @@ public class GetStats {
 	              String data = String.valueOf(unixTime) + ':' + host + ':' + port + ':' + componentId + ":"
 	                  + topo.get_id() + ":" + taskId + "," + transfer.get(
 	                  ":all-time").get("default")+"\n";
-	              
+	              /*
 	              String filePath = "/tmp/scheduler_output";
 	              try {
 	              LOG.info("writting to file...");
@@ -110,6 +107,7 @@ public class GetStats {
 	              } catch(IOException ex) {
 	                LOG.info("error! writin to file {}", ex);
 	              }
+	              */
 	            }
 	          }
 	        }
