@@ -38,7 +38,7 @@ public class GetStats {
 	    this.tsocket = new TSocket("localhost", 6627);
 	    this.tTransport = new TFramedTransport(tsocket);
 	    this.tBinaryProtocol = new TBinaryProtocol(tTransport);
-	    this.client = new Nimbus.Client(tBinaryProtocol);
+	    //this.client = new Nimbus.Client(tBinaryProtocol);
 
 	  }
 
