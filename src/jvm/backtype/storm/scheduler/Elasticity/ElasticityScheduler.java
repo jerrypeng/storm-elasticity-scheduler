@@ -43,6 +43,7 @@ public class ElasticityScheduler implements IScheduler {
 			LOG.info("{} -> {}", k.getKey(), k.getValue().getExecutors());
 		}
 
+		LOG.info("running EvenScheduler now...")
 		new EvenScheduler().schedule(topologies, cluster);
 	}
 }
