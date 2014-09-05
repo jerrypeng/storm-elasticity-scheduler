@@ -29,7 +29,7 @@ public class ElasticityScheduler implements IScheduler {
 	public void schedule(Topologies topologies, Cluster cluster) {
 		LOG.info("\n\n\nRerunning scheduling...");
 
-		GetStats gs = new GetStats();
+		GetStats gs = GetStats.getInstance();
 		gs.getStatistics();
 
 		for (TopologyDetails topo : topologies.getTopologies()) {
