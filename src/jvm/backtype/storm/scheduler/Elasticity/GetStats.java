@@ -28,11 +28,11 @@ public class GetStats {
 	private static GetStats instance = null;
 	private static final Logger LOG = LoggerFactory.getLogger(GetStats.class);
 	public HashMap<String, Integer> statsTable;
-	long startTime;
+	public HashMap<String, Long> startTimes;
 
 	protected GetStats() {
 		statsTable = new HashMap<String, Integer>();
-		startTime=System.currentTimeMillis() / 1000;
+		startTimes = new HashMap<String, Long>();
 	}
 
 	public static GetStats getInstance() {
@@ -57,6 +57,9 @@ public class GetStats {
 			List<TopologySummary> topologies = clusterSummary.get_topologies();
 			LOG.info("number of topologies: {}", topologies.size());
 			for (TopologySummary topo : topologies) {
+				if(this.startTimes.containsKey(topo.get_id()) == false) {
+					this.startTimes.put(topo.get_id(), (System.currentTimeMillis() / 1000));
+				}
 				TopologyInfo topologyInfo = null;
 				try {
 					topologyInfo = client.getTopologyInfo(topo.get_id());
@@ -108,7 +111,7 @@ public class GetStats {
 						 * LOG.info("SUP: {} availResources: {}",
 						 * sup.get_host(), sup.get_total_resources()); }
 						 */
-						long unixTime = (System.currentTimeMillis() / 1000) - this.startTime;
+						long unixTime = (System.currentTimeMillis() / 1000) - this.startTimes.get(topo.get_id());
 						String data = String.valueOf(unixTime) + ':' + host
 								+ ':' + port + ':' + componentId + ":"
 								+ topo.get_id() + ":" + taskId + ","
