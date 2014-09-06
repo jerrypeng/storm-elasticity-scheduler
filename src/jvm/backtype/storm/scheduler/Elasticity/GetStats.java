@@ -28,9 +28,11 @@ public class GetStats {
 	private static GetStats instance = null;
 	private static final Logger LOG = LoggerFactory.getLogger(GetStats.class);
 	public HashMap<String, Integer> statsTable;
+	long startTime;
 
 	protected GetStats() {
 		statsTable = new HashMap<String, Integer>();
+		startTime=System.currentTimeMillis() / 1000;
 	}
 
 	public static GetStats getInstance() {
@@ -59,7 +61,7 @@ public class GetStats {
 				try {
 					topologyInfo = client.getTopologyInfo(topo.get_id());
 				} catch (Exception e) {
-					System.out.println(e);
+					LOG.info(e.toString());
 					continue;
 				}
 				List<ExecutorSummary> executorSummaries = topologyInfo
@@ -69,7 +71,7 @@ public class GetStats {
 
 					ExecutorStats executorStats = executorSummary.get_stats();
 					if (executorStats == null) {
-						System.out.println("NULL");
+						//System.out.println("NULL");
 						continue;
 					}
 					String host = executorSummary.get_host();
@@ -106,22 +108,22 @@ public class GetStats {
 						 * LOG.info("SUP: {} availResources: {}",
 						 * sup.get_host(), sup.get_total_resources()); }
 						 */
-						long unixTime = System.currentTimeMillis() / 1000;
+						long unixTime = (System.currentTimeMillis() / 1000) - this.startTime;
 						String data = String.valueOf(unixTime) + ':' + host
 								+ ':' + port + ':' + componentId + ":"
 								+ topo.get_id() + ":" + taskId + ","
-								+ transfer.get(":all-time").get("default")
+								+ throughput
 								+ "\n";
-						/*
-						 * String filePath = "/tmp/scheduler_output"; try {
-						 * LOG.info("writting to file..."); File file = new
-						 * File(filePath); FileWriter fileWritter = new
-						 * FileWriter(file,true); BufferedWriter bufferWritter =
-						 * new BufferedWriter(fileWritter);
-						 * bufferWritter.append(data); bufferWritter.close();
-						 * fileWritter.close(); } catch(IOException ex) {
-						 * LOG.info("error! writin to file {}", ex); }
-						 */
+						
+						 String filePath = "/tmp/scheduler_output"; try {
+						 LOG.info("writting to file..."); File file = new
+						 File(filePath); FileWriter fileWritter = new
+						 FileWriter(file,true); BufferedWriter bufferWritter =
+						 new BufferedWriter(fileWritter);
+						 bufferWritter.append(data); bufferWritter.close();
+						 fileWritter.close(); } catch(IOException ex) {
+						 LOG.info("error! writin to file {}", ex); }
+						 
 					}
 				}
 			}
