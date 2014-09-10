@@ -45,7 +45,9 @@ public class GetTopologyInfo {
 	}
 	
 	public static GetTopologyInfo getInstance() {
-		instance = new GetTopologyInfo();
+		if(instance == null) {
+			instance = new GetTopologyInfo();
+		}
 		return instance;
 	}
 		

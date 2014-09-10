@@ -52,7 +52,6 @@ public class GetStats {
 		
 		try {
 			tTransport.open();
-			
 			ClusterSummary clusterSummary = client.getClusterInfo();
 			List<TopologySummary> topologies = clusterSummary.get_topologies();
 			LOG.info("number of topologies: {}", topologies.size());

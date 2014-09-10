@@ -30,7 +30,10 @@ public class ElasticityScheduler implements IScheduler {
 		LOG.info("\n\n\nRerunning scheduling...");
 
 		GetStats gs = GetStats.getInstance();
+		GetTopologyInfo gt = GetTopologyInfo.getInstance();
 		gs.getStatistics();
+		gt.getTopologyInfo();
+		
 
 		for (TopologyDetails topo : topologies.getTopologies()) {
 			LOG.info("Unassigned Executors for {}: ", topo.getName());
