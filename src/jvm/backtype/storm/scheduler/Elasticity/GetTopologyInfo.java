@@ -73,8 +73,12 @@ public class GetTopologyInfo {
 					LOG.info("Id: {}", s.getKey());
 					LOG.info("INPUTS");
 					for(Map.Entry<GlobalStreamId,Grouping> entry : s.getValue().get_common().get_inputs().entrySet()) {
+						/*
 						LOG.info("component id: {} stream id: {}, fields, {}", new Object[] {entry.getKey().get_componentId()
 						,entry.getKey().get_streamId() ,entry.getValue().get_fields()});
+						*/
+						LOG.info("component id: {} stream id: {}", new Object[] {entry.getKey().get_componentId()
+								,entry.getKey().get_streamId()});
 						LOG.info("grouping: {}", entry.getValue());
 					}
 					LOG.info("OUTPUTS: ");
@@ -88,8 +92,12 @@ public class GetTopologyInfo {
 					LOG.info("Id: {}", s.getKey());
 					LOG.info("INPUTS");
 					for(Map.Entry<GlobalStreamId,Grouping> entry : s.getValue().get_common().get_inputs().entrySet()) {
+						/*
 						LOG.info("component id: {} stream id: {}, fields, {}", new Object[] {entry.getKey().get_componentId()
 						,entry.getKey().get_streamId() ,entry.getValue().get_fields()});
+						*/
+						LOG.info("component id: {} stream id: {}", new Object[] {entry.getKey().get_componentId()
+								,entry.getKey().get_streamId()});
 						LOG.info("grouping: {}", entry.getValue());
 					}
 					LOG.info("OUTPUTS: ");
