@@ -24,85 +24,154 @@ import backtype.storm.generated.StreamInfo;
 import backtype.storm.generated.TopologySummary;
 
 public class GetTopologyInfo {
-	
+
 	private static GetTopologyInfo instance = null;
 	private HashMap<String, Component> bolts = null;
 	private HashMap<String, Component> spouts = null;
-	private HashMap<String, Component> all_comp = null;
-	private static final Logger LOG = LoggerFactory.getLogger(GetTopologyInfo.class);
-	
+	public HashMap<String, Component> all_comp = null;
+	private static final Logger LOG = LoggerFactory
+			.getLogger(GetTopologyInfo.class);
+
 	public class Component {
-		public List<Component> parents = null;
-		public List<Component> children = null;
+		public List<String> parents = null;
+		public List<String> children = null;
+
 		public Component() {
-			this.parents = new ArrayList<Component>();
-			this.children = new ArrayList<Component>();
+			this.parents = new ArrayList<String>();
+			this.children = new ArrayList<String>();
 		}
 	}
-	
-	protected GetTopologyInfo () {
-		
+
+	protected GetTopologyInfo() {
+		this.bolts = new HashMap<String, Component>();
+		this.spouts = new HashMap<String, Component>();
+		this.all_comp = new HashMap<String, Component>();
 	}
-	
+
 	public static GetTopologyInfo getInstance() {
-		if(instance == null) {
+		if (instance == null) {
 			instance = new GetTopologyInfo();
 		}
 		return instance;
 	}
-		
+
 	public void getTopologyInfo() {
 		LOG.info("Getting Topology info...");
-		
+
 		TSocket tsocket = new TSocket("localhost", 6627);
 		TFramedTransport tTransport = new TFramedTransport(tsocket);
 		TBinaryProtocol tBinaryProtocol = new TBinaryProtocol(tTransport);
 		Nimbus.Client client = new Nimbus.Client(tBinaryProtocol);
-		
+
 		try {
 			tTransport.open();
-			
+
 			ClusterSummary clusterSummary = client.getClusterInfo();
 			List<TopologySummary> topologies = clusterSummary.get_topologies();
 			LOG.info("number of topologies: {}", topologies.size());
 			for (TopologySummary topo : topologies) {
 				StormTopology storm_topo = client.getTopology(topo.get_id());
-				//spouts
+				// spouts
 				LOG.info("!!-SPOUTs-!!");
-				for (Map.Entry<String, SpoutSpec> s : storm_topo.get_spouts().entrySet()) {
-					LOG.info("Id: {}", s.getKey());
-					LOG.info("INPUTS");
-					for(Map.Entry<GlobalStreamId,Grouping> entry : s.getValue().get_common().get_inputs().entrySet()) {
-						/*
-						LOG.info("component id: {} stream id: {}, fields, {}", new Object[] {entry.getKey().get_componentId()
-						,entry.getKey().get_streamId() ,entry.getValue().get_fields()});
-						*/
-						LOG.info("component id: {} stream id: {}", new Object[] {entry.getKey().get_componentId()
-								,entry.getKey().get_streamId()});
-						LOG.info("grouping: {}", entry.getValue());
-					}
-					LOG.info("OUTPUTS: ");
-					for (Map.Entry<String, StreamInfo> entry : s.getValue().get_common().get_streams().entrySet()) {
-						LOG.info("{}--{}", entry.getKey(), entry.getValue().get_output_fields());
+				for (Map.Entry<String, SpoutSpec> s : storm_topo.get_spouts()
+						.entrySet()) {
+					if (s.getKey().matches("(__).*") == false) {
+						Component newComp = null;
+						if (this.all_comp.containsKey(s.getKey())) {
+							newComp = this.all_comp.get(s.getKey());
+						} else {
+							newComp = new Component();
+						}
+
+						this.all_comp.put(s.getKey(), newComp);
+						LOG.info("Id: {}", s.getKey());
+						LOG.info("INPUTS");
+						for (Map.Entry<GlobalStreamId, Grouping> entry : s
+								.getValue().get_common().get_inputs()
+								.entrySet()) {
+
+							if (entry.getKey().get_componentId()
+									.matches("(__).*") == false) {
+								LOG.info("component id: {} stream id: {}",
+										new Object[] {
+												entry.getKey()
+														.get_componentId(),
+												entry.getKey().get_streamId() });
+								LOG.info("grouping: {}", entry.getValue());
+
+								newComp.parents.add(entry.getKey()
+										.get_componentId());
+								if (this.all_comp.containsKey(entry.getKey()
+										.get_componentId()) == false) {
+									this.all_comp
+											.put(entry.getKey()
+													.get_componentId(),
+													new Component());
+								}
+								this.all_comp.get(entry.getKey()
+										.get_componentId()).children.add(s
+										.getKey());
+							}
+						}
+
+						LOG.info("OUTPUTS: ");
+						for (Map.Entry<String, StreamInfo> entry : s.getValue()
+								.get_common().get_streams().entrySet()) {
+							LOG.info("{}--{}", entry.getKey(), entry.getValue()
+									.get_output_fields());
+							LOG.info("JSON: {}", s.getValue().get_common()
+									.get_json_conf().toString());
+							LOG.info("--{}", entry.getValue());
+						}
 					}
 				}
-				//bolt
+				// bolt
 				LOG.info("!!-BOLTs-!!");
-				for (Map.Entry<String, Bolt> s : storm_topo.get_bolts().entrySet()) {
-					LOG.info("Id: {}", s.getKey());
-					LOG.info("INPUTS");
-					for(Map.Entry<GlobalStreamId,Grouping> entry : s.getValue().get_common().get_inputs().entrySet()) {
-						/*
-						LOG.info("component id: {} stream id: {}, fields, {}", new Object[] {entry.getKey().get_componentId()
-						,entry.getKey().get_streamId() ,entry.getValue().get_fields()});
-						*/
-						LOG.info("component id: {} stream id: {}", new Object[] {entry.getKey().get_componentId()
-								,entry.getKey().get_streamId()});
-						LOG.info("grouping: {}", entry.getValue());
-					}
-					LOG.info("OUTPUTS: ");
-					for (Map.Entry<String, StreamInfo> entry : s.getValue().get_common().get_streams().entrySet()) {
-						LOG.info("{}--{}", entry.getKey(), entry.getValue().get_output_fields());
+				for (Map.Entry<String, Bolt> s : storm_topo.get_bolts()
+						.entrySet()) {
+					if (s.getKey().matches("(__).*") == false) {
+						Component newComp = null;
+						if (this.all_comp.containsKey(s.getKey())) {
+							newComp = this.all_comp.get(s.getKey());
+						} else {
+							newComp = new Component();
+						}
+						LOG.info("Id: {}", s.getKey());
+						LOG.info("INPUTS");
+						for (Map.Entry<GlobalStreamId, Grouping> entry : s
+								.getValue().get_common().get_inputs()
+								.entrySet()) {
+							if (entry.getKey().get_componentId()
+									.matches("(__).*") == false) {
+								LOG.info("component id: {} stream id: {}",
+										new Object[] {
+												entry.getKey()
+														.get_componentId(),
+												entry.getKey().get_streamId() });
+								LOG.info("grouping: {}", entry.getValue());
+								newComp.parents.add(entry.getKey()
+										.get_componentId());
+								if (this.all_comp.containsKey(entry.getKey()
+										.get_componentId()) == false) {
+									this.all_comp
+											.put(entry.getKey()
+													.get_componentId(),
+													new Component());
+								}
+								this.all_comp.get(entry.getKey()
+										.get_componentId()).children.add(s
+										.getKey());
+							}
+						}
+						LOG.info("OUTPUTS: ");
+						for (Map.Entry<String, StreamInfo> entry : s.getValue()
+								.get_common().get_streams().entrySet()) {
+							LOG.info("{}--{}", entry.getKey(), entry.getValue()
+									.get_output_fields());
+							LOG.info("JSON: {}", s.getValue().get_common()
+									.get_json_conf().toString());
+							LOG.info("--{}", entry.getValue());
+						}
 					}
 				}
 			}

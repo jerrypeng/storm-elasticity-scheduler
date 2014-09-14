@@ -33,6 +33,7 @@ public class ElasticityScheduler implements IScheduler {
 		GetTopologyInfo gt = GetTopologyInfo.getInstance();
 		gs.getStatistics();
 		gt.getTopologyInfo();
+		LOG.info("Topology layout: {}", gt.all_comp);
 		
 
 		for (TopologyDetails topo : topologies.getTopologies()) {
