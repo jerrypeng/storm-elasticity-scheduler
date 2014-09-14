@@ -41,7 +41,7 @@ public class GetTopologyInfo {
 			this.children = new ArrayList<String>();
 		}
 		@Override public String toString() {
-			String retVal = this.parents.toString()+"\n"+this.children.toString();
+			String retVal = "Parents: "+this.parents.toString()+" Children: "+this.children.toString();
 			return retVal;
 		}
 	}
