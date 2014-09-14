@@ -40,6 +40,10 @@ public class GetTopologyInfo {
 			this.parents = new ArrayList<String>();
 			this.children = new ArrayList<String>();
 		}
+		@Override public String toString() {
+			String retVal = this.parents.toString()+"\n"+this.children.toString();
+			return retVal;
+		}
 	}
 
 	protected GetTopologyInfo() {
@@ -81,9 +85,9 @@ public class GetTopologyInfo {
 							newComp = this.all_comp.get(s.getKey());
 						} else {
 							newComp = new Component();
+							this.all_comp.put(s.getKey(), newComp);
 						}
-
-						this.all_comp.put(s.getKey(), newComp);
+						
 						LOG.info("Id: {}", s.getKey());
 						LOG.info("INPUTS");
 						for (Map.Entry<GlobalStreamId, Grouping> entry : s
@@ -135,6 +139,7 @@ public class GetTopologyInfo {
 							newComp = this.all_comp.get(s.getKey());
 						} else {
 							newComp = new Component();
+							this.all_comp.put(s.getKey(), newComp);
 						}
 						LOG.info("Id: {}", s.getKey());
 						LOG.info("INPUTS");
