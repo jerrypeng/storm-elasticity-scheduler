@@ -30,7 +30,7 @@ public class ElasticityScheduler implements IScheduler {
 		LOG.info("\n\n\nRerunning scheduling...");
 
 		GetStats gs = GetStats.getInstance();
-		GetTopologyInfo gt = GetTopologyInfo.getInstance();
+		GetTopologyInfo gt = new GetTopologyInfo();
 		gs.getStatistics();
 		gt.getTopologyInfo();
 		LOG.info("Topology layout: {}", gt.all_comp);

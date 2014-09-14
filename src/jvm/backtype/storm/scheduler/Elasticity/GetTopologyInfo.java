@@ -25,7 +25,7 @@ import backtype.storm.generated.TopologySummary;
 
 public class GetTopologyInfo {
 
-	private static GetTopologyInfo instance = null;
+	//private static GetTopologyInfo instance = null;
 	private HashMap<String, Component> bolts = null;
 	private HashMap<String, Component> spouts = null;
 	public HashMap<String, Component> all_comp = null;
@@ -46,19 +46,20 @@ public class GetTopologyInfo {
 		}
 	}
 
-	protected GetTopologyInfo() {
+	public GetTopologyInfo() {
 		this.bolts = new HashMap<String, Component>();
 		this.spouts = new HashMap<String, Component>();
 		this.all_comp = new HashMap<String, Component>();
 	}
 
+	/*
 	public static GetTopologyInfo getInstance() {
 		if (instance == null) {
 			instance = new GetTopologyInfo();
 		}
 		return instance;
 	}
-
+*/
 	public void getTopologyInfo() {
 		LOG.info("Getting Topology info...");
 
