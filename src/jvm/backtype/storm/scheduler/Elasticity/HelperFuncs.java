@@ -13,12 +13,12 @@ public class HelperFuncs {
 		HashMap<String, ArrayList<ExecutorDetails>> retMap = new HashMap<String, ArrayList<ExecutorDetails>>();
 		if(cluster.getAssignmentById(topoId)!=null && cluster.getAssignmentById(topoId).getExecutorToSlot()!=null) {
 			for(Map.Entry<ExecutorDetails, WorkerSlot> entry : cluster.getAssignmentById(topoId).getExecutorToSlot().entrySet()) {
-				String nodeId = entry.getValue().getNodeId();
+				String nodeId = cluster.getHost(entry.getValue().getNodeId());
 				if(retMap.containsKey(nodeId)==false) {
 					
-					retMap.put(cluster.getHost(nodeId), new ArrayList<ExecutorDetails>());
+					retMap.put(nodeId, new ArrayList<ExecutorDetails>());
 				}
-				retMap.get(cluster.getHost(nodeId)).add(entry.getKey());
+				retMap.get(nodeId).add(entry.getKey());
 			}
 		}
 		
