@@ -19,6 +19,7 @@ public class HelperFuncs {
 			}
 			retMap.get(nodeId).add(entry.getKey());
 		}
+		return retMap;
 		
 	}
 
