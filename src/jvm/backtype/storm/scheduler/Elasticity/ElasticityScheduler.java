@@ -41,6 +41,9 @@ public class ElasticityScheduler implements IScheduler {
 		gs.getStatistics();
 		gt.getTopologyInfo();
 		LOG.info("Topology layout: {}", gt.all_comp);
+		
+		String comp = Strategies.centralityStrategy(gt.all_comp);
+		LOG.info("Best Comp: {}", comp);
 
 		LOG.info("running EvenScheduler now...");
 		new EvenScheduler().schedule(topologies, cluster);
