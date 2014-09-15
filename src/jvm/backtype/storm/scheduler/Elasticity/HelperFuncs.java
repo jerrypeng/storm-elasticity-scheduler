@@ -15,7 +15,8 @@ public class HelperFuncs {
 			for(Map.Entry<ExecutorDetails, WorkerSlot> entry : cluster.getAssignmentById(topoId).getExecutorToSlot().entrySet()) {
 				String nodeId = entry.getValue().getNodeId();
 				if(retMap.containsKey(nodeId)==false) {
-					retMap.put(nodeId, new ArrayList<ExecutorDetails>());
+					
+					retMap.put(cluster.getHost(nodeId), new ArrayList<ExecutorDetails>());
 				}
 				retMap.get(nodeId).add(entry.getKey());
 			}
@@ -24,5 +25,4 @@ public class HelperFuncs {
 		return retMap;
 		
 	}
-
 }
