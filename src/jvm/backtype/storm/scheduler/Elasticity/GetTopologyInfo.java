@@ -67,7 +67,6 @@ public class GetTopologyInfo {
 		TFramedTransport tTransport = new TFramedTransport(tsocket);
 		TBinaryProtocol tBinaryProtocol = new TBinaryProtocol(tTransport);
 		Nimbus.Client client = new Nimbus.Client(tBinaryProtocol);
-
 		try {
 			tTransport.open();
 
@@ -118,7 +117,7 @@ public class GetTopologyInfo {
 										.getKey());
 							}
 						}
-
+						/*
 						LOG.info("OUTPUTS: ");
 						for (Map.Entry<String, StreamInfo> entry : s.getValue()
 								.get_common().get_streams().entrySet()) {
@@ -128,6 +127,7 @@ public class GetTopologyInfo {
 									.get_json_conf().toString());
 							LOG.info("--{}", entry.getValue());
 						}
+						*/
 					}
 				}
 				// bolt
@@ -169,6 +169,7 @@ public class GetTopologyInfo {
 										.getKey());
 							}
 						}
+						/*
 						LOG.info("OUTPUTS: ");
 						for (Map.Entry<String, StreamInfo> entry : s.getValue()
 								.get_common().get_streams().entrySet()) {
@@ -178,6 +179,7 @@ public class GetTopologyInfo {
 									.get_json_conf().toString());
 							LOG.info("--{}", entry.getValue());
 						}
+						*/
 					}
 				}
 			}

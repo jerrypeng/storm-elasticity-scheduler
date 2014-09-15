@@ -41,11 +41,9 @@ public class ElasticityScheduler implements IScheduler {
 			for (Map.Entry<ExecutorDetails, String> k : cluster.getNeedsSchedulingExecutorToComponents(topo).entrySet()) {
 				LOG.info("{} -> {}", k.getKey(), k.getValue());
 			}
+			LOG.info("Current Assignment: {}", HelperFuncs.nodeToTask(cluster, topo.getId()));
 		}
-		LOG.info("Current Assignment: ");
-		for (Map.Entry<String, SchedulerAssignment> k : cluster.getAssignments().entrySet()) {
-			LOG.info("{} -> {}", k.getKey(), k.getValue().getExecutors());
-		}
+		
 
 		LOG.info("running EvenScheduler now...");
 		new EvenScheduler().schedule(topologies, cluster);
