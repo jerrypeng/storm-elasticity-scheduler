@@ -11,7 +11,7 @@ import backtype.storm.scheduler.WorkerSlot;
 public class HelperFuncs {
 	static HashMap<String, ArrayList<ExecutorDetails>> nodeToTask(Cluster cluster, String topoId) {
 		HashMap<String, ArrayList<ExecutorDetails>> retMap = new HashMap<String, ArrayList<ExecutorDetails>>();
-		if(cluster.getAssignmentById(topoId).getExecutorToSlot()!=null) {
+		if(cluster.getAssignmentById(topoId)!=null && cluster.getAssignmentById(topoId).getExecutorToSlot()!=null) {
 			for(Map.Entry<ExecutorDetails, WorkerSlot> entry : cluster.getAssignmentById(topoId).getExecutorToSlot().entrySet()) {
 				String nodeId = entry.getValue().getNodeId();
 				if(retMap.containsKey(nodeId)==false) {
