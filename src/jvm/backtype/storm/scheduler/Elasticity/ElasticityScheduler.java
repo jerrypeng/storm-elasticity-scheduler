@@ -28,22 +28,19 @@ public class ElasticityScheduler implements IScheduler {
 	@Override
 	public void schedule(Topologies topologies, Cluster cluster) {
 		LOG.info("\n\n\nRerunning scheduling...");
-
+		for (TopologyDetails topo : topologies.getTopologies()) {
+			LOG.info("ID: {} NAME: {}", topo.getId(), topo.getName());
+			LOG.info("Unassigned Executors for {}: ", topo.getName());
+			for (Map.Entry<ExecutorDetails, String> k : cluster.getNeedsSchedulingExecutorToComponents(topo).entrySet()) {
+				LOG.info("{} -> {}", k.getKey(), k.getValue());
+			}
+			LOG.info("Current Assignment: {}", HelperFuncs.nodeToTask(cluster, topo.getName()));
+		}
 		GetStats gs = GetStats.getInstance();
 		GetTopologyInfo gt = new GetTopologyInfo();
 		gs.getStatistics();
 		gt.getTopologyInfo();
 		LOG.info("Topology layout: {}", gt.all_comp);
-		
-
-		for (TopologyDetails topo : topologies.getTopologies()) {
-			LOG.info("Unassigned Executors for {}: ", topo.getName());
-			for (Map.Entry<ExecutorDetails, String> k : cluster.getNeedsSchedulingExecutorToComponents(topo).entrySet()) {
-				LOG.info("{} -> {}", k.getKey(), k.getValue());
-			}
-			LOG.info("Current Assignment: {}", HelperFuncs.nodeToTask(cluster, topo.getId()));
-		}
-		
 
 		LOG.info("running EvenScheduler now...");
 		new EvenScheduler().schedule(topologies, cluster);

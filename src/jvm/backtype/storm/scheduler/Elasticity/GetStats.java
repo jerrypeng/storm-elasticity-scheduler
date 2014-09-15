@@ -54,7 +54,6 @@ public class GetStats {
 			tTransport.open();
 			ClusterSummary clusterSummary = client.getClusterInfo();
 			List<TopologySummary> topologies = clusterSummary.get_topologies();
-			LOG.info("number of topologies: {}", topologies.size());
 			for (TopologySummary topo : topologies) {
 				if(this.startTimes.containsKey(topo.get_id()) == false) {
 					this.startTimes.put(topo.get_id(), (System.currentTimeMillis() / 1000));
