@@ -18,7 +18,7 @@ public class HelperFuncs {
 					
 					retMap.put(cluster.getHost(nodeId), new ArrayList<ExecutorDetails>());
 				}
-				retMap.get(nodeId).add(entry.getKey());
+				retMap.get(cluster.getHost(nodeId)).add(entry.getKey());
 			}
 		}
 		
