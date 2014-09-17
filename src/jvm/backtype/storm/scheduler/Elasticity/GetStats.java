@@ -13,7 +13,6 @@ import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.transport.TFramedTransport;
 import org.apache.thrift.transport.TSocket;
-import org.fest.util.Files;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,9 +20,7 @@ import backtype.storm.generated.ClusterSummary;
 import backtype.storm.generated.ExecutorStats;
 import backtype.storm.generated.ExecutorSummary;
 import backtype.storm.generated.Nimbus;
-import backtype.storm.generated.Nimbus.Client;
 import backtype.storm.generated.StormTopology;
-import backtype.storm.generated.SupervisorSummary;
 import backtype.storm.generated.TopologyInfo;
 import backtype.storm.generated.TopologySummary;
 
