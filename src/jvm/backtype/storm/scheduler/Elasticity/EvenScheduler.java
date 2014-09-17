@@ -7,16 +7,12 @@ import org.slf4j.LoggerFactory;
 
 import backtype.storm.scheduler.Cluster;
 import backtype.storm.scheduler.ExecutorDetails;
-import backtype.storm.scheduler.IScheduler;
-import backtype.storm.scheduler.SchedulerAssignment;
 import backtype.storm.scheduler.Topologies;
-import backtype.storm.scheduler.EvenScheduler;
 import backtype.storm.scheduler.TopologyDetails;
 
-
-public class ElasticityScheduler implements IScheduler {
+public class EvenScheduler {
 	private static final Logger LOG = LoggerFactory
-			.getLogger(ElasticityScheduler.class);
+			.getLogger(EvenScheduler.class);
 	@SuppressWarnings("rawtypes")
 	private Map _conf;
 
@@ -31,14 +27,11 @@ public class ElasticityScheduler implements IScheduler {
 		for (TopologyDetails topo : topologies.getTopologies()) {
 			LOG.info("ID: {} NAME: {}", topo.getId(), topo.getName());
 			LOG.info("Unassigned Executors for {}: ", topo.getName());
-			for (Map.Entry<ExecutorDetails, String> k : cluster.getNeedsSchedulingExecutorToComponents(topo).entrySet()) {
-				LOG.info("{} -> {}", k.getKey(), k.getValue());
-			}
 			LOG.info("Current Assignment: {}", HelperFuncs.nodeToTask(cluster, topo.getId()));
 		}
 		GetStats gs = GetStats.getInstance();
 		GetTopologyInfo gt = new GetTopologyInfo();
-		gs.getStatistics("ElasticityScheduler");
+		gs.getStatistics("EvenScheduler");
 		gt.getTopologyInfo();
 		LOG.info("Topology layout: {}", gt.all_comp);
 		

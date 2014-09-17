@@ -72,11 +72,11 @@ public class GetTopologyInfo {
 
 			ClusterSummary clusterSummary = client.getClusterInfo();
 			List<TopologySummary> topologies = clusterSummary.get_topologies();
-			LOG.info("number of topologies: {}", topologies.size());
+			//LOG.info("number of topologies: {}", topologies.size());
 			for (TopologySummary topo : topologies) {
 				StormTopology storm_topo = client.getTopology(topo.get_id());
 				// spouts
-				LOG.info("!!-SPOUTs-!!");
+				//LOG.info("!!-SPOUTs-!!");
 				for (Map.Entry<String, SpoutSpec> s : storm_topo.get_spouts()
 						.entrySet()) {
 					if (s.getKey().matches("(__).*") == false) {
@@ -88,20 +88,22 @@ public class GetTopologyInfo {
 							this.all_comp.put(s.getKey(), newComp);
 						}
 						
-						LOG.info("Id: {}", s.getKey());
-						LOG.info("INPUTS");
+						//LOG.info("Id: {}", s.getKey());
+						//LOG.info("INPUTS");
 						for (Map.Entry<GlobalStreamId, Grouping> entry : s
 								.getValue().get_common().get_inputs()
 								.entrySet()) {
 
 							if (entry.getKey().get_componentId()
 									.matches("(__).*") == false) {
+								/*
 								LOG.info("component id: {} stream id: {}",
 										new Object[] {
 												entry.getKey()
 														.get_componentId(),
 												entry.getKey().get_streamId() });
-								LOG.info("grouping: {}", entry.getValue());
+												*/
+								//LOG.info("grouping: {}", entry.getValue());
 
 								newComp.parents.add(entry.getKey()
 										.get_componentId());
@@ -131,7 +133,7 @@ public class GetTopologyInfo {
 					}
 				}
 				// bolt
-				LOG.info("!!-BOLTs-!!");
+				//LOG.info("!!-BOLTs-!!");
 				for (Map.Entry<String, Bolt> s : storm_topo.get_bolts()
 						.entrySet()) {
 					if (s.getKey().matches("(__).*") == false) {
@@ -142,19 +144,21 @@ public class GetTopologyInfo {
 							newComp = new Component();
 							this.all_comp.put(s.getKey(), newComp);
 						}
-						LOG.info("Id: {}", s.getKey());
-						LOG.info("INPUTS");
+						//LOG.info("Id: {}", s.getKey());
+						//LOG.info("INPUTS");
 						for (Map.Entry<GlobalStreamId, Grouping> entry : s
 								.getValue().get_common().get_inputs()
 								.entrySet()) {
 							if (entry.getKey().get_componentId()
 									.matches("(__).*") == false) {
+								/*
 								LOG.info("component id: {} stream id: {}",
 										new Object[] {
 												entry.getKey()
 														.get_componentId(),
 												entry.getKey().get_streamId() });
-								LOG.info("grouping: {}", entry.getValue());
+												*/
+								//LOG.info("grouping: {}", entry.getValue());
 								newComp.parents.add(entry.getKey()
 										.get_componentId());
 								if (this.all_comp.containsKey(entry.getKey()

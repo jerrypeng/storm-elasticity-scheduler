@@ -42,7 +42,7 @@ public class GetStats {
 		return instance;
 	}
 
-	public void getStatistics() {
+	public void getStatistics(String filename) {
 		LOG.info("Getting stats...");
 		
 		TSocket tsocket = new TSocket("localhost", 6627);
@@ -116,7 +116,7 @@ public class GetStats {
 								+ throughput
 								+ "\n";
 						
-						 String filePath = "/tmp/scheduler_output"; try {
+						 String filePath = "/tmp/"+filename; try {
 						 LOG.info("writting to file..."); File file = new
 						 File(filePath); FileWriter fileWritter = new
 						 FileWriter(file,true); BufferedWriter bufferWritter =
