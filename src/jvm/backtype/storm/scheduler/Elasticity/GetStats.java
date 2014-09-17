@@ -29,10 +29,13 @@ public class GetStats {
 	private static final Logger LOG = LoggerFactory.getLogger(GetStats.class);
 	public HashMap<String, Integer> statsTable;
 	public HashMap<String, Long> startTimes;
+	public HashMap<String, Integer> node_stats;
 
 	protected GetStats() {
 		statsTable = new HashMap<String, Integer>();
 		startTimes = new HashMap<String, Long>();
+		node_stats = new HashMap<String, Integer> ();
+		
 	}
 
 	public static GetStats getInstance() {
@@ -72,14 +75,11 @@ public class GetStats {
 
 					ExecutorStats executorStats = executorSummary.get_stats();
 					if (executorStats == null) {
-						//System.out.println("NULL");
 						continue;
 					}
 					String host = executorSummary.get_host();
 					int port = executorSummary.get_port();
 					String componentId = executorSummary.get_component_id();
-
-					// System.out.println("task_id: "+Integer.toString(executorSummary.getExecutor_info().getTask_start()));
 
 					String taskId = Integer.toString(executorSummary
 							.get_executor_info().get_task_start());
@@ -103,12 +103,13 @@ public class GetStats {
 								.get(":all-time").get("default")+","+this.statsTable.get(hash_id)+","+throughput));
 						
 						this.statsTable.put(hash_id, totalOutput);
-						/*
-						 * for (SupervisorSummary sup :
-						 * clusterSummary.get_supervisors()) {
-						 * LOG.info("SUP: {} availResources: {}",
-						 * sup.get_host(), sup.get_total_resources()); }
-						 */
+						
+						//get node stats
+						if(this.node_stats.containsKey(host) == false) {
+							this.node_stats.put(host, 0);
+						}
+						this.node_stats.put(host, this.node_stats.get(host) + throughput);
+
 						long unixTime = (System.currentTimeMillis() / 1000) - this.startTimes.get(topo.get_id());
 						String data = String.valueOf(unixTime) + ':' + host
 								+ ':' + port + ':' + componentId + ":"
@@ -117,7 +118,7 @@ public class GetStats {
 								+ "\n";
 						
 						 String filePath = "/tmp/"+filename; try {
-						 LOG.info("writting to file..."); File file = new
+						 //LOG.info("writting to file..."); File file = new
 						 File(filePath); FileWriter fileWritter = new
 						 FileWriter(file,true); BufferedWriter bufferWritter =
 						 new BufferedWriter(fileWritter);
@@ -127,6 +128,7 @@ public class GetStats {
 						 
 					}
 				}
+				LOG.info("OVERALL THROUGHPUT: {}", this.node_stats);
 			}
 		} catch (TException e) {
 			e.printStackTrace();
