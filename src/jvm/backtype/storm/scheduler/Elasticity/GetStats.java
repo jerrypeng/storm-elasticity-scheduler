@@ -137,6 +137,7 @@ public class GetStats {
 					}
 				}
 				LOG.info("OVERALL THROUGHPUT: {}", this.node_stats);
+				this.node_stats.clear();
 			}
 		} catch (TException e) {
 			e.printStackTrace();
