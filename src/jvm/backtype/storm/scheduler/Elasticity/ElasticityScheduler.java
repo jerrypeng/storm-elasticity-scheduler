@@ -27,7 +27,7 @@ public class ElasticityScheduler implements IScheduler {
 
 	@Override
 	public void schedule(Topologies topologies, Cluster cluster) {
-		LOG.info("\n\n\nRerunning scheduling...");
+		LOG.info("\n\n\nRerunning ElasticityScheduler...");
 		for (TopologyDetails topo : topologies.getTopologies()) {
 			LOG.info("ID: {} NAME: {}", topo.getId(), topo.getName());
 			LOG.info("Unassigned Executors for {}: ", topo.getName());

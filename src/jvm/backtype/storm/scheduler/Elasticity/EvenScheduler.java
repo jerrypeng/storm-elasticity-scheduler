@@ -7,10 +7,11 @@ import org.slf4j.LoggerFactory;
 
 import backtype.storm.scheduler.Cluster;
 import backtype.storm.scheduler.ExecutorDetails;
+import backtype.storm.scheduler.IScheduler;
 import backtype.storm.scheduler.Topologies;
 import backtype.storm.scheduler.TopologyDetails;
 
-public class EvenScheduler {
+public class EvenScheduler implements IScheduler{
 	private static final Logger LOG = LoggerFactory
 			.getLogger(EvenScheduler.class);
 	@SuppressWarnings("rawtypes")
@@ -23,7 +24,7 @@ public class EvenScheduler {
 
 	@Override
 	public void schedule(Topologies topologies, Cluster cluster) {
-		LOG.info("\n\n\nRerunning scheduling...");
+		LOG.info("\n\n\nRerunning EvenScheduler...");
 		for (TopologyDetails topo : topologies.getTopologies()) {
 			LOG.info("ID: {} NAME: {}", topo.getId(), topo.getName());
 			LOG.info("Unassigned Executors for {}: ", topo.getName());
