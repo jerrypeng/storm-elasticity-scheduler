@@ -40,6 +40,6 @@ public class EvenScheduler implements IScheduler{
 		LOG.info("Best Comp: {}", comp);
 
 		LOG.info("running EvenScheduler now...");
-		new EvenScheduler().schedule(topologies, cluster);
+		new backtype.storm.scheduler.EvenScheduler().schedule(topologies, cluster);
 	}
 }
