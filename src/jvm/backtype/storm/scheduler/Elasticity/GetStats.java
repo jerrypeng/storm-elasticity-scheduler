@@ -58,6 +58,8 @@ public class GetStats {
 		
 		public ComponentStats(String id) {
 			this.componentId = id;
+			this.total_emit_throughput = 0;
+			this.total_transfer_throughput = 0;
 		}
 		
 	}
