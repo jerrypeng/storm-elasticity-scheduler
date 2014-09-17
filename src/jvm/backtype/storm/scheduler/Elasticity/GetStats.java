@@ -45,6 +45,8 @@ public class GetStats {
 			this.spouts_on_node_throughput = new HashMap<String, Integer>();
 			this.spouts_on_node_throughput.put("transfer", 0);
 			this.spouts_on_node_throughput.put("emit", 0);
+			this.emit_throughput = 0;
+			this.transfer_throughput=0;
 			
 		}
 	}
