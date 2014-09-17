@@ -107,9 +107,9 @@ public class GetStats {
 						this.parallelism_hint.put(componentId, stormTopo.get_bolts().get(componentId).get_common().get_parallelism_hint());
 					} else if (stormTopo.get_spouts().containsKey(componentId) == true) {
 						this.location_stats.get(host).get("spouts").add(executorSummary);
-						this.parallelism_hint.put(componentId, stormTopo.get_bolts().get(componentId).get_common().get_parallelism_hint());
+						this.parallelism_hint.put(componentId, stormTopo.get_spouts().get(componentId).get_common().get_parallelism_hint());
 					} else {
-						LOG.info("ERROR: type of componenet not determined!");
+						LOG.info("ERROR: type of component not determined!");
 					}
 					
 					String taskId = Integer.toString(executorSummary
