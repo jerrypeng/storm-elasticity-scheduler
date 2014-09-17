@@ -36,9 +36,6 @@ public class EvenScheduler implements IScheduler{
 		gt.getTopologyInfo();
 		LOG.info("Topology layout: {}", gt.all_comp);
 		
-		String comp = Strategies.centralityStrategy(gt.all_comp);
-		LOG.info("Best Comp: {}", comp);
-
 		LOG.info("running EvenScheduler now...");
 		new backtype.storm.scheduler.EvenScheduler().schedule(topologies, cluster);
 	}
