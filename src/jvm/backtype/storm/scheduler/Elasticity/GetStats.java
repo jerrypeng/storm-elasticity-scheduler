@@ -4,6 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import backtype.storm.generated.ExecutorStats;
 import backtype.storm.generated.ExecutorSummary;
 import backtype.storm.generated.Nimbus;
 import backtype.storm.generated.Nimbus.Client;
+import backtype.storm.generated.StormTopology;
 import backtype.storm.generated.SupervisorSummary;
 import backtype.storm.generated.TopologyInfo;
 import backtype.storm.generated.TopologySummary;
@@ -30,11 +32,19 @@ public class GetStats {
 	public HashMap<String, Integer> statsTable;
 	public HashMap<String, Long> startTimes;
 	public HashMap<String, Integer> node_stats;
+	public HashMap<String, HashMap<String, ArrayList<ExecutorSummary>>> location_stats;
+	public HashMap<String, Integer> indv_component_stats;
+	public HashMap<String, HashMap<String, Integer>> node_component_stats;
+	public HashMap<String, Integer> parallelism_hint;
 
 	protected GetStats() {
 		statsTable = new HashMap<String, Integer>();
 		startTimes = new HashMap<String, Long>();
 		node_stats = new HashMap<String, Integer>();
+		location_stats = new HashMap<String, HashMap<String, ArrayList<ExecutorSummary>>>();
+		indv_component_stats = new HashMap<String, Integer>();
+		node_component_stats = new HashMap<String, HashMap<String, Integer>>();
+		parallelism_hint = new HashMap<String, Integer> ();
 
 	}
 
@@ -63,8 +73,10 @@ public class GetStats {
 							(System.currentTimeMillis() / 1000));
 				}
 				TopologyInfo topologyInfo = null;
+				StormTopology stormTopo = null;
 				try {
 					topologyInfo = client.getTopologyInfo(topo.get_id());
+					stormTopo = client.getTopology(topo.get_id());
 				} catch (Exception e) {
 					LOG.info(e.toString());
 					continue;
@@ -81,13 +93,32 @@ public class GetStats {
 					String host = executorSummary.get_host();
 					int port = executorSummary.get_port();
 					String componentId = executorSummary.get_component_id();
+					if(this.location_stats.containsKey(host) == false) {
+						this.location_stats.put(host, new HashMap<String, ArrayList<ExecutorSummary>>());
+						this.location_stats.get(host).put("bolts", new ArrayList<ExecutorSummary>());
+						this.location_stats.get(host).put("spouts", new ArrayList<ExecutorSummary>());
+						this.node_component_stats.put(host, new HashMap<String, Integer>());
+						this.node_component_stats.get(host).put("bolts", 0);
+						this.node_component_stats.get(host).put("spouts", 0);
+					}
 
+					if (stormTopo.get_bolts().containsKey(componentId) == true){
+						this.location_stats.get(host).get("bolts").add(executorSummary);
+						this.parallelism_hint.put(componentId, stormTopo.get_bolts().get(componentId).get_common().get_parallelism_hint());
+					} else if (stormTopo.get_spouts().containsKey(componentId) == true) {
+						this.location_stats.get(host).get("spouts").add(executorSummary);
+						this.parallelism_hint.put(componentId, stormTopo.get_bolts().get(componentId).get_common().get_parallelism_hint());
+					} else {
+						LOG.info("ERROR: type of componenet not determined!");
+					}
+					
 					String taskId = Integer.toString(executorSummary
 							.get_executor_info().get_task_start());
 
 					Map<String, Map<String, Long>> transfer = executorStats
 							.get_transferred();
-
+					
+					
 					if (transfer.get(":all-time").get("default") != null) {
 						String hash_id = host + ':' + port + ':' + componentId
 								+ ":" + topo.get_id() + ":" + taskId;
@@ -104,7 +135,9 @@ public class GetStats {
 								+ topo.get_id() + ":" + taskId + ","
 								+ transfer.get(":all-time").get("default")
 								+ "," + this.statsTable.get(hash_id) + "," + throughput));
+						LOG.info("-->transfered: {}\n -->emmitted: {}", executorStats.get_transferred(), executorStats.get_emitted());
 
+						
 						this.statsTable.put(hash_id, totalOutput);
 
 						// get node stats
@@ -114,6 +147,22 @@ public class GetStats {
 						this.node_stats.put(host, this.node_stats.get(host)
 								+ throughput);
 
+						//get node component stats
+						if (stormTopo.get_bolts().containsKey(componentId) == true){
+							this.node_component_stats.get(host).put("bolts", this.node_component_stats.get(host).get("bolts")+throughput);
+						} else if (stormTopo.get_spouts().containsKey(componentId) == true) {
+							this.node_component_stats.get(host).put("spouts", this.node_component_stats.get(host).get("spouts")+throughput);
+						}
+						
+						//get individual component stats
+						if(this.indv_component_stats.containsKey(componentId)==false) {
+							this.indv_component_stats.put(componentId, 0);
+						}
+						this.indv_component_stats.put(componentId, this.indv_component_stats.get(componentId) + throughput);
+						
+						
+						
+						//write to file
 						long unixTime = (System.currentTimeMillis() / 1000)
 								- this.startTimes.get(topo.get_id());
 						String data = String.valueOf(unixTime) + ':' + host
@@ -136,8 +185,21 @@ public class GetStats {
 						}
 					}
 				}
+				LOG.info("!!!- GENERAL STATISTICS -!!!");
 				LOG.info("OVERALL THROUGHPUT: {}", this.node_stats);
 				this.node_stats.clear();
+				LOG.info("NODE STATS:");
+				for(Map.Entry<String, HashMap<String, ArrayList<ExecutorSummary>>> entry : this.location_stats.entrySet()) {
+					LOG.info("{}:", entry.getKey());
+					LOG.info("# of Spouts: {}    # of Bolts: {}", entry.getValue().get("spouts").size(), entry.getValue().get("bolts").size());
+					LOG.info("total Spout throughput: {}    total Bolt throughput: {}", this.node_component_stats.get(entry.getKey()).get("spouts"), this.node_component_stats.get(entry.getKey()).get("bolts"));
+					LOG.info("Spouts: {}\nBolts: {}",  entry.getValue().get("spouts"), entry.getValue().get("bolts"));
+				}
+				LOG.info("COMPONENT STATS:");
+				for(Map.Entry<String, Integer> entry: this.indv_component_stats.entrySet()) {
+					LOG.info("Component: {} avg throughput: {}", entry.getKey(), entry.getValue() / this.parallelism_hint.get(entry.getKey()));
+					
+				}
 			}
 		} catch (TException e) {
 			e.printStackTrace();
