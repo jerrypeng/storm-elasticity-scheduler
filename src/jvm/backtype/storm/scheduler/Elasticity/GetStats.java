@@ -13,6 +13,7 @@ import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.transport.TFramedTransport;
 import org.apache.thrift.transport.TSocket;
+import org.fest.util.Files;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,8 +37,12 @@ public class GetStats {
 	public HashMap<String, Integer> indv_component_stats;
 	public HashMap<String, HashMap<String, Integer>> node_component_stats;
 	public HashMap<String, Integer> parallelism_hint;
+	private File complete_log;
+	private File avg_log;
+	
+	private static String LOG_PATH="/tmp/";
 
-	protected GetStats() {
+	protected GetStats(String filename) {
 		statsTable = new HashMap<String, Integer>();
 		startTimes = new HashMap<String, Long>();
 		node_stats = new HashMap<String, Integer>();
@@ -45,17 +50,30 @@ public class GetStats {
 		indv_component_stats = new HashMap<String, Integer>();
 		node_component_stats = new HashMap<String, HashMap<String, Integer>>();
 		parallelism_hint = new HashMap<String, Integer> ();
+		
+		//delete old files
+		try {
+			complete_log = new File(LOG_PATH+filename+"_complete");
+			avg_log = new File(LOG_PATH+filename+"_complete");
+			
+			complete_log.delete();
+			avg_log.delete();
+		}catch(Exception e){
+			 
+    		e.printStackTrace();
+ 
+    	}
 
 	}
 
-	public static GetStats getInstance() {
+	public static GetStats getInstance(String filename) {
 		if (instance == null) {
-			instance = new GetStats();
+			instance = new GetStats(filename);
 		}
 		return instance;
 	}
 
-	public void getStatistics(String filename) {
+	public void getStatistics() {
 		LOG.info("Getting stats...");
 
 		TSocket tsocket = new TSocket("localhost", 6627);
@@ -170,11 +188,10 @@ public class GetStats {
 								+ topo.get_id() + ":" + taskId + ","
 								+ throughput + "\n";
 
-						String filePath = "/tmp/" + filename;
 						try {
 							// LOG.info("writting to file...");
-							File file = new File(filePath);
-							FileWriter fileWritter = new FileWriter(file, true);
+							
+							FileWriter fileWritter = new FileWriter(this.complete_log, true);
 							BufferedWriter bufferWritter = new BufferedWriter(
 									fileWritter);
 							bufferWritter.append(data);

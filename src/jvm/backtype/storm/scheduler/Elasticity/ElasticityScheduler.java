@@ -36,9 +36,9 @@ public class ElasticityScheduler implements IScheduler {
 			}
 			LOG.info("Current Assignment: {}", HelperFuncs.nodeToTask(cluster, topo.getId()));
 		}
-		GetStats gs = GetStats.getInstance();
+		GetStats gs = GetStats.getInstance("ElasticityScheduler");
 		GetTopologyInfo gt = new GetTopologyInfo();
-		gs.getStatistics("ElasticityScheduler");
+		gs.getStatistics();
 		gt.getTopologyInfo();
 		LOG.info("Topology layout: {}", gt.all_comp);
 		
@@ -46,6 +46,6 @@ public class ElasticityScheduler implements IScheduler {
 		LOG.info("Best Comp: {}", comp);
 
 		LOG.info("running EvenScheduler now...");
-		new EvenScheduler().schedule(topologies, cluster);
+		new backtype.storm.scheduler.EvenScheduler().schedule(topologies, cluster);
 	}
 }

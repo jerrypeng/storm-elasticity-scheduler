@@ -30,9 +30,9 @@ public class EvenScheduler implements IScheduler{
 			LOG.info("Unassigned Executors for {}: ", topo.getName());
 			LOG.info("Current Assignment: {}", HelperFuncs.nodeToTask(cluster, topo.getId()));
 		}
-		GetStats gs = GetStats.getInstance();
+		GetStats gs = GetStats.getInstance("EvenScheduler");
 		GetTopologyInfo gt = new GetTopologyInfo();
-		gs.getStatistics("EvenScheduler");
+		gs.getStatistics();
 		gt.getTopologyInfo();
 		LOG.info("Topology layout: {}", gt.all_comp);
 		
