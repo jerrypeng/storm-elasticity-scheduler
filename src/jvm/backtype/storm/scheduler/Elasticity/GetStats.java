@@ -217,7 +217,7 @@ public class GetStats {
 							this.transferStatsTable.put(hash_id, totalTransferOutput);
 						}
 						if(this.emitStatsTable.containsKey(hash_id)==false) {
-							this.transferStatsTable.put(hash_id, totalEmitOutput);
+							this.emitStatsTable.put(hash_id, totalEmitOutput);
 						}
 						
 						//get throughput
