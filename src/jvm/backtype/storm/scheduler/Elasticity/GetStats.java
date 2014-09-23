@@ -258,6 +258,7 @@ public class GetStats {
 								+ transfer.get(":all-time").get("default")
 								+ "," + this.transferStatsTable.get(hash_id)
 								+ "," + transfer_throughput + ","
+								+ emit.get(":all-time").get("default")+","
 								+ this.emitStatsTable.get(hash_id) + "," + emit_throughput));
 						// LOG.info("-->transfered: {}\n -->emmitted: {}",
 						// executorStats.get_transferred(),
@@ -415,17 +416,21 @@ public class GetStats {
 							/ cs.getValue().parallelism_hint;
 					if (cs.getKey().matches(".*_output_.*")) {
 						LOG.info(
-								"Component: {}(output) avg throughput (transfer): {} (emit): {}",
-								new Object[] { cs.getKey(),
+								"Component: {}(output) total throughput (transfer): {} (emit): {} avg throughput (transfer): {} (emit): {}",
+								new Object[] { cs.getKey(), 
+										cs.getValue().total_transfer_throughput,
+										cs.getValue().total_emit_throughput,
 										avg_transfer_throughput,
 										avg_emit_throughput });
 						num_output_bolt++;
-						total_output_bolt_emit += avg_emit_throughput;
+						total_output_bolt_emit += cs.getValue().total_emit_throughput;
 						output_bolts += cs.getKey() + ",";
 					} else {
 						LOG.info(
-								"Component: {} avg throughput (transfer): {} (emit): {}",
-								new Object[] { cs.getKey(),
+								"Component: {} total throughput (transfer): {} (emit): {} avg throughput (transfer): {} (emit): {}",
+								new Object[] { cs.getKey(), 
+										cs.getValue().total_transfer_throughput,
+										cs.getValue().total_emit_throughput,
 										avg_transfer_throughput,
 										avg_emit_throughput });
 					}
