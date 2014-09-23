@@ -413,7 +413,7 @@ public class GetStats {
 							/ cs.getValue().parallelism_hint;
 					int avg_emit_throughput = cs.getValue().total_emit_throughput
 							/ cs.getValue().parallelism_hint;
-					if (cs.getKey().matches("_output_")) {
+					if (cs.getKey().matches(".*_output_.*")) {
 						LOG.info(
 								"Component: {}(output) avg throughput (transfer): {} (emit): {}",
 								new Object[] { cs.getKey(),
