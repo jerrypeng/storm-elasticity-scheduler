@@ -77,6 +77,7 @@ public class GetStats {
 	public HashMap<String, ComponentStats> componentStats;
 	private File complete_log;
 	private File avg_log;
+	private File output_bolt_log;
 	
 	private static String LOG_PATH="/tmp/";
 
@@ -96,9 +97,11 @@ public class GetStats {
 		try {
 			complete_log = new File(LOG_PATH+filename+"_complete");
 			avg_log = new File(LOG_PATH+filename+"_complete");
+			output_bolt_log = new File(LOG_PATH+filename+"output_bolt");
 			
 			complete_log.delete();
 			avg_log.delete();
+			output_bolt_log.delete();
 		}catch(Exception e){
 			 
     		e.printStackTrace();
@@ -320,7 +323,9 @@ public class GetStats {
 					LOG.info("# of Spouts: {}    # of Bolts: {}", ns.getValue().spouts_on_node.size(), ns.getValue().bolts_on_node.size());
 					LOG.info("total spout throughput (transfer):{} (emit):{}", ns.getValue().spouts_on_node_throughput.get("transfer"), ns.getValue().spouts_on_node_throughput.get("emit"));
 					LOG.info("total bolt throughput (transfer):{} (emit):{}", ns.getValue().bolts_on_node_throughput.get("transfer"), ns.getValue().bolts_on_node_throughput.get("emit"));
+					
 				}
+				
 				LOG.info("COMPONENT STATS:");
 				/*
 				for(Map.Entry<String, Integer> entry: this.indv_component_stats.entrySet()) {
@@ -328,11 +333,41 @@ public class GetStats {
 					
 				}
 				*/
+				int num_output_bolt = 0;
+				int total_output_bolt_emit=0;
+				String output_bolts="";
 				for(Map.Entry<String, ComponentStats> cs : this.componentStats.entrySet()) {
 					int avg_transfer_throughput = cs.getValue().total_transfer_throughput / cs.getValue().parallelism_hint;
 					int avg_emit_throughput = cs.getValue().total_emit_throughput / cs.getValue().parallelism_hint;
+					if(cs.getKey().matches("*_output_*")) {
+						LOG.info("Component: {}(output) avg throughput (transfer): {} (emit): {}",new Object[]{cs.getKey(), avg_transfer_throughput, avg_emit_throughput}); 
+						num_output_bolt++;
+						total_output_bolt_emit+=cs.getValue().total_emit_throughput;
+						output_bolts+=cs.getKey()+",";
+					} else {
+						LOG.info("Component: {} avg throughput (transfer): {} (emit): {}",new Object[]{cs.getKey(), avg_transfer_throughput, avg_emit_throughput}); 
+					}
+				}
+				
+				LOG.info("Output Bolts stats: ");
+				
+				long unixTime = (System.currentTimeMillis() / 1000)
+						- this.startTimes.get(topo.get_id());
+				String data = String.valueOf(unixTime) + ':' + output_bolts + ":"
+						+ topo.get_id() + ":"
+						+ total_output_bolt_emit/num_output_bolt + "\n";
+				LOG.info(data);
+				try {
+					// LOG.info("writting to file...");
 					
-					LOG.info("Component: {} avg throughput (transfer): {} (emit): {}",new Object[]{cs.getKey(), avg_transfer_throughput, avg_emit_throughput}); 
+					FileWriter fileWritter = new FileWriter(this.output_bolt_log, true);
+					BufferedWriter bufferWritter = new BufferedWriter(
+							fileWritter);
+					bufferWritter.append(data);
+					bufferWritter.close();
+					fileWritter.close();
+				} catch (IOException ex) {
+					LOG.info("error! writin to file {}", ex);
 				}
 			}
 		} catch (TException e) {
