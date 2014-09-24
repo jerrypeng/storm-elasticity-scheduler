@@ -1,20 +1,21 @@
 package backtype.storm.scheduler.Elasticity;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import backtype.storm.scheduler.Elasticity.GetTopologyInfo.Component;
 
 public class Strategies {
-	public static String centralityStrategy(HashMap<String, Component> map) {
+	public static TreeMap<Integer, Component> centralityStrategy(HashMap<String, Component> map) {
 		String bestComp = "";
 		int mostDegree=0;
+		TreeMap<Integer, Component> ret = new TreeMap(Collections.reverseOrder());
 		for(Map.Entry<String, Component> entry : map.entrySet()) {
-			if((entry.getValue().children.size()+entry.getValue().parents.size()) > mostDegree){
-				mostDegree = entry.getValue().children.size()+entry.getValue().parents.size();
-				bestComp = entry.getKey();
-			}
+			ret.put(entry.getValue().children.size()+entry.getValue().parents.size(), entry.getValue());
 		}
-		return bestComp;
+		return ret;
 	}
 }

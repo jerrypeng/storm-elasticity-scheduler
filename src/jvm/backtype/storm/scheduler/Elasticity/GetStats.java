@@ -81,6 +81,7 @@ public class GetStats {
 	private File complete_log;
 	private File avg_log;
 	private File output_bolt_log;
+	private String sched_type;
 
 	private static String LOG_PATH = "/tmp/";
 
@@ -103,6 +104,7 @@ public class GetStats {
 			complete_log = new File(LOG_PATH + filename + "_complete");
 			avg_log = new File(LOG_PATH + filename + "_complete");
 			output_bolt_log = new File(LOG_PATH + filename + "output_bolt");
+			sched_type=filename;
 
 			complete_log.delete();
 			avg_log.delete();
@@ -331,7 +333,7 @@ public class GetStats {
 						// write to file
 						long unixTime = (System.currentTimeMillis() / 1000)
 								- this.startTimes.get(topo.get_id());
-						String data = String.valueOf(unixTime) + ':' + host
+						String data = String.valueOf(unixTime) + ':' + this.sched_type+":"+host
 								+ ':' + port + ':' + componentId + ":"
 								+ topo.get_id() + ":" + taskId + ","
 								+ transfer_throughput + "\n";
@@ -440,7 +442,7 @@ public class GetStats {
 
 					long unixTime = (System.currentTimeMillis() / 1000)
 							- this.startTimes.get(topo.get_id());
-					String data = String.valueOf(unixTime) + ':' + output_bolts
+					String data = String.valueOf(unixTime) + ':' +this.sched_type+","+ output_bolts
 							+ ":" + topo.get_id() + ":"
 							+ total_output_bolt_emit / num_output_bolt + "\n";
 					LOG.info(data);

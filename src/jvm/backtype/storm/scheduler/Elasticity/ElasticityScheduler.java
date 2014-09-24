@@ -1,6 +1,7 @@
 package backtype.storm.scheduler.Elasticity;
 
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +13,7 @@ import backtype.storm.scheduler.SchedulerAssignment;
 import backtype.storm.scheduler.Topologies;
 import backtype.storm.scheduler.EvenScheduler;
 import backtype.storm.scheduler.TopologyDetails;
+import backtype.storm.scheduler.Elasticity.GetTopologyInfo.Component;
 
 
 public class ElasticityScheduler implements IScheduler {
@@ -29,11 +31,28 @@ public class ElasticityScheduler implements IScheduler {
 	public void schedule(Topologies topologies, Cluster cluster) {
 		LOG.info("\n\n\nRerunning ElasticityScheduler...");
 		for (TopologyDetails topo : topologies.getTopologies()) {
-			LOG.info("ID: {} NAME: {}", topo.getId(), topo.getName());
-			LOG.info("Unassigned Executors for {}: ", topo.getName());
-			for (Map.Entry<ExecutorDetails, String> k : cluster.getNeedsSchedulingExecutorToComponents(topo).entrySet()) {
-				LOG.info("{} -> {}", k.getKey(), k.getValue());
+			String status = HelperFuncs.getStatus(topo.getId());
+			LOG.info("status: {}", status);
+			if(status.equals("REBALACING")) {
+				LOG.info("Do nothing....");
+				LOG.info("ID: {} NAME: {}", topo.getId(), topo.getName());
+				LOG.info("Unassigned Executors for {}: ", topo.getName());
+				for (Map.Entry<ExecutorDetails, String> k : cluster.getNeedsSchedulingExecutorToComponents(topo).entrySet()) {
+					LOG.info("{} -> {}", k.getKey(), k.getValue());
+				}
+				LOG.info("running EvenScheduler now...");
+				
+			} else {
+				LOG.info("ID: {} NAME: {}", topo.getId(), topo.getName());
+				LOG.info("Unassigned Executors for {}: ", topo.getName());
+				for (Map.Entry<ExecutorDetails, String> k : cluster.getNeedsSchedulingExecutorToComponents(topo).entrySet()) {
+					LOG.info("{} -> {}", k.getKey(), k.getValue());
+				}
+				LOG.info("running EvenScheduler now...");
+				new backtype.storm.scheduler.EvenScheduler().schedule(topologies, cluster);
 			}
+			
+			
 			LOG.info("Current Assignment: {}", HelperFuncs.nodeToTask(cluster, topo.getId()));
 		}
 		GetStats gs = GetStats.getInstance("ElasticityScheduler");
@@ -42,10 +61,10 @@ public class ElasticityScheduler implements IScheduler {
 		gt.getTopologyInfo();
 		LOG.info("Topology layout: {}", gt.all_comp);
 		
-		String comp = Strategies.centralityStrategy(gt.all_comp);
+		TreeMap<Integer, Component> comp = Strategies.centralityStrategy(gt.all_comp);
+		LOG.info("priority queue: {}", comp);
 		LOG.info("Best Comp: {}", comp);
 
-		LOG.info("running EvenScheduler now...");
-		new backtype.storm.scheduler.EvenScheduler().schedule(topologies, cluster);
+		
 	}
 }
