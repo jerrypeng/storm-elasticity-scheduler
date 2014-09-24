@@ -44,6 +44,7 @@ public class GetTopologyInfo {
 			String retVal = "Parents: "+this.parents.toString()+" Children: "+this.children.toString();
 			return retVal;
 		}
+		
 	}
 
 	public GetTopologyInfo() {

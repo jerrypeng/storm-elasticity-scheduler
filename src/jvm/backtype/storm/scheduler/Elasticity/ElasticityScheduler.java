@@ -33,7 +33,7 @@ public class ElasticityScheduler implements IScheduler {
 		for (TopologyDetails topo : topologies.getTopologies()) {
 			String status = HelperFuncs.getStatus(topo.getId());
 			LOG.info("status: {}", status);
-			if(status.equals("REBALACING")) {
+			if(status.equals("REBALANCING")) {
 				LOG.info("Do nothing....");
 				LOG.info("ID: {} NAME: {}", topo.getId(), topo.getName());
 				LOG.info("Unassigned Executors for {}: ", topo.getName());
@@ -63,7 +63,6 @@ public class ElasticityScheduler implements IScheduler {
 		
 		TreeMap<Integer, Component> comp = Strategies.centralityStrategy(gt.all_comp);
 		LOG.info("priority queue: {}", comp);
-		LOG.info("Best Comp: {}", comp);
 
 		
 	}
