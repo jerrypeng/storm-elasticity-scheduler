@@ -36,6 +36,8 @@ public class ElasticityScheduler implements IScheduler {
 		GetTopologyInfo gt = new GetTopologyInfo();
 		gs.getStatistics();
 		gt.getTopologyInfo();
+		Master server = Master.getInstance();
+		
 		LOG.info("Topology layout: {}", gt.all_comp);
 		
 		TreeMap<Component, Integer> comp = Strategies.centralityStrategy(gt.all_comp);
