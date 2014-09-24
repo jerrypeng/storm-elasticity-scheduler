@@ -79,14 +79,6 @@ public class ElasticityScheduler implements IScheduler {
 			
 			LOG.info("Current Assignment: {}", HelperFuncs.nodeToTask(cluster, topo.getId()));
 		}
-		GetStats gs = GetStats.getInstance("ElasticityScheduler");
-		GetTopologyInfo gt = new GetTopologyInfo();
-		gs.getStatistics();
-		gt.getTopologyInfo();
-		LOG.info("Topology layout: {}", gt.all_comp);
-		
-		TreeMap<Component, Integer> comp = Strategies.centralityStrategy(gt.all_comp);
-		LOG.info("priority queue: {}", comp);
 
 		
 	}
