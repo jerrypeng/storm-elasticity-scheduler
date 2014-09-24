@@ -53,7 +53,7 @@ public class ElasticityScheduler implements IScheduler {
 				}
 				List<WorkerSlot> newSlots= cluster.getAssignableSlots(cluster.getSupervisorsByHost("pc334.emulab.net").get(0));
 				LOG.info("Newslots: {}", newSlots);
-				cluster.getAssignmentById(topo.getId()).getExecutorToSlot();
+				//cluster.getAssignmentById(topo.getId()).getExecutorToSlot();
 				for(Map.Entry<ExecutorDetails, String> entry:topo.getExecutorToComponent().entrySet()) {
 					
 					if(entry.getValue().equals("center")==true) {
