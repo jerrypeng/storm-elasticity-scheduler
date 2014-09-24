@@ -61,7 +61,7 @@ public class ElasticityScheduler implements IScheduler {
 		gt.getTopologyInfo();
 		LOG.info("Topology layout: {}", gt.all_comp);
 		
-		TreeMap<Integer, Component> comp = Strategies.centralityStrategy(gt.all_comp);
+		TreeMap<Component, Integer> comp = Strategies.centralityStrategy(gt.all_comp);
 		LOG.info("priority queue: {}", comp);
 
 		
