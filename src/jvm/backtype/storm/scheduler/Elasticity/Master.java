@@ -101,11 +101,11 @@ class ServerWorker implements Runnable{
 			Object obj=this.in.readObject();
 			String ip=obj.toString();
 			obj=this.in.readObject();
-			double cpu=(double)obj;
+			double cpu=Double.valueOf(obj.toString());
 			obj=this.in.readObject();
-			double bandwidth_in=(double)obj;
+			double bandwidth_in=Double.valueOf(obj.toString());
 			obj=this.in.readObject();
-			double bandwidth_out=(double)obj;
+			double bandwidth_out=Double.valueOf(obj.toString());
 			this.out.flush();
 
 			Profile prf=new Profile(ip);
