@@ -1,5 +1,6 @@
 package backtype.storm.scheduler.Elasticity;
 
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -96,8 +97,29 @@ class ServerWorker implements Runnable{
 			this.out.flush();
 			
 			//receive profile
+			
 			Object obj=this.in.readObject();
-			Profile prf=(Profile)obj;
+			String ip=obj.toString();
+			obj=this.in.readObject();
+			double cpu=(double)obj;
+			obj=this.in.readObject();
+			double bandwidth_in=(double)obj;
+			obj=this.in.readObject();
+			double bandwidth_out=(double)obj;
+			this.out.flush();
+
+			Profile prf=new Profile(ip);
+			prf.setBandwidth_in(bandwidth_in);
+			prf.setBandwidth_out(bandwidth_out);
+			prf.setCpu_usage(cpu);
+			
+			Master.profile_map.put(prf.ip, prf);
+			//print out information
+			System.out.println("host IP address: "+prf.ip);
+			System.out.println(prf.ip+"-Bandwidth_in: "+prf.getBandwidth_in());
+			System.out.println(prf.ip+"-Bandwidth_out: "+prf.getBandwidth_out());
+			System.out.println(prf.ip+"-cpu_usage: "+prf.getCpu_usage());
+			
 			
 			Master.profile_map.put(prf.ip, prf);
 			//print out information
