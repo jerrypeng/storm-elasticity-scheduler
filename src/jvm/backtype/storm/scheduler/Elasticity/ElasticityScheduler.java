@@ -70,10 +70,12 @@ public class ElasticityScheduler implements IScheduler {
 					LOG.info("{} -> {}", k.getKey(), k.getValue());
 				}
 				
-				ss.storeState(cluster, topologies);
+				
 				
 				LOG.info("running EvenScheduler now...");
 				new backtype.storm.scheduler.EvenScheduler().schedule(topologies, cluster);
+				
+				ss.storeState(cluster, topologies);
 			}
 			
 			
