@@ -53,7 +53,7 @@ public class StoreState {
 	
 	public void updateNodes(Cluster cluster, Topologies topologies) {
 		for(Map.Entry<String, SupervisorDetails> sup : cluster.getSupervisors().entrySet()) {
-			if(nodes.containsKey(sup.getKey())==false) {
+			
 				Node newNode = new Node(sup.getKey(), cluster);
 				
 				for (Map.Entry<String, SchedulerAssignment> entry : cluster.getAssignments().entrySet()) {
@@ -63,7 +63,7 @@ public class StoreState {
 					}
 				}
 				nodes.put(sup.getKey(), newNode);
-			}
+			
 		}
 		
 		for(TopologyDetails topo : topologies.getTopologies()) {
