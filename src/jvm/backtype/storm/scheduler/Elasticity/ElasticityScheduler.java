@@ -32,24 +32,35 @@ public class ElasticityScheduler implements IScheduler {
 	@Override
 	public void schedule(Topologies topologies, Cluster cluster) {
 		LOG.info("\n\n\nRerunning ElasticityScheduler...");
+		
+		/**
+		 * Get stats
+		 */
 		GetStats gs = GetStats.getInstance("ElasticityScheduler");
-		GetTopologyInfo gt = new GetTopologyInfo();
 		gs.getStatistics();
+		
+		/**
+		 * Get topology info
+		 */
+		GetTopologyInfo gt = new GetTopologyInfo();
 		gt.getTopologyInfo();
-		Master server = Master.getInstance();
-
+		
 		LOG.info("Topology layout: {}", gt.all_comp);
-		
-		
-
 		TreeMap<Component, Integer> comp = Strategies
 				.centralityStrategy(gt.all_comp);
+		
 		LOG.info("priority queue: {}", comp);
+		
+		/**
+		 * Start hardware monitoring server
+		 */
+		Master server = Master.getInstance();
+
+		/**
+		 * Store state
+		 */
 		StoreState ss = StoreState.getInstance(cluster, topologies);
-		ss.storeState(cluster, topologies);
-		LOG.info("nodes: {}", ss.nodes);
-		List<Node> newNodes = ss.getEmptyNode();
-		LOG.info("New nodes: {}", newNodes);
+			
 		for (TopologyDetails topo : topologies.getTopologies()) {
 			String status = HelperFuncs.getStatus(topo.getId());
 			LOG.info("status: {}", status);
@@ -70,7 +81,36 @@ public class ElasticityScheduler implements IScheduler {
 					cluster.getAvailableSlots(supervisor)
 					*/
 					
-					
+					List<Node> newNodes = ss.getEmptyNode();
+					if(newNodes.size()>0) {
+						Node newNode = newNodes.get(0);
+						WorkerSlot ws = newNode.slots.get(0);
+						
+						TreeMap<Component, Integer> priority_queue = Strategies
+								.centralityStrategy(gt.all_comp);
+						
+						List<ExecutorDetails> executors = new ArrayList<ExecutorDetails>();
+						
+						LOG.info("priority queue: {}", priority_queue);
+						
+						int threshold = 3;
+						for (Map.Entry<Component,Integer> entry : priority_queue.entrySet()) {
+							 for (ExecutorDetails exec : HelperFuncs.compToExecs(topo, entry.getKey().id)) {
+								 if(threshold <= executors.size()) {
+										break;
+									}
+								 executors.add(exec);
+							 }
+							 if(threshold <= executors.size()) {
+									break;
+							}
+						}
+						
+						HelperFuncs.unassignTasks(executors, cluster.getAssignmentById(topo.getId()).getExecutorToSlot());
+						
+						cluster.assign(ws, topo.getId(), executors);
+						
+					}
 					
 					
 					ss.balanced = true;
@@ -92,6 +132,7 @@ public class ElasticityScheduler implements IScheduler {
 						topologies, cluster);
 
 				
+				ss.storeState(cluster, topologies);
 				ss.balanced = false;
 			}
 

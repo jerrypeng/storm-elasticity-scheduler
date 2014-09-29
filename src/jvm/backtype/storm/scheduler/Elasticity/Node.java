@@ -15,9 +15,9 @@ public class Node {
 	public String supervisor_id;
 	public SupervisorDetails sup;
 	public String hostname;
-	List<WorkerSlot> slots;
-	List<ExecutorDetails> execs;
-	Map<WorkerSlot, List<ExecutorDetails>> slot_to_exec;
+	public List<WorkerSlot> slots;
+	public List<ExecutorDetails> execs;
+	public Map<WorkerSlot, List<ExecutorDetails>> slot_to_exec;
 	
 	public Node(String supervisor_id, Cluster cluster) {
 		this.sup = cluster.getSupervisors().get(supervisor_id);

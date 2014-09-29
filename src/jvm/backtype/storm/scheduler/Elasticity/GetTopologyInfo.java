@@ -22,6 +22,7 @@ import backtype.storm.generated.SpoutSpec;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.generated.StreamInfo;
 import backtype.storm.generated.TopologySummary;
+import backtype.storm.scheduler.ExecutorDetails;
 
 public class GetTopologyInfo {
 
@@ -29,16 +30,19 @@ public class GetTopologyInfo {
 	private HashMap<String, Component> bolts = null;
 	private HashMap<String, Component> spouts = null;
 	public HashMap<String, Component> all_comp = null;
+	
 	private static final Logger LOG = LoggerFactory
 			.getLogger(GetTopologyInfo.class);
 
 	public class Component {
+		String id;
 		public List<String> parents = null;
 		public List<String> children = null;
-
+		//public List<ExecutorDetails> execs = null;
 		public Component() {
 			this.parents = new ArrayList<String>();
 			this.children = new ArrayList<String>();
+			//this.execs = new ArrayList<ExecutorDetails>();
 		}
 		@Override public String toString() {
 			String retVal = "Parents: "+this.parents.toString()+" Children: "+this.children.toString();
@@ -86,6 +90,7 @@ public class GetTopologyInfo {
 							newComp = this.all_comp.get(s.getKey());
 						} else {
 							newComp = new Component();
+							newComp.id = s.getKey();
 							this.all_comp.put(s.getKey(), newComp);
 						}
 						

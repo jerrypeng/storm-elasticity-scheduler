@@ -15,9 +15,32 @@ import backtype.storm.generated.Nimbus;
 import backtype.storm.generated.TopologySummary;
 import backtype.storm.scheduler.Cluster;
 import backtype.storm.scheduler.ExecutorDetails;
+import backtype.storm.scheduler.TopologyDetails;
 import backtype.storm.scheduler.WorkerSlot;
 
 public class HelperFuncs {
+	static void unassignTask(ExecutorDetails exec, Map<ExecutorDetails, WorkerSlot> execToSlot) {
+		if(execToSlot.containsKey(exec)==true) {
+			execToSlot.remove(exec);
+		}
+		
+	}
+	
+	static void unassignTasks(List<ExecutorDetails> execs, Map<ExecutorDetails, WorkerSlot> execToSlot) {
+		for (ExecutorDetails exec : execs) {
+			unassignTask(exec, execToSlot);
+		}
+	}
+	
+	static List<ExecutorDetails> compToExecs(TopologyDetails topo, String comp) {
+		List<ExecutorDetails> execs = new ArrayList<ExecutorDetails>();
+		for (Map.Entry<ExecutorDetails, String> entry : topo.getExecutorToComponent().entrySet()) {
+			if(entry.getValue().equals(comp)==true) {
+				execs.add(entry.getKey());
+			}
+		}
+		return execs;
+	}
 	
 	static HashMap<String, ArrayList<ExecutorDetails>> nodeToTask(Cluster cluster, String topoId) {
 		HashMap<String, ArrayList<ExecutorDetails>> retMap = new HashMap<String, ArrayList<ExecutorDetails>>();

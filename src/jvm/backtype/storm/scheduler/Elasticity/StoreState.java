@@ -52,6 +52,7 @@ public class StoreState {
 	}
 	
 	public void updateNodes(Cluster cluster, Topologies topologies) {
+		this.nodes.clear();
 		for(Map.Entry<String, SupervisorDetails> sup : cluster.getSupervisors().entrySet()) {
 			
 				Node newNode = new Node(sup.getKey(), cluster);
