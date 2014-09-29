@@ -42,8 +42,11 @@ public class StoreState {
 		LOG.info("Storing State...");
 		this.updateNodes(cluster, topologies);
 		for(TopologyDetails topo : topologies.getTopologies()) {
-			execToWorkers = cluster.getAssignmentById(topo.getId()).getExecutorToSlot();
-			LOG.info("execToWorker: {}", execToWorkers);
+			if(cluster.getAssignmentById(topo.getId())!=null) {
+				execToWorkers = cluster.getAssignmentById(topo.getId()).getExecutorToSlot();
+				LOG.info("execToWorker: {}", execToWorkers);
+			}
+			
 		}
 		
 	}
