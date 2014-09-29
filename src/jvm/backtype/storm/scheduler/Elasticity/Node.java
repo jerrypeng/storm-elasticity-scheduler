@@ -29,8 +29,11 @@ public class Node {
 		for(WorkerSlot ws : this.slots) {
 			slot_to_exec.put(ws, new ArrayList<ExecutorDetails>());
 		}
-		
-		
+	}
+	
+	@Override
+	public String toString() {
+		return this.hostname;
 	}
 	
 }
