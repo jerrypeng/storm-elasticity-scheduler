@@ -39,11 +39,16 @@ public class ElasticityScheduler implements IScheduler {
 		Master server = Master.getInstance();
 
 		LOG.info("Topology layout: {}", gt.all_comp);
+		
+		
 
 		TreeMap<Component, Integer> comp = Strategies
 				.centralityStrategy(gt.all_comp);
 		LOG.info("priority queue: {}", comp);
 		StoreState ss = StoreState.getInstance(cluster, topologies);
+		LOG.info("nodes: {}", ss.nodes);
+		List<Node> newNodes = ss.getEmptyNode();
+		LOG.info("New nodes: {}", newNodes);
 		for (TopologyDetails topo : topologies.getTopologies()) {
 			String status = HelperFuncs.getStatus(topo.getId());
 			LOG.info("status: {}", status);
@@ -64,10 +69,9 @@ public class ElasticityScheduler implements IScheduler {
 					cluster.getAvailableSlots(supervisor)
 					*/
 					
-					LOG.info("nodes: {}", ss.nodes);
-					List<Node> newNodes = ss.getEmptyNode();
-					LOG.info("New nodes: {}", newNodes);
 					
+					
+					ss.storeState(cluster, topologies);
 					ss.balanced = true;
 				}
 					
