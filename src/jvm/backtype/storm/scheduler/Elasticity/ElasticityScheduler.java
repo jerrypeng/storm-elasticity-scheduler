@@ -46,6 +46,7 @@ public class ElasticityScheduler implements IScheduler {
 				.centralityStrategy(gt.all_comp);
 		LOG.info("priority queue: {}", comp);
 		StoreState ss = StoreState.getInstance(cluster, topologies);
+		ss.storeState(cluster, topologies);
 		LOG.info("nodes: {}", ss.nodes);
 		List<Node> newNodes = ss.getEmptyNode();
 		LOG.info("New nodes: {}", newNodes);
@@ -71,7 +72,7 @@ public class ElasticityScheduler implements IScheduler {
 					
 					
 					
-					ss.storeState(cluster, topologies);
+					
 					ss.balanced = true;
 				}
 					
@@ -90,7 +91,7 @@ public class ElasticityScheduler implements IScheduler {
 				new backtype.storm.scheduler.EvenScheduler().schedule(
 						topologies, cluster);
 
-				ss.storeState(cluster, topologies);
+				
 				ss.balanced = false;
 			}
 
