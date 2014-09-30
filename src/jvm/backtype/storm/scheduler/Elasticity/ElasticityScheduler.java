@@ -60,6 +60,7 @@ public class ElasticityScheduler implements IScheduler {
 		 * Store state
 		 */
 		StoreState ss = StoreState.getInstance(cluster, topologies);
+		LOG.info("Nodes: {}", ss.nodes);
 			
 		for (TopologyDetails topo : topologies.getTopologies()) {
 			String status = HelperFuncs.getStatus(topo.getId());

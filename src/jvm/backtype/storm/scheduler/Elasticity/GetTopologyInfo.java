@@ -45,7 +45,7 @@ public class GetTopologyInfo {
 			//this.execs = new ArrayList<ExecutorDetails>();
 		}
 		@Override public String toString() {
-			String retVal = "Parents: "+this.parents.toString()+" Children: "+this.children.toString();
+			String retVal = "id: "+this.id+"Parents: "+this.parents.toString()+" Children: "+this.children.toString();
 			return retVal;
 		}
 		
