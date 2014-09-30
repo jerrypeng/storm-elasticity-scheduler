@@ -107,6 +107,8 @@ public class ElasticityScheduler implements IScheduler {
 							}
 						}
 						
+						LOG.info("migrating: {}", executors);
+						
 						HelperFuncs.unassignTasks(executors, cluster.getAssignmentById(topo.getId()).getExecutorToSlot());
 						
 						cluster.assign(ws, topo.getId(), executors);
