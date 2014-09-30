@@ -59,6 +59,9 @@ public class StoreState {
 				
 				for (Map.Entry<String, SchedulerAssignment> entry : cluster.getAssignments().entrySet()) {
 					for(Map.Entry<ExecutorDetails,WorkerSlot> exec : entry.getValue().getExecutorToSlot().entrySet()){
+						if(newNode.slot_to_exec.containsKey(exec.getValue()) == false) {
+							newNode.slot_to_exec.put(exec.getValue(), new ArrayList<ExecutorDetails>());
+						}
 						newNode.slot_to_exec.get(exec.getValue()).add(exec.getKey());
 						newNode.execs.add(exec.getKey());
 					}
