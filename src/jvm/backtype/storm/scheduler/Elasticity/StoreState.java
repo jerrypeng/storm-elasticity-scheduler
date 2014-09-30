@@ -28,7 +28,7 @@ public class StoreState {
 	
 	
 	protected StoreState(Cluster cluster, Topologies topologies) {
-		nodes = new HashMap<String, Node>();
+		
 	}
 	
 	public static StoreState getInstance(Cluster cluster, Topologies topologies) {
@@ -52,22 +52,35 @@ public class StoreState {
 	}
 	
 	public void updateNodes(Cluster cluster, Topologies topologies) {
-		this.nodes.clear();
+		this.nodes = new HashMap<String, Node>();
 		for(Map.Entry<String, SupervisorDetails> sup : cluster.getSupervisors().entrySet()) {
 			
 				Node newNode = new Node(sup.getKey(), cluster);
-				
-				for (Map.Entry<String, SchedulerAssignment> entry : cluster.getAssignments().entrySet()) {
-					for(Map.Entry<ExecutorDetails,WorkerSlot> exec : entry.getValue().getExecutorToSlot().entrySet()){
-						if(newNode.slot_to_exec.containsKey(exec.getValue()) == false) {
-							newNode.slot_to_exec.put(exec.getValue(), new ArrayList<ExecutorDetails>());
-						}
-						newNode.slot_to_exec.get(exec.getValue()).add(exec.getKey());
-						newNode.execs.add(exec.getKey());
-					}
-				}
 				nodes.put(sup.getKey(), newNode);
-			
+		}
+		
+		for (Map.Entry<String, SchedulerAssignment> entry : cluster.getAssignments().entrySet()) {
+			for(Map.Entry<ExecutorDetails,WorkerSlot> exec : entry.getValue().getExecutorToSlot().entrySet()){
+				if(nodes.containsKey(exec.getValue().getNodeId()) == true) {
+					if(nodes.get(exec.getValue().getNodeId()).slot_to_exec.containsKey(exec.getValue()) == true) {
+						nodes.get(exec.getValue().getNodeId()).slot_to_exec.get(exec.getValue()).add(exec.getKey());
+						nodes.get(exec.getValue().getNodeId()).execs.add(exec.getKey());
+					} else {
+						LOG.info("ERROR: should have node {} should have worker: {}", exec.getValue().getNodeId(), exec.getValue());
+						return;
+					}
+				} else {
+					LOG.info("ERROR: should have node {}", exec.getValue().getNodeId());
+					return;
+				}
+				/*
+				if(newNode.slot_to_exec.containsKey(exec.getValue()) == false) {
+					newNode.slot_to_exec.put(exec.getValue(), new ArrayList<ExecutorDetails>());
+				}
+				newNode.slot_to_exec.get(exec.getValue()).add(exec.getKey());
+				newNode.execs.add(exec.getKey());
+				*/
+			}
 		}
 		
 		for(TopologyDetails topo : topologies.getTopologies()) {
