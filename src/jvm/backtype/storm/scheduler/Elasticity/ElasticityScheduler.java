@@ -33,42 +33,35 @@ public class ElasticityScheduler implements IScheduler {
 	public void schedule(Topologies topologies, Cluster cluster) {
 		LOG.info("\n\n\nRerunning ElasticityScheduler...");
 		
+		
+		
+		
+		/**
+		 * Get Global info
+		 */
+		GlobalState globalState = GlobalState.getInstance();
+		
+		LOG.info("Global State:\n{}", globalState);
+		
 		/**
 		 * Get stats
 		 */
-		//GetStats gs = GetStats.getInstance("ElasticityScheduler");
-		//gs.getStatistics();
-		
-		/**
-		 * Get topology info
-		 */
-		GetTopologyInfo gt = new GetTopologyInfo();
-		gt.getTopologyInfo();
-		
-		LOG.info("Topology layout: {}", gt.all_comp);
-		TreeMap<Component, Integer> comp = Strategies
-				.centralityStrategy(gt.all_comp);
-		
-		LOG.info("priority queue: {}", comp);
+		//GetStats stats = Stats.getInstance("ElasticityScheduler");
+		//stats.getStatistics
 		
 		/**
 		 * Start hardware monitoring server
 		 */
 		Master server = Master.getInstance();
-
+		
 		/**
-		 * Store state
+		 * Start Scheduling
 		 */
-		StoreState ss = StoreState.getInstance(cluster, topologies);
-		LOG.info("Nodes: {}", ss.nodes);
-		
-		
 		for (TopologyDetails topo : topologies.getTopologies()) {
 			String status = HelperFuncs.getStatus(topo.getId());
 			LOG.info("status: {}", status);
 			if (status.equals("REBALANCING")) {
-				if (ss.balanced == false) {
-					LOG.info("Do nothing....");
+				if (globalState.isBalanced == false) {
 					LOG.info("ID: {} NAME: {}", topo.getId(), topo.getName());
 					LOG.info("Unassigned Executors for {}: ", topo.getName());
 					for (Map.Entry<ExecutorDetails, String> k : cluster
@@ -76,13 +69,8 @@ public class ElasticityScheduler implements IScheduler {
 							.entrySet()) {
 						LOG.info("{} -> {}", k.getKey(), k.getValue());
 					}
+
 					/*
-					Node n = getNewNode();
-					n.getWorkers;
-					
-					cluster.getAvailableSlots(supervisor)
-					*/
-					
 					List<Node> newNodes = ss.getEmptyNode();
 					if(newNodes.size()>0) {
 						Node newNode = newNodes.get(0);
@@ -116,10 +104,10 @@ public class ElasticityScheduler implements IScheduler {
 						
 						cluster.assign(ws, topo.getId(), executors);
 						
-					}
+					}*/
 					
 					
-					ss.balanced = true;
+					globalState.isBalanced =  true;
 				}
 					
 				
@@ -138,8 +126,8 @@ public class ElasticityScheduler implements IScheduler {
 						topologies, cluster);
 
 				
-				ss.storeState(cluster, topologies);
-				ss.balanced = false;
+				globalState.storeState(cluster, topologies);
+				globalState.isBalanced = false;
 			}
 
 			LOG.info("Current Assignment: {}",

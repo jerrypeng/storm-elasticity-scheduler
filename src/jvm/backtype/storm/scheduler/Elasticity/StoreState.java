@@ -28,7 +28,7 @@ public class StoreState {
 	
 	
 	protected StoreState(Cluster cluster, Topologies topologies) {
-		
+		this.nodes = new HashMap<String, Node>();
 	}
 	
 	public static StoreState getInstance(Cluster cluster, Topologies topologies) {
@@ -97,4 +97,6 @@ public class StoreState {
 		}
 		return retVal;
 	}
+	
+
 }
