@@ -42,6 +42,7 @@ public class GetTopologyInfo {
 		public Component(String id) {
 			this.parents = new ArrayList<String>();
 			this.children = new ArrayList<String>();
+			this.id = id;
 			//this.execs = new ArrayList<ExecutorDetails>();
 		}
 		@Override public String toString() {
