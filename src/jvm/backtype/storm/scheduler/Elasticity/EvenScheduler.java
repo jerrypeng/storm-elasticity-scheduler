@@ -33,8 +33,11 @@ public class EvenScheduler implements IScheduler{
 		GetStats gs = GetStats.getInstance("EvenScheduler");
 		GetTopologyInfo gt = new GetTopologyInfo();
 		gs.getStatistics();
-		gt.getTopologyInfo();
-		LOG.info("Topology layout: {}", gt.all_comp);
+		for(TopologyDetails topo : topologies.getTopologies()) {
+			gt.getTopologyInfo(topo.getId());
+			LOG.info("Topology layout: {}", gt.all_comp);
+		}
+		
 		Master server = Master.getInstance();
 		
 		LOG.info("running EvenScheduler now...");

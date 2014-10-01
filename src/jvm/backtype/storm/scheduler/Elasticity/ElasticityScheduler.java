@@ -16,7 +16,6 @@ import backtype.storm.scheduler.Topologies;
 import backtype.storm.scheduler.EvenScheduler;
 import backtype.storm.scheduler.TopologyDetails;
 import backtype.storm.scheduler.WorkerSlot;
-import backtype.storm.scheduler.Elasticity.GetTopologyInfo.Component;
 
 public class ElasticityScheduler implements IScheduler {
 	private static final Logger LOG = LoggerFactory
