@@ -39,6 +39,7 @@ public class ElasticityScheduler implements IScheduler {
 		 * Get Global info
 		 */
 		GlobalState globalState = GlobalState.getInstance();
+		globalState.updateInfo(cluster, topologies);
 		
 		LOG.info("Global State:\n{}", globalState);
 		
