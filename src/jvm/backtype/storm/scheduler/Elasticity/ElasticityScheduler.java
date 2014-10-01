@@ -36,8 +36,8 @@ public class ElasticityScheduler implements IScheduler {
 		/**
 		 * Get stats
 		 */
-		GetStats gs = GetStats.getInstance("ElasticityScheduler");
-		gs.getStatistics();
+		//GetStats gs = GetStats.getInstance("ElasticityScheduler");
+		//gs.getStatistics();
 		
 		/**
 		 * Get topology info
@@ -61,7 +61,8 @@ public class ElasticityScheduler implements IScheduler {
 		 */
 		StoreState ss = StoreState.getInstance(cluster, topologies);
 		LOG.info("Nodes: {}", ss.nodes);
-			
+		
+		
 		for (TopologyDetails topo : topologies.getTopologies()) {
 			String status = HelperFuncs.getStatus(topo.getId());
 			LOG.info("status: {}", status);
@@ -96,6 +97,8 @@ public class ElasticityScheduler implements IScheduler {
 						
 						int threshold = 3;
 						for (Map.Entry<Component,Integer> entry : priority_queue.entrySet()) {
+							LOG.info("Component: {} -> {}",entry.getKey(), HelperFuncs.compToExecs(topo, entry.getKey().id));
+							
 							 for (ExecutorDetails exec : HelperFuncs.compToExecs(topo, entry.getKey().id)) {
 								 if(threshold <= executors.size()) {
 										break;

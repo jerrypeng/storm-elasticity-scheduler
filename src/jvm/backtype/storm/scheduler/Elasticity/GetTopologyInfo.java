@@ -39,7 +39,7 @@ public class GetTopologyInfo {
 		public List<String> parents = null;
 		public List<String> children = null;
 		//public List<ExecutorDetails> execs = null;
-		public Component() {
+		public Component(String id) {
 			this.parents = new ArrayList<String>();
 			this.children = new ArrayList<String>();
 			//this.execs = new ArrayList<ExecutorDetails>();
@@ -89,8 +89,8 @@ public class GetTopologyInfo {
 						if (this.all_comp.containsKey(s.getKey())) {
 							newComp = this.all_comp.get(s.getKey());
 						} else {
-							newComp = new Component();
-							newComp.id = s.getKey();
+							newComp = new Component(s.getKey());
+							
 							this.all_comp.put(s.getKey(), newComp);
 						}
 						
@@ -118,7 +118,8 @@ public class GetTopologyInfo {
 									this.all_comp
 											.put(entry.getKey()
 													.get_componentId(),
-													new Component());
+													new Component(entry.getKey()
+															.get_componentId()));
 								}
 								this.all_comp.get(entry.getKey()
 										.get_componentId()).children.add(s
@@ -147,7 +148,7 @@ public class GetTopologyInfo {
 						if (this.all_comp.containsKey(s.getKey())) {
 							newComp = this.all_comp.get(s.getKey());
 						} else {
-							newComp = new Component();
+							newComp = new Component(s.getKey());
 							this.all_comp.put(s.getKey(), newComp);
 						}
 						//LOG.info("Id: {}", s.getKey());
@@ -172,7 +173,8 @@ public class GetTopologyInfo {
 									this.all_comp
 											.put(entry.getKey()
 													.get_componentId(),
-													new Component());
+													new Component(entry.getKey()
+															.get_componentId()));
 								}
 								this.all_comp.get(entry.getKey()
 										.get_componentId()).children.add(s
