@@ -85,11 +85,11 @@ public class ElasticityScheduler implements IScheduler {
 						int THRESHOLD = 3;
 						List<ExecutorDetails> migratedTasks = new ArrayList<ExecutorDetails>();
 						for (Component comp : priorityQueue.keySet()) {
-							if(migratedTasks.size()>THRESHOLD) {
+							if(migratedTasks.size()>=THRESHOLD) {
 								break;
 							}
 							for(ExecutorDetails exec : comp.execs) {
-								if(migratedTasks.size()>THRESHOLD) {
+								if(migratedTasks.size()>=THRESHOLD) {
 									break;
 								}
 								globalState.migrateTask(exec, target_ws, topo);
