@@ -52,6 +52,7 @@ public class GlobalState {
 	
 	public void storeSchedState(Cluster cluster, Topologies topologies) {
 		this.schedState = new HashMap<String, Map<WorkerSlot, List<ExecutorDetails>>>();
+		
 		for(TopologyDetails topo : topologies.getTopologies()) {
 			if(cluster.getAssignmentById(topo.getId())!=null) {
 				
@@ -140,8 +141,7 @@ public class GlobalState {
 		}
 		
 		if(schedMap.containsKey(ws)==false) {
-			LOG.error("Error: worker {} does not exist!", ws);
-			return;
+			schedMap.put(ws, new ArrayList<ExecutorDetails>());
 		}
 		
 		for(Map.Entry<WorkerSlot, List<ExecutorDetails>> sched : schedMap.entrySet()) {
@@ -176,17 +176,17 @@ public class GlobalState {
 	@Override 
 	public String toString(){
 		String str = "";
-		str+="Nodes: \n";
+		str+="\n!--Nodes--! \n";
 		for (Map.Entry<String, Node> n : this.nodes.entrySet()) {
 			str+="->hostname: "+n.getValue().hostname+" Supervisor Id: "+n.getValue().supervisor_id+"\n";
-			str+="->Execs: \n"+n.getValue().execs+"\n";
+			str+="->Execs: "+n.getValue().execs+"\n";
 			str+="->WorkerToExec: \n";
 			for(Map.Entry<WorkerSlot, List<ExecutorDetails>> entry : n.getValue().slot_to_exec.entrySet()) {
 				str+="-->"+entry.getKey().getPort()+" => "+entry.getValue()+"\n";
 			}	
 		}
 		
-		str+="Components: \n";
+		str+="\n!--Components--!\n";
 		for(Map.Entry<String, Map<String, Component>> entry : this.components.entrySet()) {
 			str+="->Topology: "+entry.getKey()+"\n";
 			for (Map.Entry<String, Component> comp : entry.getValue().entrySet()) {
@@ -199,7 +199,7 @@ public class GlobalState {
 			
 		}
 		
-		str+="Stored Scheduling State:\n";
+		str+="\n!--Stored Scheduling State--!\n";
 		for(Map.Entry<String, Map<WorkerSlot, List<ExecutorDetails>>> entry : this.schedState.entrySet()) {
 			str+="->Topology: "+entry.getKey()+"\n";
 			for(Map.Entry<WorkerSlot, List<ExecutorDetails>> sched : entry.getValue().entrySet()) {
