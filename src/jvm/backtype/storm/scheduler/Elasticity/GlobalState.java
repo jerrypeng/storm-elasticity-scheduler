@@ -140,7 +140,14 @@ public class GlobalState {
 		str+="Components: \n";
 		for(Map.Entry<String, Map<String, Component>> entry : this.components.entrySet()) {
 			str+="->Topology: "+entry.getKey()+"\n";
-			str+="-->Components: "+entry.getValue()+"\n";
+			for (Map.Entry<String, Component> comp : entry.getValue().entrySet()) {
+				str+="-->Component: "+comp.getValue().id+"=="+entry.getKey()+"\n";
+				str+="--->Parents: "+comp.getValue().parents+"\n";
+				str+="--->Children: "+comp.getValue().children+"\n";
+				str+="--->execs: " + comp.getValue().execs+"\n";
+			}
+			
+			
 		}
 		
 		str+="Stored Scheduling State:\n";
