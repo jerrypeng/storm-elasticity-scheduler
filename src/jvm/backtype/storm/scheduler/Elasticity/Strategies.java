@@ -10,7 +10,7 @@ import java.util.TreeSet;
 
 public class Strategies {
 	
-	public static TreeMap<Component, Integer> centralityStrategy(HashMap<String, Component> map) {
+	public static TreeMap<Component, Integer> centralityStrategy(Map<String, Component> map) {
 		HashMap<Component, Integer> rankMap = new HashMap<Component, Integer>();
 		
 		ComponentComparator bvc =  new ComponentComparator(rankMap);

@@ -9,6 +9,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import clojure.lang.IFn.LO;
 import backtype.storm.scheduler.Cluster;
 import backtype.storm.scheduler.ExecutorDetails;
 import backtype.storm.scheduler.SchedulerAssignment;
@@ -50,6 +51,7 @@ public class GlobalState {
 	}
 	
 	public void storeSchedState(Cluster cluster, Topologies topologies) {
+		this.schedState = new HashMap<String, Map<WorkerSlot, List<ExecutorDetails>>>();
 		for(TopologyDetails topo : topologies.getTopologies()) {
 			if(cluster.getAssignmentById(topo.getId())!=null) {
 				
@@ -119,6 +121,53 @@ public class GlobalState {
 							.getNodeId());
 					return null;
 				}
+			}
+		}
+		return retVal;
+	}
+	
+	/**
+	 * migrate exec to ws
+	 * @param exec
+	 * @param ws
+	 */
+	public void migrateTask(ExecutorDetails exec, WorkerSlot ws, TopologyDetails topo) {
+		Map<WorkerSlot, List<ExecutorDetails>> schedMap = this.schedState.get(topo.getId());
+		
+		if(this.execExist(exec, topo) == false) {
+			LOG.error("Error: exec {} does not exist!", exec);
+			return;
+		}
+		
+		if(schedMap.containsKey(ws)==false) {
+			LOG.error("Error: worker {} does not exist!", ws);
+			return;
+		}
+		
+		for(Map.Entry<WorkerSlot, List<ExecutorDetails>> sched : schedMap.entrySet()) {
+			if(sched.getValue().contains(exec) == true) {
+				sched.getValue().remove(exec);
+			}
+		}
+		
+		schedMap.get(ws).add(exec);
+	}
+	
+	public boolean execExist(ExecutorDetails exec, TopologyDetails topo) {
+		Map<WorkerSlot, List<ExecutorDetails>> schedMap = this.schedState.get(topo.getId());
+		for(Map.Entry<WorkerSlot, List<ExecutorDetails>> sched : schedMap.entrySet()) {
+			if(sched.getValue().contains(exec) == true) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public List<Node> getNewNode () {
+		List<Node> retVal = new ArrayList<Node>();
+		for (Map.Entry<String, Node> n : this.nodes.entrySet()) {
+			if(n.getValue().execs.size()==0) {
+				retVal.add(n.getValue());
 			}
 		}
 		return retVal;
