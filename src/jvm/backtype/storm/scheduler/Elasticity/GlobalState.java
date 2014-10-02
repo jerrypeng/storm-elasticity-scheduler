@@ -33,6 +33,8 @@ public class GlobalState {
 	//Topology id -> <worker slot -> collection<executors>>
 	public Map <String, Map<WorkerSlot, List<ExecutorDetails>>> schedState;
 	
+	
+	
 	public boolean isBalanced = false;
 	
 	private GlobalState() {
@@ -164,12 +166,28 @@ public class GlobalState {
 	}
 	
 	public List<Node> getNewNode () {
+		
 		List<Node> retVal = new ArrayList<Node>();
+		retVal.addAll(this.nodes.values());
+		
+		for(Map.Entry<String, Map<WorkerSlot, List<ExecutorDetails>>> i : this.schedState.entrySet()) {
+			for(Map.Entry<WorkerSlot, List<ExecutorDetails>> k : i.getValue().entrySet()) {
+				if(k.getValue().size() > 0 ){
+					for(Node n : this.nodes.values()) {
+						if(n.slots.contains(k.getKey())){
+							retVal.remove(n);
+						}
+					}
+				}
+			}
+		}
+		/*
 		for (Map.Entry<String, Node> n : this.nodes.entrySet()) {
 			if(n.getValue().execs.size()==0) {
 				retVal.add(n.getValue());
 			}
 		}
+		*/
 		return retVal;
 	}
 	
