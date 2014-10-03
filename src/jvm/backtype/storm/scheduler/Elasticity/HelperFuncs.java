@@ -41,7 +41,7 @@ public class HelperFuncs {
 		}
 		
 		for(ExecutorDetails old_exec: executors) {
-			for (ExecutorDetails exec : topologies.getByName(topologyId).getExecutors()) {
+			for (ExecutorDetails exec : topologies.getById(topologyId).getExecutors()) {
 				if(old_exec.getEndTask()==exec.getEndTask() && old_exec.getStartTask() == exec.getStartTask()){
 					curr_executors.add(exec);
 				}
