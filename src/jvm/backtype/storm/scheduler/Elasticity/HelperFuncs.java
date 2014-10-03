@@ -30,11 +30,23 @@ public class HelperFuncs {
 		LOG.info("Assigning using HelperFuncs Assign...");
 		WorkerSlot curr_slot=null;
 		Collection<ExecutorDetails> curr_executors = new ArrayList<ExecutorDetails>();
+		
+		
+		for (Map.Entry<ExecutorDetails, WorkerSlot> ws : cluster.getAssignmentById(topologyId).getExecutorToSlot().entrySet()) {
+			if(ws.getValue().getNodeId().equals(slot.getNodeId())==true && ws.getValue().getPort() == slot.getPort()) {
+				curr_slot = ws.getValue();
+			}
+		}
+		/*
 		for(WorkerSlot ws : cluster.getAssignableSlots()) {
+			
+			
 			if(ws.getNodeId().equals(slot.getNodeId())==true && ws.getPort() == slot.getPort()) {
 				curr_slot = ws;
 			}
+			
 		}
+		*/
 		if(curr_slot == null) {
 			LOG.error("Error: worker: {} does not exist!", slot);
 			return;

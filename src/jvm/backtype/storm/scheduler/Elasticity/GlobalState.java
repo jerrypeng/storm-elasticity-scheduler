@@ -33,6 +33,8 @@ public class GlobalState {
 	//Topology id -> <worker slot -> collection<executors>>
 	public Map <String, Map<WorkerSlot, List<ExecutorDetails>>> schedState;
 	
+	public Map<String, Integer> topoWorkers = new HashMap<String, Integer>();
+	
 	
 	
 	public boolean isBalanced = false;
@@ -89,6 +91,7 @@ public class GlobalState {
 			}
 			retVal.put(topo.getId(), gt.all_comp);
 			
+			this.topoWorkers.put(topo.getId(), gt.numWorkers);
 		}
 		return retVal;
 	}
@@ -225,6 +228,8 @@ public class GlobalState {
 				str+=sched.getValue()+"\n";
 			}
 		}
+		
+		LOG.info("\n topWorkers: {}", this.topoWorkers);
 		
 		
 		return str;

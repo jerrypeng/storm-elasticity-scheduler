@@ -30,6 +30,7 @@ public class GetTopologyInfo {
 	private HashMap<String, Component> bolts = null;
 	private HashMap<String, Component> spouts = null;
 	public HashMap<String, Component> all_comp = null;
+	public int numWorkers = 0;
 
 	private static final Logger LOG = LoggerFactory
 			.getLogger(GetTopologyInfo.class);
@@ -57,6 +58,8 @@ public class GetTopologyInfo {
 				if (topo.get_id().equals(topoId) == true){
 					StormTopology storm_topo = client
 							.getTopology(topo.get_id());
+					
+					this.numWorkers = topo.get_num_workers();
 					// spouts
 					for (Map.Entry<String, SpoutSpec> s : storm_topo
 							.get_spouts().entrySet()) {
