@@ -99,7 +99,8 @@ public class ElasticityScheduler implements IScheduler {
 						
 						LOG.info("Tasks migrated: {}", migratedTasks);
 						for(Map.Entry<WorkerSlot, List<ExecutorDetails>> sched : schedMap.entrySet()) {
-							cluster.assign(sched.getKey(), topo.getId(), sched.getValue());
+							//cluster.assign(sched.getKey(), topo.getId(), sched.getValue());
+							HelperFuncs.assignTasks(sched.getKey(), topo.getId(), sched.getValue(), cluster, topologies);
 							LOG.info("Assigning {}=>{}",sched.getKey(), sched.getValue());
 						}
 
