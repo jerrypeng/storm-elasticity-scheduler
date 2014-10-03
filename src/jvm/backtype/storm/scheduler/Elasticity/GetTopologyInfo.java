@@ -60,6 +60,7 @@ public class GetTopologyInfo {
 							.getTopology(topo.get_id());
 					
 					this.numWorkers = topo.get_num_workers();
+					
 					// spouts
 					for (Map.Entry<String, SpoutSpec> s : storm_topo
 							.get_spouts().entrySet()) {
