@@ -229,7 +229,7 @@ public class GlobalState {
 			}
 		}
 		
-		LOG.info("\n topWorkers: {}", this.topoWorkers);
+		str+="\n topWorkers: "+ this.topoWorkers+"\n";
 		
 		
 		return str;
