@@ -43,8 +43,8 @@ public class ElasticityScheduler implements IScheduler {
 		/**
 		 * Get stats
 		 */
-		// GetStats stats = Stats.getInstance("ElasticityScheduler");
-		// stats.getStatistics
+		 GetStats stats = GetStats.getInstance("ElasticityScheduler");
+		 stats.getStatistics();
 
 		/**
 		 * Start hardware monitoring server
