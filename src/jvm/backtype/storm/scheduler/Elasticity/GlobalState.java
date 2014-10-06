@@ -82,6 +82,7 @@ public class GlobalState {
 
 	public  Map<String, Map<String, Component>> getComponents(Topologies topologies) {
 		Map<String, Map<String, Component>> retVal = new HashMap<String, Map<String, Component>>();
+		this.topoWorkers = new HashMap<String, Integer>();
 		GetTopologyInfo gt = new GetTopologyInfo();
 		
 		for(TopologyDetails topo : topologies.getTopologies()) {

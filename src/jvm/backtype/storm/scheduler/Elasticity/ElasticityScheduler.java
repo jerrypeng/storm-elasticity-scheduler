@@ -82,7 +82,7 @@ public class ElasticityScheduler implements IScheduler {
 						WorkerSlot target_ws = targetNode.slots.get(0);
 						LOG.info("target location: {}:{}", targetNode.hostname, target_ws.getPort());
 						
-						int THRESHOLD = 3;
+						int THRESHOLD = 4;
 						List<ExecutorDetails> migratedTasks = new ArrayList<ExecutorDetails>();
 						for (Component comp : priorityQueue.keySet()) {
 							if(migratedTasks.size()>=THRESHOLD) {
