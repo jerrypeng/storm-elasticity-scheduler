@@ -129,6 +129,8 @@ public class ElasticityScheduler implements IScheduler {
 			LOG.info("Current Assignment: {}",
 					HelperFuncs.nodeToTask(cluster, topo.getId()));
 		}
+		
+		globalState.clearStoreState();
 
 	}
 }

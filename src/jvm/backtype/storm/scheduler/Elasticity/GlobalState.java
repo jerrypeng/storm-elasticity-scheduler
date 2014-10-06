@@ -75,6 +75,10 @@ public class GlobalState {
 		}
 	}
 	
+	public void clearStoreState() {
+		this.schedState = new HashMap<String, Map<WorkerSlot, List<ExecutorDetails>>>();
+	}
+	
 	public void updateInfo(Cluster cluster, Topologies topologies) {
 		this.nodes = this.getNodes(cluster);
 		this.components = this.getComponents(topologies);
