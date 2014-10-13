@@ -65,7 +65,7 @@ public class ElasticityScheduler implements IScheduler {
 							.getExecutors().size()) {
 						LOG.info("Making migration assignments...");
 						
-						TreeMap<Component, Integer> priorityQueue = Strategies.centralityStrategy(globalState.components.get(topo.getId()));
+						TreeMap<Component, Integer> priorityQueue = Strategies.numDescendantStrategy(globalState.components.get(topo.getId()));
 						
 						LOG.info("priorityQueue: {}", priorityQueue);
 						
