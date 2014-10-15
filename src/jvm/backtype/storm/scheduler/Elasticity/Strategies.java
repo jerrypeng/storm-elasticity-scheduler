@@ -18,7 +18,7 @@ public class Strategies {
 	 * rank central nodes (D)
 	 * @param map
 	 * @return
-	 */
+	 */ 
 	public static TreeMap<Component, Integer> centralityStrategy(Map<String, Component> map) {
 		HashMap<Component, Integer> rankMap = new HashMap<Component, Integer>();
 		
