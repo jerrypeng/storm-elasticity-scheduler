@@ -58,7 +58,7 @@ public class Strategies {
 		ComponentComparator bvc =  new ComponentComparator(rankMap);
 		TreeMap<Component, Integer>retMap = new TreeMap<Component, Integer>(bvc);
 		for(Map.Entry<String, Component> entry : map.entrySet()) {
-			rankMap.put(entry.getValue(), -distToSpout(entry.getValue(),map));
+			rankMap.put(entry.getValue(), 0-distToSpout(entry.getValue(),map));
 			LOG.info("{}--{}", entry.getKey(), rankMap.get(entry.getKey()));
 		}
 		retMap.putAll(rankMap);
@@ -75,7 +75,7 @@ public class Strategies {
 		ComponentComparator bvc =  new ComponentComparator(rankMap);
 		TreeMap<Component, Integer>retMap = new TreeMap<Component, Integer>(bvc);
 		for(Map.Entry<String, Component> entry : map.entrySet()) {
-			rankMap.put(entry.getValue(), -distToBolt(entry.getValue(),map));
+			rankMap.put(entry.getValue(), 0-distToBolt(entry.getValue(),map));
 			LOG.info("{}--{}", entry.getKey(), rankMap.get(entry.getKey()));
 		}
 		retMap.putAll(rankMap);
