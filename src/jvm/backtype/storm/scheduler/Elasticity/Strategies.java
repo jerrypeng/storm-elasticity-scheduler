@@ -156,16 +156,17 @@ public class Strategies {
 	/****helper****/
 	
 	private static Integer distToBolt(Component com, Map<String, Component> map) {
-		int max=0;
+		Integer max=0;
 		for (String child : com.children) {
 			max=Math.max(distToBolt(map.get(child), map)+1, max);
 		}
 		return max;
 	}
 	private static Integer distToSpout(Component com, Map<String, Component> map) {
-		int max=0;
+		Integer max=0;
 		for (String parent : com.parents) {
 			max=Math.max(distToSpout(map.get(parent), map)+1, max);
+			LOG.info("{}",max);
 		}
 		return max;
 	}
