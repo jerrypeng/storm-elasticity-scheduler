@@ -58,7 +58,9 @@ public class Strategies {
 		ComponentComparator bvc =  new ComponentComparator(rankMap);
 		TreeMap<Component, Integer>retMap = new TreeMap<Component, Integer>(bvc);
 		for(Map.Entry<String, Component> entry : map.entrySet()) {
-			rankMap.put(entry.getValue(), 0-distToSpout(entry.getValue(),map));
+			int reverse=0-distToSpout(entry.getValue(),map);
+			rankMap.put(entry.getValue(), reverse);
+			LOG.info("{}",reverse);
 			LOG.info("{}--{}", entry.getKey(), rankMap.get(entry.getKey()));
 		}
 		retMap.putAll(rankMap);
@@ -75,7 +77,8 @@ public class Strategies {
 		ComponentComparator bvc =  new ComponentComparator(rankMap);
 		TreeMap<Component, Integer>retMap = new TreeMap<Component, Integer>(bvc);
 		for(Map.Entry<String, Component> entry : map.entrySet()) {
-			rankMap.put(entry.getValue(), 0-distToBolt(entry.getValue(),map));
+			int reverse=0-distToBolt(entry.getValue(),map);
+			rankMap.put(entry.getValue(), reverse);
 			LOG.info("{}--{}", entry.getKey(), rankMap.get(entry.getKey()));
 		}
 		retMap.putAll(rankMap);
@@ -160,14 +163,15 @@ public class Strategies {
 		for (String child : com.children) {
 			max=Math.max(distToBolt(map.get(child), map)+1, max);
 		}
+		LOG.info("{}",max);
 		return max;
 	}
 	private static Integer distToSpout(Component com, Map<String, Component> map) {
 		Integer max=0;
 		for (String parent : com.parents) {
 			max=Math.max(distToSpout(map.get(parent), map)+1, max);
-			LOG.info("{}",max);
 		}
+		LOG.info("{}",max);
 		return max;
 	}
 	private static Integer numDescendants(Component com, Map<String, Component> map) {
