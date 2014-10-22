@@ -66,6 +66,7 @@ public class ElasticityScheduler implements IScheduler {
 						LOG.info("Making migration assignments...");
 						
 						TreeMap<Component, Integer> priorityQueue = Strategies.numDescendantStrategy(globalState.components.get(topo.getId()));
+						Strategies.centralityStrategy(globalState.components.get(topo.getId()));
 						
 						LOG.info("priorityQueue: {}", priorityQueue);
 						
@@ -82,7 +83,8 @@ public class ElasticityScheduler implements IScheduler {
 						WorkerSlot target_ws = targetNode.slots.get(0);
 						LOG.info("target location: {}:{}", targetNode.hostname, target_ws.getPort());
 						
-						int THRESHOLD = 4;
+						int THRESHOLD = (topo.getExecutors().size())/cluster.getSupervisors().size();
+						LOG.info("Threshold: ", THRESHOLD);
 						List<ExecutorDetails> migratedTasks = new ArrayList<ExecutorDetails>();
 						for (Component comp : priorityQueue.keySet()) {
 							if(migratedTasks.size()>=THRESHOLD) {

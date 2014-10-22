@@ -465,5 +465,14 @@ public class GetStats {
 			e.printStackTrace();
 		}
 	}
+	
+	public void setRebalanceTime(String topoId){
+		if(this.startTimes.containsKey(topoId)==false){
+			LOG.error("Topology {} does not exist!", topoId);
+			return;
+		}
+		Long rebalanceTime = this.startTimes.get(topoId);
+		
+	}
 
 }
