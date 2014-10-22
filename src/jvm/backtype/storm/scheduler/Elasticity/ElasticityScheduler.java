@@ -84,7 +84,7 @@ public class ElasticityScheduler implements IScheduler {
 						LOG.info("target location: {}:{}", targetNode.hostname, target_ws.getPort());
 						
 						int THRESHOLD = (topo.getExecutors().size())/cluster.getSupervisors().size();
-						LOG.info("Threshold: ", THRESHOLD);
+						LOG.info("Threshold: {}", THRESHOLD);
 						List<ExecutorDetails> migratedTasks = new ArrayList<ExecutorDetails>();
 						for (Component comp : priorityQueue.keySet()) {
 							if(migratedTasks.size()>=THRESHOLD) {
