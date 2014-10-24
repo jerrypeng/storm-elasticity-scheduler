@@ -58,7 +58,7 @@ public class Strategies {
 		ComponentComparator bvc =  new ComponentComparator(rankMap);
 		TreeMap<Component, Integer>retMap = new TreeMap<Component, Integer>(bvc);
 		for(Map.Entry<String, Component> entry : map.entrySet()) {
-			int reverse=0-distToSpout(entry.getValue(),map);
+			Integer reverse=0-distToSpout(entry.getValue(),map);
 			rankMap.put(entry.getValue(), reverse);
 			LOG.info("{}",reverse);
 			LOG.info("{}--{}", entry.getKey(), rankMap.get(entry.getKey()));
@@ -77,7 +77,7 @@ public class Strategies {
 		ComponentComparator bvc =  new ComponentComparator(rankMap);
 		TreeMap<Component, Integer>retMap = new TreeMap<Component, Integer>(bvc);
 		for(Map.Entry<String, Component> entry : map.entrySet()) {
-			int reverse=0-distToBolt(entry.getValue(),map);
+			Integer reverse=0-distToBolt(entry.getValue(),map);
 			rankMap.put(entry.getValue(), reverse);
 			LOG.info("{}--{}", entry.getKey(), rankMap.get(entry.getKey()));
 		}
@@ -118,7 +118,38 @@ public class Strategies {
 		retMap.putAll(rankMap);
 		return retMap;
 	}
-	
+	/**
+	 * hybrid A+D
+	 * @param map
+	 * @return
+	 */
+	public static TreeMap<Component, Integer> SpoutCentralityStrategy(Map<String, Component> map){
+		HashMap<Component, Integer> rankMap = new HashMap<Component, Integer>();
+		ComponentComparator bvc =  new ComponentComparator(rankMap);
+		TreeMap<Component, Integer>retMap = new TreeMap<Component, Integer>(bvc);
+		for(Map.Entry<String, Component> entry : map.entrySet()) {
+			rankMap.put(entry.getValue(), entry.getValue().children.size()+entry.getValue().parents.size()-distToSpout(entry.getValue(),map));
+			LOG.info("{}--{}", entry.getKey(), rankMap.get(entry.getKey()));
+		}
+		retMap.putAll(rankMap);
+		return retMap;
+	}
+	/**
+	 * hybrid B+D
+	 * @param map
+	 * @return
+	 */
+	public static TreeMap<Component, Integer> BoltCentralityStrategy(Map<String, Component> map){
+		HashMap<Component, Integer> rankMap = new HashMap<Component, Integer>();
+		ComponentComparator bvc =  new ComponentComparator(rankMap);
+		TreeMap<Component, Integer>retMap = new TreeMap<Component, Integer>(bvc);
+		for(Map.Entry<String, Component> entry : map.entrySet()) {
+			rankMap.put(entry.getValue(), entry.getValue().children.size()+entry.getValue().parents.size()-distToBolt(entry.getValue(),map));
+			LOG.info("{}--{}", entry.getKey(), rankMap.get(entry.getKey()));
+		}
+		retMap.putAll(rankMap);
+		return retMap;
+	}
 	/**
 	 * hybrid A+C+D
 	 * @param map
