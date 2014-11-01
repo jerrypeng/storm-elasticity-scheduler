@@ -181,24 +181,9 @@ public class GetStats {
 						this.componentStats.put(componentId,
 								new ComponentStats(componentId));
 					}
-					/*
-					 * if(this.location_stats.containsKey(host) == false) {
-					 * this.location_stats.put(host, new HashMap<String,
-					 * ArrayList<ExecutorSummary>>());
-					 * this.location_stats.get(host).put("bolts", new
-					 * ArrayList<ExecutorSummary>());
-					 * this.location_stats.get(host).put("spouts", new
-					 * ArrayList<ExecutorSummary>());
-					 * this.node_component_stats.put(host, new HashMap<String,
-					 * Integer>());
-					 * this.node_component_stats.get(host).put("bolts", 0);
-					 * this.node_component_stats.get(host).put("spouts", 0); }
-					 */
+					
 					// getting component info
 					if (stormTopo.get_bolts().containsKey(componentId) == true) {
-						// this.location_stats.get(host).get("bolts").add(executorSummary);
-						// this.parallelism_hint.put(componentId,
-						// stormTopo.get_bolts().get(componentId).get_common().get_parallelism_hint());
 
 						// adding bolt to host
 						this.nodeStats.get(host).bolts_on_node
@@ -208,9 +193,6 @@ public class GetStats {
 								.get_bolts().get(componentId).get_common()
 								.get_parallelism_hint();
 					} else if (stormTopo.get_spouts().containsKey(componentId) == true) {
-						// this.location_stats.get(host).get("spouts").add(executorSummary);
-						// this.parallelism_hint.put(componentId,
-						// stormTopo.get_spouts().get(componentId).get_common().get_parallelism_hint());
 
 						// adding spout to host
 						this.nodeStats.get(host).spouts_on_node
@@ -230,6 +212,7 @@ public class GetStats {
 					Map<String, Map<String, Long>> emit = executorStats
 							.get_emitted();
 
+					LOG.info("Transfer: {}", transfer);
 					if (transfer.get(":all-time").get("default") != null
 							&& emit.get(":all-time").get("default") != null) {
 						// getting task hash
@@ -271,28 +254,11 @@ public class GetStats {
 						this.emitStatsTable.put(hash_id, totalEmitOutput);
 
 						// get node stats
-						/*
-						 * if (this.node_stats.containsKey(host) == false) {
-						 * this.node_stats.put(host, 0); }
-						 * this.node_stats.put(host, this.node_stats.get(host) +
-						 * transfer_throughput);
-						 */
+
 						this.nodeStats.get(host).transfer_throughput += transfer_throughput;
 						this.nodeStats.get(host).emit_throughput += emit_throughput;
 
 						// get node component stats
-						/*
-						 * if (stormTopo.get_bolts().containsKey(componentId) ==
-						 * true){
-						 * this.node_component_stats.get(host).put("bolts",
-						 * this.node_component_stats.get(host).get("bolts")+
-						 * transfer_throughput); } else if
-						 * (stormTopo.get_spouts().containsKey(componentId) ==
-						 * true) {
-						 * this.node_component_stats.get(host).put("spouts",
-						 * this.node_component_stats.get(host).get("spouts")+
-						 * transfer_throughput); }
-						 */
 						if (stormTopo.get_bolts().containsKey(componentId) == true) {
 							this.nodeStats.get(host).bolts_on_node_throughput
 									.put("transfer",
@@ -317,15 +283,6 @@ public class GetStats {
 													.get("emit")
 													+ emit_throughput);
 						}
-
-						// get individual component stats
-						/*
-						 * if(this.indv_component_stats.containsKey(componentId)==
-						 * false) { this.indv_component_stats.put(componentId,
-						 * 0); } this.indv_component_stats.put(componentId,
-						 * this.indv_component_stats.get(componentId) +
-						 * transfer_throughput);
-						 */
 
 						this.componentStats.get(componentId).total_transfer_throughput += transfer_throughput;
 						this.componentStats.get(componentId).total_emit_throughput += emit_throughput;
@@ -365,21 +322,7 @@ public class GetStats {
 				}
 				// this.node_stats.clear();
 				LOG.info("NODE STATS:");
-				/*
-				 * for(Map.Entry<String, HashMap<String,
-				 * ArrayList<ExecutorSummary>>> entry :
-				 * this.location_stats.entrySet()) { LOG.info("{}:",
-				 * entry.getKey());
-				 * LOG.info("# of Spouts: {}    # of Bolts: {}",
-				 * entry.getValue().get("spouts").size(),
-				 * entry.getValue().get("bolts").size()); LOG.info(
-				 * "total Spout throughput: {}    total Bolt throughput: {}",
-				 * this.node_component_stats.get(entry.getKey()).get("spouts"),
-				 * this.node_component_stats.get(entry.getKey()).get("bolts"));
-				 * //LOG.info("Spouts: {}\nBolts: {}",
-				 * entry.getValue().get("spouts"),
-				 * entry.getValue().get("bolts")); }
-				 */
+				
 				for (Map.Entry<String, NodeStats> ns : this.nodeStats
 						.entrySet()) {
 					LOG.info("{}:", ns.getKey());
@@ -398,15 +341,7 @@ public class GetStats {
 				}
 
 				LOG.info("COMPONENT STATS:");
-				/*
-				 * for(Map.Entry<String, Integer> entry:
-				 * this.indv_component_stats.entrySet()) {
-				 * LOG.info("Component: {} avg throughput: {}", entry.getKey(),
-				 * entry.getValue() /
-				 * this.parallelism_hint.get(entry.getKey()));
-				 * 
-				 * }
-				 */
+
 				int num_output_bolt = 0;
 				int total_output_bolt_emit = 0;
 				String output_bolts = "";

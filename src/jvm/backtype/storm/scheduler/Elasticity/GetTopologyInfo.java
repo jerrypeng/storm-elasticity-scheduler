@@ -61,7 +61,7 @@ public class GetTopologyInfo {
 					
 					this.numWorkers = topo.get_num_workers();
 					
-					LOG.info("Topology: {} conf->{}",topo.get_name(), client.getTopologyConf(topo.get_id()));
+					//LOG.info("Topology: {} conf->{}",topo.get_name(), client.getTopologyConf(topo.get_id()));
 					// spouts
 					for (Map.Entry<String, SpoutSpec> s : storm_topo
 							.get_spouts().entrySet()) {
