@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,12 +36,14 @@ public class GlobalState {
 	
 	public Map<String, Integer> topoWorkers = new HashMap<String, Integer>();
 	
-	
+	//edge and throughput
+	public TreeMap<List<Component>, Integer> edgeThroughput;
 	
 	public boolean isBalanced = false;
 	
 	private GlobalState() {
 		this.schedState = new HashMap<String, Map<WorkerSlot, List<ExecutorDetails>>>();
+		
 	}
 
 	public static GlobalState getInstance() {
