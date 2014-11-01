@@ -75,6 +75,9 @@ public class GetTopologyInfo {
 								this.all_comp.put(s.getKey(), newComp);
 							}
 
+							LOG.info("get_common: {}",s.getValue().get_common());
+							LOG.info("Streams: {}",s.getValue().get_common().get_streams());
+							LOG.info("INputs: {}",s.getValue().get_common().get_inputs());
 							for (Map.Entry<GlobalStreamId, Grouping> entry : s
 									.getValue().get_common().get_inputs()
 									.entrySet()) {
