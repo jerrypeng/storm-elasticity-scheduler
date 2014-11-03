@@ -19,7 +19,7 @@ public class Strategies {
 	 * @param map
 	 * @return
 	 */ 
-	public static TreeMap<Component, Integer> centralityStrategy(Map<String, Component> map) {
+	public static TreeMap<Component, Integer> CentralityStrategy(Map<String, Component> map) {
 		HashMap<Component, Integer> rankMap = new HashMap<Component, Integer>();
 		
 		ComponentComparator bvc =  new ComponentComparator(rankMap);
@@ -53,7 +53,7 @@ public class Strategies {
 	 * @param map
 	 * @return
 	 */
-	public static TreeMap<Component, Integer> distSpoutStrategy(Map<String, Component> map){
+	public static TreeMap<Component, Integer> SourceClosenessStrategy(Map<String, Component> map){
 		HashMap<Component, Integer> rankMap = new HashMap<Component, Integer>();
 		ComponentComparator bvc =  new ComponentComparator(rankMap);
 		TreeMap<Component, Integer>retMap = new TreeMap<Component, Integer>(bvc);
@@ -72,7 +72,7 @@ public class Strategies {
 	 * @param map
 	 * @return
 	 */
-	public static TreeMap<Component, Integer> distBoltStrategy(Map<String, Component> map){
+	public static TreeMap<Component, Integer> SinkClosenessStrategy(Map<String, Component> map){
 		HashMap<Component, Integer> rankMap = new HashMap<Component, Integer>();
 		ComponentComparator bvc =  new ComponentComparator(rankMap);
 		TreeMap<Component, Integer>retMap = new TreeMap<Component, Integer>(bvc);
@@ -90,7 +90,7 @@ public class Strategies {
 	 * @param map
 	 * @return
 	 */
-	public static TreeMap<Component, Integer> SpoutDescendantStrategy(Map<String, Component> map){
+	public static TreeMap<Component, Integer> SourceDescendantStrategy(Map<String, Component> map){
 		HashMap<Component, Integer> rankMap = new HashMap<Component, Integer>();
 		ComponentComparator bvc =  new ComponentComparator(rankMap);
 		TreeMap<Component, Integer>retMap = new TreeMap<Component, Integer>(bvc);
@@ -107,7 +107,7 @@ public class Strategies {
 	 * @param map
 	 * @return
 	 */
-	public static TreeMap<Component, Integer> BoltDescendantStrategy(Map<String, Component> map){
+	public static TreeMap<Component, Integer> SinkDescendantStrategy(Map<String, Component> map){
 		HashMap<Component, Integer> rankMap = new HashMap<Component, Integer>();
 		ComponentComparator bvc =  new ComponentComparator(rankMap);
 		TreeMap<Component, Integer>retMap = new TreeMap<Component, Integer>(bvc);
@@ -123,7 +123,7 @@ public class Strategies {
 	 * @param map
 	 * @return
 	 */
-	public static TreeMap<Component, Integer> SpoutCentralityStrategy(Map<String, Component> map){
+	public static TreeMap<Component, Integer> SourceCentralityStrategy(Map<String, Component> map){
 		HashMap<Component, Integer> rankMap = new HashMap<Component, Integer>();
 		ComponentComparator bvc =  new ComponentComparator(rankMap);
 		TreeMap<Component, Integer>retMap = new TreeMap<Component, Integer>(bvc);
@@ -139,7 +139,7 @@ public class Strategies {
 	 * @param map
 	 * @return
 	 */
-	public static TreeMap<Component, Integer> BoltCentralityStrategy(Map<String, Component> map){
+	public static TreeMap<Component, Integer> SinkCentralityStrategy(Map<String, Component> map){
 		HashMap<Component, Integer> rankMap = new HashMap<Component, Integer>();
 		ComponentComparator bvc =  new ComponentComparator(rankMap);
 		TreeMap<Component, Integer>retMap = new TreeMap<Component, Integer>(bvc);
@@ -155,7 +155,7 @@ public class Strategies {
 	 * @param map
 	 * @return
 	 */
-	public static TreeMap<Component, Integer> SpoutDescendantCentralityStrategy(Map<String, Component> map){
+	public static TreeMap<Component, Integer> SourceDescendantCentralityStrategy(Map<String, Component> map){
 		HashMap<Component, Integer> rankMap = new HashMap<Component, Integer>();
 		ComponentComparator bvc =  new ComponentComparator(rankMap);
 		TreeMap<Component, Integer>retMap = new TreeMap<Component, Integer>(bvc);
@@ -172,7 +172,7 @@ public class Strategies {
 	 * @param map
 	 * @return
 	 */
-	public static TreeMap<Component, Integer> BoltDescendantCentralityStrategy(Map<String, Component> map){
+	public static TreeMap<Component, Integer> SinkDescendantCentralityStrategy(Map<String, Component> map){
 		HashMap<Component, Integer> rankMap = new HashMap<Component, Integer>();
 		ComponentComparator bvc =  new ComponentComparator(rankMap);
 		TreeMap<Component, Integer>retMap = new TreeMap<Component, Integer>(bvc);
