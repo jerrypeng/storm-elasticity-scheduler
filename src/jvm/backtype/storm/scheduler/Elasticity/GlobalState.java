@@ -57,6 +57,10 @@ public class GlobalState {
 		this.storeSchedState(cluster, topologies);
 	}
 	
+	public boolean stateEmpty() {
+		return this.schedState.isEmpty();
+	}
+	
 	public void storeSchedState(Cluster cluster, Topologies topologies) {
 		this.schedState = new HashMap<String, Map<WorkerSlot, List<ExecutorDetails>>>();
 		
