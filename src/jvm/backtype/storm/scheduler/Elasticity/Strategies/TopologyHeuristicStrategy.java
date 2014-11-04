@@ -44,7 +44,7 @@ public abstract class TopologyHeuristicStrategy implements IStrategy{
 	}
 
 	public Map<WorkerSlot, List<ExecutorDetails>> getNewScheduling() {
-		Map<String, Component> components = this._globalState.getComponents(this._topologies).get(this._topo.getId());
+		Map<String, Component> components = this._globalState.components.get(this._topo.getId());
 		TreeMap<Component, Integer> priorityQueue = this.Strategy(components);
 		
 		LOG.info("priorityQueue: {}", priorityQueue);
