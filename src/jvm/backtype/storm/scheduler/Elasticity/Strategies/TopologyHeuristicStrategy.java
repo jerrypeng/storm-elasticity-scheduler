@@ -81,4 +81,30 @@ public abstract class TopologyHeuristicStrategy implements IStrategy{
 		return schedMap;
 	}
 	
+/****helper****/
+	
+	protected  Integer distToBolt(Component com, Map<String, Component> map) {
+		Integer max=0;
+		for (String child : com.children) {
+			max=Math.max(distToBolt(map.get(child), map)+1, max);
+		}
+		LOG.info("{}",max);
+		return max;
+	}
+	protected  Integer distToSpout(Component com, Map<String, Component> map) {
+		Integer max=0;
+		for (String parent : com.parents) {
+			max=Math.max(distToSpout(map.get(parent), map)+1, max);
+		}
+		LOG.info("{}",max);
+		return max;
+	}
+	protected  Integer numDescendants(Component com, Map<String, Component> map) {
+		Integer count=1;
+		for (String child : com.children) {
+			count+=numDescendants(map.get(child), map);
+		}
+		return count;
+	}
+	
 }

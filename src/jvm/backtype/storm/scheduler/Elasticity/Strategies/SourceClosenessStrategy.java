@@ -13,12 +13,12 @@ import backtype.storm.scheduler.Elasticity.GlobalState;
 import backtype.storm.scheduler.Elasticity.Component;
 
 /***
- * rank central nodes (D)
+ * rank nodes closest to spout (A)
  * @author jerry
  */
-public class CentralityStrategy extends TopologyHeuristicStrategy {
+public class SourceClosenessStrategy extends TopologyHeuristicStrategy {
 
-	public CentralityStrategy(GlobalState globalState, GetStats getStats,
+	public SourceClosenessStrategy(GlobalState globalState, GetStats getStats,
 			TopologyDetails topo, Cluster cluster, Topologies topologies) {
 		super(globalState, getStats, topo, cluster, topologies);
 	}
@@ -26,16 +26,14 @@ public class CentralityStrategy extends TopologyHeuristicStrategy {
 	@Override
 	public TreeMap<Component, Integer> Strategy(Map<String, Component> map) {
 		HashMap<Component, Integer> rankMap = new HashMap<Component, Integer>();
-
-		ComponentComparator bvc = new ComponentComparator(rankMap);
-		TreeMap<Component, Integer> retMap = new TreeMap<Component, Integer>(
-				bvc);
-		for (Map.Entry<String, Component> entry : map.entrySet()) {
-			rankMap.put(entry.getValue(), entry.getValue().children.size()
-					+ entry.getValue().parents.size());
+		ComponentComparator bvc =  new ComponentComparator(rankMap);
+		TreeMap<Component, Integer>retMap = new TreeMap<Component, Integer>(bvc);
+		for(Map.Entry<String, Component> entry : map.entrySet()) {
+			Integer reverse=0-distToSpout(entry.getValue(),map);
+			rankMap.put(entry.getValue(), reverse);
+			LOG.info("{}",reverse);
 		}
 		retMap.putAll(rankMap);
 		return retMap;
 	}
-
 }
