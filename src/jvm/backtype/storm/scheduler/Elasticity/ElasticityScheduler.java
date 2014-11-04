@@ -16,6 +16,7 @@ import backtype.storm.scheduler.Topologies;
 import backtype.storm.scheduler.EvenScheduler;
 import backtype.storm.scheduler.TopologyDetails;
 import backtype.storm.scheduler.WorkerSlot;
+import backtype.storm.scheduler.Elasticity.Strategies.*;
 
 public class ElasticityScheduler implements IScheduler {
 	private static final Logger LOG = LoggerFactory
@@ -66,27 +67,13 @@ public class ElasticityScheduler implements IScheduler {
 							.getExecutors().size()) {
 						LOG.info("Making migration assignments...");
 						
-						TreeMap<ExecutorDetails, Integer> priorityQueue = Strategies.EdgeAware(globalState.components.get(topo.getId()), stats.transferStatsTable);
+						CentralityStrategy strategy = new CentralityStrategy(globalState, stats, topo, cluster, topologies);
+						Map<WorkerSlot, List<ExecutorDetails>> schedMap = strategy.getNewScheduling();
 						
-						LOG.info("priorityQueue: \n{}", HelperFuncs.printPriorityQueue(priorityQueue, topo));
-						
-						List<Node> newNodes = globalState.getNewNode();
-						
-						if(newNodes.size()<=0) {
-							LOG.error("No new Nodes!");
-							break;
+						for(Map.Entry<WorkerSlot, List<ExecutorDetails>> sched : schedMap.entrySet()) {
+							HelperFuncs.assignTasks(sched.getKey(), topo.getId(), sched.getValue(), cluster, topologies);
+							LOG.info("Assigning {}=>{}",sched.getKey(), sched.getValue());
 						}
-						
-						Node targetNode = newNodes.get(0);
-						WorkerSlot target_ws = targetNode.slots.get(0);
-						LOG.info("target location: {}:{}", targetNode.hostname, target_ws.getPort());
-						
-						int THRESHOLD = (topo.getExecutors().size())/cluster.getSupervisors().size();
-						LOG.info("Threshold: {}", THRESHOLD);
-						
-
-						HelperFuncs.migrate(priorityQueue, topo, THRESHOLD, globalState, target_ws, cluster, topologies);
-
 						globalState.isBalanced = true;
 					}
 				}

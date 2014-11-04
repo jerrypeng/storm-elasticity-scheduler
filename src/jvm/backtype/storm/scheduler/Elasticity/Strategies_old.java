@@ -1,7 +1,6 @@
 package backtype.storm.scheduler.Elasticity;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -13,9 +12,9 @@ import org.slf4j.LoggerFactory;
 import backtype.storm.scheduler.ExecutorDetails;
 
  
-public class Strategies {
+public class Strategies_old {
 	private static final Logger LOG = LoggerFactory
-			.getLogger(Strategies.class);
+			.getLogger(Strategies_old.class);
 	/**
 	 * rank central nodes (D)
 	 * @param map
@@ -308,38 +307,4 @@ public class Strategies {
 		}
 		return count;
 	}
-}
-
-class ComponentComparator implements Comparator<Component> {
-
-	HashMap<Component, Integer> base;
-    public ComponentComparator(HashMap<Component, Integer> base) {
-        this.base = base;
-    }
-
-    // Note: this comparator imposes orderings that are inconsistent with equals.    
-    public int compare(Component a, Component b) {
-        if (base.get(a) >= base.get(b)) {
-            return -1;
-        } else {
-            return 1;
-        } // returning 0 would merge keys
-    }
-}
-
-class TaskComparator implements Comparator<ExecutorDetails> {
-
-	HashMap<ExecutorDetails, Integer> base;
-    public TaskComparator(HashMap<ExecutorDetails, Integer> base) {
-        this.base = base;
-    }
-
-    // Note: this comparator imposes orderings that are inconsistent with equals.    
-    public int compare(ExecutorDetails a, ExecutorDetails b) {
-        if (base.get(a) >= base.get(b)) {
-            return -1;
-        } else {
-            return 1;
-        } // returning 0 would merge keys
-    }
 }
