@@ -212,7 +212,7 @@ public class GetStats {
 					Map<String, Map<String, Long>> emit = executorStats
 							.get_emitted();
 
-					LOG.info("Transfer: {}", transfer);
+					//LOG.info("Transfer: {}", transfer);
 					if (transfer.get(":all-time").get("default") != null
 							&& emit.get(":all-time").get("default") != null) {
 						// getting task hash
