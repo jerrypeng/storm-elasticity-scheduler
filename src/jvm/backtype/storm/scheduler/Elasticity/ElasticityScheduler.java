@@ -68,7 +68,7 @@ public class ElasticityScheduler implements IScheduler {
 							.getExecutors().size()) {
 						if (globalState.stateEmpty() == false) {
 							LOG.info("Making migration assignments...");
-
+							
 							CentralityStrategy strategy = new CentralityStrategy(
 									globalState, stats, topo, cluster,
 									topologies);

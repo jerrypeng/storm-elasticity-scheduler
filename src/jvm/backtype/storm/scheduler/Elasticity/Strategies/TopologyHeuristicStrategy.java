@@ -32,6 +32,7 @@ public abstract class TopologyHeuristicStrategy implements IStrategy{
 		this._getStats = getStats;
 		this._cluster = cluster;
 		this._topologies = topologies;
+		this._topo = topo;
 		this.LOG = LoggerFactory
 				.getLogger(this.getClass());
 		
