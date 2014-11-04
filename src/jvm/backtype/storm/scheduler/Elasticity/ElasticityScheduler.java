@@ -31,7 +31,7 @@ public class ElasticityScheduler implements IScheduler {
 	@Override
 	public void schedule(Topologies topologies, Cluster cluster) {
 		LOG.info("\n\n\nRerunning ElasticityScheduler...");
-
+		
 		/**
 		 * Get Global info
 		 */
@@ -66,10 +66,9 @@ public class ElasticityScheduler implements IScheduler {
 							.getExecutors().size()) {
 						LOG.info("Making migration assignments...");
 						
-						TreeMap<Component, Integer> priorityQueue = Strategies.numDescendantStrategy(globalState.components.get(topo.getId()));
-						Strategies.centralityStrategy(globalState.components.get(topo.getId()));
+						TreeMap<ExecutorDetails, Integer> priorityQueue = Strategies.EdgeAware(globalState.components.get(topo.getId()), stats.transferStatsTable);
 						
-						LOG.info("priorityQueue: {}", priorityQueue);
+						LOG.info("priorityQueue: \n{}", HelperFuncs.printPriorityQueue(priorityQueue, topo));
 						
 						List<Node> newNodes = globalState.getNewNode();
 						
@@ -78,34 +77,15 @@ public class ElasticityScheduler implements IScheduler {
 							break;
 						}
 						
-						Map<WorkerSlot, List<ExecutorDetails>> schedMap = globalState.schedState.get(topo.getId());
-						
 						Node targetNode = newNodes.get(0);
 						WorkerSlot target_ws = targetNode.slots.get(0);
 						LOG.info("target location: {}:{}", targetNode.hostname, target_ws.getPort());
 						
 						int THRESHOLD = (topo.getExecutors().size())/cluster.getSupervisors().size();
 						LOG.info("Threshold: {}", THRESHOLD);
-						List<ExecutorDetails> migratedTasks = new ArrayList<ExecutorDetails>();
-						for (Component comp : priorityQueue.keySet()) {
-							if(migratedTasks.size()>=THRESHOLD) {
-								break;
-							}
-							for(ExecutorDetails exec : comp.execs) {
-								if(migratedTasks.size()>=THRESHOLD) {
-									break;
-								}
-								globalState.migrateTask(exec, target_ws, topo);
-								migratedTasks.add(exec);
-							}
-						}
 						
-						LOG.info("Tasks migrated: {}", migratedTasks);
-						for(Map.Entry<WorkerSlot, List<ExecutorDetails>> sched : schedMap.entrySet()) {
-							//cluster.assign(sched.getKey(), topo.getId(), sched.getValue());
-							HelperFuncs.assignTasks(sched.getKey(), topo.getId(), sched.getValue(), cluster, topologies);
-							LOG.info("Assigning {}=>{}",sched.getKey(), sched.getValue());
-						}
+
+						HelperFuncs.migrate(priorityQueue, topo, THRESHOLD, globalState, target_ws, cluster, topologies);
 
 						globalState.isBalanced = true;
 					}

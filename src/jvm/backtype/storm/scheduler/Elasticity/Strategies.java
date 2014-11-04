@@ -10,6 +10,8 @@ import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import backtype.storm.scheduler.ExecutorDetails;
+
  
 public class Strategies {
 	private static final Logger LOG = LoggerFactory
@@ -19,7 +21,7 @@ public class Strategies {
 	 * @param map
 	 * @return
 	 */ 
-	public static TreeMap<Component, Integer> CentralityStrategy(Map<String, Component> map) {
+	public static TreeMap<ExecutorDetails, Integer> CentralityStrategy(Map<String, Component> map) {
 		HashMap<Component, Integer> rankMap = new HashMap<Component, Integer>();
 		
 		ComponentComparator bvc =  new ComponentComparator(rankMap);
@@ -29,14 +31,24 @@ public class Strategies {
 			LOG.info("{}--{}", entry.getKey(), rankMap.get(entry.getKey()));
 		}
 		retMap.putAll(rankMap);
-		return retMap;
+
+		HashMap<ExecutorDetails, Integer> taskRank = new HashMap<ExecutorDetails, Integer>();
+		TaskComparator tvc = new TaskComparator(taskRank);
+		TreeMap<ExecutorDetails, Integer> sortedTaskRank = new TreeMap<ExecutorDetails, Integer>(tvc);
+		for(Map.Entry<Component, Integer> entry : retMap.entrySet()) {
+			for(ExecutorDetails exec : entry.getKey().execs) {
+				taskRank.put(exec, entry.getValue());
+			}
+		}
+		sortedTaskRank.putAll(taskRank);
+		return sortedTaskRank;
 	}
 	/**
 	 * rank nodes with most descendant (C)
 	 * @param map
 	 * @return
 	 */
-	public static TreeMap<Component, Integer> numDescendantStrategy(Map<String, Component> map) {
+	public static TreeMap<ExecutorDetails, Integer> numDescendantStrategy(Map<String, Component> map) {
 		HashMap<Component, Integer> rankMap = new HashMap<Component, Integer>();
 		ComponentComparator bvc =  new ComponentComparator(rankMap);
 		TreeMap<Component, Integer>retMap = new TreeMap<Component, Integer>(bvc);
@@ -45,7 +57,17 @@ public class Strategies {
 			LOG.info("{}--{}", entry.getKey(), rankMap.get(entry.getKey()));
 		}
 		retMap.putAll(rankMap);
-		return retMap;
+		
+		HashMap<ExecutorDetails, Integer> taskRank = new HashMap<ExecutorDetails, Integer>();
+		TaskComparator tvc = new TaskComparator(taskRank);
+		TreeMap<ExecutorDetails, Integer> sortedTaskRank = new TreeMap<ExecutorDetails, Integer>(tvc);
+		for(Map.Entry<Component, Integer> entry : retMap.entrySet()) {
+			for(ExecutorDetails exec : entry.getKey().execs) {
+				taskRank.put(exec, entry.getValue());
+			}
+		}
+		sortedTaskRank.putAll(taskRank);
+		return sortedTaskRank;
 	}
 	
 	/**
@@ -53,7 +75,7 @@ public class Strategies {
 	 * @param map
 	 * @return
 	 */
-	public static TreeMap<Component, Integer> SourceClosenessStrategy(Map<String, Component> map){
+	public static TreeMap<ExecutorDetails, Integer> SourceClosenessStrategy(Map<String, Component> map){
 		HashMap<Component, Integer> rankMap = new HashMap<Component, Integer>();
 		ComponentComparator bvc =  new ComponentComparator(rankMap);
 		TreeMap<Component, Integer>retMap = new TreeMap<Component, Integer>(bvc);
@@ -64,7 +86,16 @@ public class Strategies {
 			LOG.info("{}--{}", entry.getKey(), rankMap.get(entry.getKey()));
 		}
 		retMap.putAll(rankMap);
-		return retMap;
+		HashMap<ExecutorDetails, Integer> taskRank = new HashMap<ExecutorDetails, Integer>();
+		TaskComparator tvc = new TaskComparator(taskRank);
+		TreeMap<ExecutorDetails, Integer> sortedTaskRank = new TreeMap<ExecutorDetails, Integer>(tvc);
+		for(Map.Entry<Component, Integer> entry : retMap.entrySet()) {
+			for(ExecutorDetails exec : entry.getKey().execs) {
+				taskRank.put(exec, entry.getValue());
+			}
+		}
+		sortedTaskRank.putAll(taskRank);
+		return sortedTaskRank;
 	}
 	
 	/**
@@ -72,7 +103,7 @@ public class Strategies {
 	 * @param map
 	 * @return
 	 */
-	public static TreeMap<Component, Integer> SinkClosenessStrategy(Map<String, Component> map){
+	public static TreeMap<ExecutorDetails, Integer> SinkClosenessStrategy(Map<String, Component> map){
 		HashMap<Component, Integer> rankMap = new HashMap<Component, Integer>();
 		ComponentComparator bvc =  new ComponentComparator(rankMap);
 		TreeMap<Component, Integer>retMap = new TreeMap<Component, Integer>(bvc);
@@ -82,7 +113,16 @@ public class Strategies {
 			LOG.info("{}--{}", entry.getKey(), rankMap.get(entry.getKey()));
 		}
 		retMap.putAll(rankMap);
-		return retMap;
+		HashMap<ExecutorDetails, Integer> taskRank = new HashMap<ExecutorDetails, Integer>();
+		TaskComparator tvc = new TaskComparator(taskRank);
+		TreeMap<ExecutorDetails, Integer> sortedTaskRank = new TreeMap<ExecutorDetails, Integer>(tvc);
+		for(Map.Entry<Component, Integer> entry : retMap.entrySet()) {
+			for(ExecutorDetails exec : entry.getKey().execs) {
+				taskRank.put(exec, entry.getValue());
+			}
+		}
+		sortedTaskRank.putAll(taskRank);
+		return sortedTaskRank;
 	}
 	
 	/**
@@ -90,7 +130,7 @@ public class Strategies {
 	 * @param map
 	 * @return
 	 */
-	public static TreeMap<Component, Integer> SourceDescendantStrategy(Map<String, Component> map){
+	public static TreeMap<ExecutorDetails, Integer> SourceDescendantStrategy(Map<String, Component> map){
 		HashMap<Component, Integer> rankMap = new HashMap<Component, Integer>();
 		ComponentComparator bvc =  new ComponentComparator(rankMap);
 		TreeMap<Component, Integer>retMap = new TreeMap<Component, Integer>(bvc);
@@ -99,7 +139,16 @@ public class Strategies {
 			LOG.info("{}--{}", entry.getKey(), rankMap.get(entry.getKey()));
 		}
 		retMap.putAll(rankMap);
-		return retMap;
+		HashMap<ExecutorDetails, Integer> taskRank = new HashMap<ExecutorDetails, Integer>();
+		TaskComparator tvc = new TaskComparator(taskRank);
+		TreeMap<ExecutorDetails, Integer> sortedTaskRank = new TreeMap<ExecutorDetails, Integer>(tvc);
+		for(Map.Entry<Component, Integer> entry : retMap.entrySet()) {
+			for(ExecutorDetails exec : entry.getKey().execs) {
+				taskRank.put(exec, entry.getValue());
+			}
+		}
+		sortedTaskRank.putAll(taskRank);
+		return sortedTaskRank;
 	}
 	
 	/**
@@ -107,7 +156,7 @@ public class Strategies {
 	 * @param map
 	 * @return
 	 */
-	public static TreeMap<Component, Integer> SinkDescendantStrategy(Map<String, Component> map){
+	public static TreeMap<ExecutorDetails, Integer> SinkDescendantStrategy(Map<String, Component> map){
 		HashMap<Component, Integer> rankMap = new HashMap<Component, Integer>();
 		ComponentComparator bvc =  new ComponentComparator(rankMap);
 		TreeMap<Component, Integer>retMap = new TreeMap<Component, Integer>(bvc);
@@ -116,14 +165,23 @@ public class Strategies {
 			LOG.info("{}--{}", entry.getKey(), rankMap.get(entry.getKey()));
 		}
 		retMap.putAll(rankMap);
-		return retMap;
+		HashMap<ExecutorDetails, Integer> taskRank = new HashMap<ExecutorDetails, Integer>();
+		TaskComparator tvc = new TaskComparator(taskRank);
+		TreeMap<ExecutorDetails, Integer> sortedTaskRank = new TreeMap<ExecutorDetails, Integer>(tvc);
+		for(Map.Entry<Component, Integer> entry : retMap.entrySet()) {
+			for(ExecutorDetails exec : entry.getKey().execs) {
+				taskRank.put(exec, entry.getValue());
+			}
+		}
+		sortedTaskRank.putAll(taskRank);
+		return sortedTaskRank;
 	}
 	/**
 	 * hybrid A+D
 	 * @param map
 	 * @return
 	 */
-	public static TreeMap<Component, Integer> SourceCentralityStrategy(Map<String, Component> map){
+	public static TreeMap<ExecutorDetails, Integer> SourceCentralityStrategy(Map<String, Component> map){
 		HashMap<Component, Integer> rankMap = new HashMap<Component, Integer>();
 		ComponentComparator bvc =  new ComponentComparator(rankMap);
 		TreeMap<Component, Integer>retMap = new TreeMap<Component, Integer>(bvc);
@@ -132,14 +190,23 @@ public class Strategies {
 			LOG.info("{}--{}", entry.getKey(), rankMap.get(entry.getKey()));
 		}
 		retMap.putAll(rankMap);
-		return retMap;
+		HashMap<ExecutorDetails, Integer> taskRank = new HashMap<ExecutorDetails, Integer>();
+		TaskComparator tvc = new TaskComparator(taskRank);
+		TreeMap<ExecutorDetails, Integer> sortedTaskRank = new TreeMap<ExecutorDetails, Integer>(tvc);
+		for(Map.Entry<Component, Integer> entry : retMap.entrySet()) {
+			for(ExecutorDetails exec : entry.getKey().execs) {
+				taskRank.put(exec, entry.getValue());
+			}
+		}
+		sortedTaskRank.putAll(taskRank);
+		return sortedTaskRank;
 	}
 	/**
 	 * hybrid B+D
 	 * @param map
 	 * @return
 	 */
-	public static TreeMap<Component, Integer> SinkCentralityStrategy(Map<String, Component> map){
+	public static TreeMap<ExecutorDetails, Integer> SinkCentralityStrategy(Map<String, Component> map){
 		HashMap<Component, Integer> rankMap = new HashMap<Component, Integer>();
 		ComponentComparator bvc =  new ComponentComparator(rankMap);
 		TreeMap<Component, Integer>retMap = new TreeMap<Component, Integer>(bvc);
@@ -148,14 +215,23 @@ public class Strategies {
 			LOG.info("{}--{}", entry.getKey(), rankMap.get(entry.getKey()));
 		}
 		retMap.putAll(rankMap);
-		return retMap;
+		HashMap<ExecutorDetails, Integer> taskRank = new HashMap<ExecutorDetails, Integer>();
+		TaskComparator tvc = new TaskComparator(taskRank);
+		TreeMap<ExecutorDetails, Integer> sortedTaskRank = new TreeMap<ExecutorDetails, Integer>(tvc);
+		for(Map.Entry<Component, Integer> entry : retMap.entrySet()) {
+			for(ExecutorDetails exec : entry.getKey().execs) {
+				taskRank.put(exec, entry.getValue());
+			}
+		}
+		sortedTaskRank.putAll(taskRank);
+		return sortedTaskRank;
 	}
 	/**
 	 * hybrid A+C+D
 	 * @param map
 	 * @return
 	 */
-	public static TreeMap<Component, Integer> SourceDescendantCentralityStrategy(Map<String, Component> map){
+	public static TreeMap<ExecutorDetails, Integer> SourceDescendantCentralityStrategy(Map<String, Component> map){
 		HashMap<Component, Integer> rankMap = new HashMap<Component, Integer>();
 		ComponentComparator bvc =  new ComponentComparator(rankMap);
 		TreeMap<Component, Integer>retMap = new TreeMap<Component, Integer>(bvc);
@@ -164,7 +240,16 @@ public class Strategies {
 			LOG.info("{}--{}", entry.getKey(), rankMap.get(entry.getKey()));
 		}
 		retMap.putAll(rankMap);
-		return retMap;
+		HashMap<ExecutorDetails, Integer> taskRank = new HashMap<ExecutorDetails, Integer>();
+		TaskComparator tvc = new TaskComparator(taskRank);
+		TreeMap<ExecutorDetails, Integer> sortedTaskRank = new TreeMap<ExecutorDetails, Integer>(tvc);
+		for(Map.Entry<Component, Integer> entry : retMap.entrySet()) {
+			for(ExecutorDetails exec : entry.getKey().execs) {
+				taskRank.put(exec, entry.getValue());
+			}
+		}
+		sortedTaskRank.putAll(taskRank);
+		return sortedTaskRank;
 	}
 	
 	/**
@@ -172,7 +257,7 @@ public class Strategies {
 	 * @param map
 	 * @return
 	 */
-	public static TreeMap<Component, Integer> SinkDescendantCentralityStrategy(Map<String, Component> map){
+	public static TreeMap<ExecutorDetails, Integer> SinkDescendantCentralityStrategy(Map<String, Component> map){
 		HashMap<Component, Integer> rankMap = new HashMap<Component, Integer>();
 		ComponentComparator bvc =  new ComponentComparator(rankMap);
 		TreeMap<Component, Integer>retMap = new TreeMap<Component, Integer>(bvc);
@@ -181,10 +266,21 @@ public class Strategies {
 			LOG.info("{}--{}", entry.getKey(), rankMap.get(entry.getKey()));
 		}
 		retMap.putAll(rankMap);
-		return retMap;
+		HashMap<ExecutorDetails, Integer> taskRank = new HashMap<ExecutorDetails, Integer>();
+		TaskComparator tvc = new TaskComparator(taskRank);
+		TreeMap<ExecutorDetails, Integer> sortedTaskRank = new TreeMap<ExecutorDetails, Integer>(tvc);
+		for(Map.Entry<Component, Integer> entry : retMap.entrySet()) {
+			for(ExecutorDetails exec : entry.getKey().execs) {
+				taskRank.put(exec, entry.getValue());
+			}
+		}
+		sortedTaskRank.putAll(taskRank);
+		return sortedTaskRank;
 	}
 	
-	
+	public static TreeMap<ExecutorDetails, Integer> EdgeAware(Map<String, Component> map, Map<String, Integer>edges) {
+		return null;
+	}
 	
 	
 	/****helper****/
@@ -223,6 +319,23 @@ class ComponentComparator implements Comparator<Component> {
 
     // Note: this comparator imposes orderings that are inconsistent with equals.    
     public int compare(Component a, Component b) {
+        if (base.get(a) >= base.get(b)) {
+            return -1;
+        } else {
+            return 1;
+        } // returning 0 would merge keys
+    }
+}
+
+class TaskComparator implements Comparator<ExecutorDetails> {
+
+	HashMap<ExecutorDetails, Integer> base;
+    public TaskComparator(HashMap<ExecutorDetails, Integer> base) {
+        this.base = base;
+    }
+
+    // Note: this comparator imposes orderings that are inconsistent with equals.    
+    public int compare(ExecutorDetails a, ExecutorDetails b) {
         if (base.get(a) >= base.get(b)) {
             return -1;
         } else {

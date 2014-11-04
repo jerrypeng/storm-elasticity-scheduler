@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -25,88 +26,101 @@ import backtype.storm.scheduler.WorkerSlot;
 public class HelperFuncs {
 	private static final Logger LOG = LoggerFactory
 			.getLogger(HelperFuncs.class);
-	
-	static void assignTasks(WorkerSlot slot, String topologyId, Collection<ExecutorDetails> executors, Cluster cluster, Topologies topologies) {
+
+	static void assignTasks(WorkerSlot slot, String topologyId,
+			Collection<ExecutorDetails> executors, Cluster cluster,
+			Topologies topologies) {
 		LOG.info("Assigning using HelperFuncs Assign...");
-		WorkerSlot curr_slot=null;
+		WorkerSlot curr_slot = null;
 		Collection<ExecutorDetails> curr_executors = new ArrayList<ExecutorDetails>();
-		
+
 		/*
-		for (Map.Entry<ExecutorDetails, WorkerSlot> ws : cluster.getAssignmentById(topologyId).getExecutorToSlot().entrySet()) {
-			if(ws.getValue().getNodeId().equals(slot.getNodeId())==true && ws.getValue().getPort() == slot.getPort()) {
-				curr_slot = ws.getValue();
-			}
-		}
-		*/
-		for(WorkerSlot ws : cluster.getAssignableSlots()) {
-			
-			
-			if(ws.getNodeId().equals(slot.getNodeId())==true && ws.getPort() == slot.getPort()) {
+		 * for (Map.Entry<ExecutorDetails, WorkerSlot> ws :
+		 * cluster.getAssignmentById(topologyId).getExecutorToSlot().entrySet())
+		 * { if(ws.getValue().getNodeId().equals(slot.getNodeId())==true &&
+		 * ws.getValue().getPort() == slot.getPort()) { curr_slot =
+		 * ws.getValue(); } }
+		 */
+		for (WorkerSlot ws : cluster.getAssignableSlots()) {
+
+			if (ws.getNodeId().equals(slot.getNodeId()) == true
+					&& ws.getPort() == slot.getPort()) {
 				curr_slot = ws;
 			}
-			
+
 		}
-		
-		if(curr_slot == null) {
+
+		if (curr_slot == null) {
 			LOG.error("Error: worker: {} does not exist!", slot);
 			return;
 		}
-		
-		for(ExecutorDetails old_exec: executors) {
-			for (ExecutorDetails exec : topologies.getById(topologyId).getExecutors()) {
-				if(old_exec.getEndTask()==exec.getEndTask() && old_exec.getStartTask() == exec.getStartTask()){
+
+		for (ExecutorDetails old_exec : executors) {
+			for (ExecutorDetails exec : topologies.getById(topologyId)
+					.getExecutors()) {
+				if (old_exec.getEndTask() == exec.getEndTask()
+						&& old_exec.getStartTask() == exec.getStartTask()) {
 					curr_executors.add(exec);
 				}
 			}
 		}
-		
-		if(executors.size() != curr_executors.size()) {
-			LOG.error("Error: executors size: {} curr_executors: {} not the same!", executors.size(), curr_executors.size());
+
+		if (executors.size() != curr_executors.size()) {
+			LOG.error(
+					"Error: executors size: {} curr_executors: {} not the same!",
+					executors.size(), curr_executors.size());
 		}
-		
+
 		cluster.assign(curr_slot, topologyId, curr_executors);
-		
+
 	}
-	
-	static void unassignTask(ExecutorDetails exec, Map<ExecutorDetails, WorkerSlot> execToSlot) {
-		if(execToSlot.containsKey(exec)==true) {
+
+	static void unassignTask(ExecutorDetails exec,
+			Map<ExecutorDetails, WorkerSlot> execToSlot) {
+		if (execToSlot.containsKey(exec) == true) {
 			execToSlot.remove(exec);
 		}
-		
+
 	}
-	
-	static void unassignTasks(List<ExecutorDetails> execs, Map<ExecutorDetails, WorkerSlot> execToSlot) {
+
+	static void unassignTasks(List<ExecutorDetails> execs,
+			Map<ExecutorDetails, WorkerSlot> execToSlot) {
 		for (ExecutorDetails exec : execs) {
 			unassignTask(exec, execToSlot);
 		}
 	}
-	
+
 	static List<ExecutorDetails> compToExecs(TopologyDetails topo, String comp) {
 		List<ExecutorDetails> execs = new ArrayList<ExecutorDetails>();
-		for (Map.Entry<ExecutorDetails, String> entry : topo.getExecutorToComponent().entrySet()) {
-			if(entry.getValue().equals(comp)==true) {
+		for (Map.Entry<ExecutorDetails, String> entry : topo
+				.getExecutorToComponent().entrySet()) {
+			if (entry.getValue().equals(comp) == true) {
 				execs.add(entry.getKey());
 			}
 		}
 		return execs;
 	}
-	
-	static HashMap<String, ArrayList<ExecutorDetails>> nodeToTask(Cluster cluster, String topoId) {
+
+	static HashMap<String, ArrayList<ExecutorDetails>> nodeToTask(
+			Cluster cluster, String topoId) {
 		HashMap<String, ArrayList<ExecutorDetails>> retMap = new HashMap<String, ArrayList<ExecutorDetails>>();
-		if(cluster.getAssignmentById(topoId)!=null && cluster.getAssignmentById(topoId).getExecutorToSlot()!=null) {
-			for(Map.Entry<ExecutorDetails, WorkerSlot> entry : cluster.getAssignmentById(topoId).getExecutorToSlot().entrySet()) {
+		if (cluster.getAssignmentById(topoId) != null
+				&& cluster.getAssignmentById(topoId).getExecutorToSlot() != null) {
+			for (Map.Entry<ExecutorDetails, WorkerSlot> entry : cluster
+					.getAssignmentById(topoId).getExecutorToSlot().entrySet()) {
 				String nodeId = cluster.getHost(entry.getValue().getNodeId());
-				if(retMap.containsKey(nodeId)==false) {
-					
+				if (retMap.containsKey(nodeId) == false) {
+
 					retMap.put(nodeId, new ArrayList<ExecutorDetails>());
 				}
 				retMap.get(nodeId).add(entry.getKey());
 			}
 		}
-		
+
 		return retMap;
-		
+
 	}
+
 	static String getStatus(String topo_id) {
 		TSocket tsocket = new TSocket("localhost", 6627);
 		TFramedTransport tTransport = new TFramedTransport(tsocket);
@@ -119,7 +133,7 @@ public class HelperFuncs {
 			List<TopologySummary> topologies = clusterSummary.get_topologies();
 
 			for (TopologySummary topo : topologies) {
-				if(topo.get_id().equals(topo_id)==true) {
+				if (topo.get_id().equals(topo_id) == true) {
 					return topo.get_status();
 				}
 			}
@@ -127,5 +141,41 @@ public class HelperFuncs {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	static void migrate(TreeMap<ExecutorDetails, Integer> priorityQueue,
+			TopologyDetails topo, Integer THRESHOLD, GlobalState globalState,
+			WorkerSlot target_ws, Cluster cluster, Topologies topologies) {
+		
+		
+		Map<WorkerSlot, List<ExecutorDetails>> schedMap = globalState.schedState
+				.get(topo.getId());
+		List<ExecutorDetails> migratedTasks = new ArrayList<ExecutorDetails>();
+		for (ExecutorDetails exec : priorityQueue.keySet()) {
+			if (migratedTasks.size() >= THRESHOLD) {
+				break;
+			}
+
+			globalState.migrateTask(exec, target_ws, topo);
+			migratedTasks.add(exec);
+
+		}
+
+		LOG.info("Tasks migrated: {}", migratedTasks);
+		for (Map.Entry<WorkerSlot, List<ExecutorDetails>> sched : schedMap
+				.entrySet()) {
+			// cluster.assign(sched.getKey(), topo.getId(), sched.getValue());
+			HelperFuncs.assignTasks(sched.getKey(), topo.getId(),
+					sched.getValue(), cluster, topologies);
+			LOG.info("Assigning {}=>{}", sched.getKey(), sched.getValue());
+		}
+	}
+	
+	static String printPriorityQueue(TreeMap<ExecutorDetails, Integer> priorityQueue, TopologyDetails topo) {
+		String retVal= "";
+		for (ExecutorDetails exec : priorityQueue.keySet()) {
+			retVal+=exec.toString()+"-->"+topo.getExecutorToComponent().get(exec)+"\n";
+		}
+		return retVal;
 	}
 }
