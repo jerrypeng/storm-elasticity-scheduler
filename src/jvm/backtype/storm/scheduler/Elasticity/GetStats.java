@@ -178,37 +178,39 @@ public class GetStats {
 							.get_executor_info().get_task_start());
 
 					// populating data structures
-					if (this.nodeStats.containsKey(host) == false) {
-						this.nodeStats.put(host, new NodeStats(host));
-					}
-					if (this.componentStats.containsKey(componentId) == false && componentId.matches("(__).*") == false) {
-						this.componentStats.put(componentId,
-								new ComponentStats(componentId));
-					}
-					
-					// getting component info
-					if (stormTopo.get_bolts().containsKey(componentId) == true) {
+					if (componentId.matches("(__).*") == false) {
+						if (this.nodeStats.containsKey(host) == false) {
+							this.nodeStats.put(host, new NodeStats(host));
+						}
+						if (this.componentStats.containsKey(componentId) == false) {
+							this.componentStats.put(componentId,
+									new ComponentStats(componentId));
+						}
 
-						// adding bolt to host
-						this.nodeStats.get(host).bolts_on_node
-								.add(executorSummary);
-						// getting parallelism hint
-						this.componentStats.get(componentId).parallelism_hint = stormTopo
-								.get_bolts().get(componentId).get_common()
-								.get_parallelism_hint();
-					} else if (stormTopo.get_spouts().containsKey(componentId) == true) {
+						// getting component info
+						if (stormTopo.get_bolts().containsKey(componentId) == true) {
 
-						// adding spout to host
-						this.nodeStats.get(host).spouts_on_node
-								.add(executorSummary);
-						// getting parallelism hint
-						this.componentStats.get(componentId).parallelism_hint = stormTopo
-								.get_spouts().get(componentId).get_common()
-								.get_parallelism_hint();
-					} else {
-						LOG.info("ERROR: type of component not determined!");
+							// adding bolt to host
+							this.nodeStats.get(host).bolts_on_node
+									.add(executorSummary);
+							// getting parallelism hint
+							this.componentStats.get(componentId).parallelism_hint = stormTopo
+									.get_bolts().get(componentId).get_common()
+									.get_parallelism_hint();
+						} else if (stormTopo.get_spouts().containsKey(
+								componentId) == true) {
+
+							// adding spout to host
+							this.nodeStats.get(host).spouts_on_node
+									.add(executorSummary);
+							// getting parallelism hint
+							this.componentStats.get(componentId).parallelism_hint = stormTopo
+									.get_spouts().get(componentId).get_common()
+									.get_parallelism_hint();
+						} else {
+							LOG.info("ERROR: type of component not determined!");
+						}
 					}
-
 					// get transfer info
 					Map<String, Map<String, Long>> transfer = executorStats
 							.get_transferred();
