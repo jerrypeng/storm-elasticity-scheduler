@@ -91,7 +91,7 @@ public class LinkLoadBasedStrategy implements IStrategy{
 		
 		for (Component comp : this.ComponentThroughputRank.keySet()) {
 			List<ExecutorDetails> compTasks = new ArrayList<ExecutorDetails>();
-			compTasks.addAll(compTasks);
+			compTasks.addAll(comp.execs);
 			List<ExecutorDetails> childrenTasks = this.getChildrenTasks(comp);
 			
 			LOG.info("comTasks: {}", compTasks);
