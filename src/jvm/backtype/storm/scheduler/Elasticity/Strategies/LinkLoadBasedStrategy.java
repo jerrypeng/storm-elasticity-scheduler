@@ -99,7 +99,7 @@ public class LinkLoadBasedStrategy implements IStrategy{
 			
 			Iterator<ExecutorDetails> compTasksItr = compTasks.iterator();
 			Iterator<ExecutorDetails> childrenTasksItr = childrenTasks.iterator();
-			while(migratedTasks.size()<THRESHOLD){
+			while(migratedTasks.size()<THRESHOLD && (compTasksItr.hasNext() || childrenTasksItr.hasNext())){
 				if(compTasksItr.hasNext()){
 					ExecutorDetails exec = compTasksItr.next();
 					this._globalState.migrateTask(exec, target_ws, this._topo);
