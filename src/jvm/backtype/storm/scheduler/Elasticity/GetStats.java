@@ -316,14 +316,16 @@ public class GetStats {
 				}
 				
 				//remove none existing components
-				 for(Iterator<Map.Entry<String, ComponentStats>> it = this.componentStats.entrySet().iterator(); it.hasNext(); ) {
+				HashMap<String, ExecutorSummary> m = new HashMap<String, ExecutorSummary>();
+				for(ExecutorSummary exec : executorSummaries) {
+					m.put(exec.get_component_id(), exec);
+				}
+				final Iterator<Map.Entry<String, ComponentStats>> it = this.componentStats.entrySet().iterator();
+				while(it.hasNext()) {
 				      Map.Entry<String, ComponentStats> entry = it.next();
-				      for(ExecutorSummary exec : executorSummaries){
-				    	  if(exec.get_component_id().equals(entry.getKey())==true) {
-				    		  it.remove();
-				    	  }
+				      if(m.containsKey(entry.getKey())==false) {
+				    	  it.remove();
 				      }
-				     
 				    }
 				
 				//weighted moving avg purposes
