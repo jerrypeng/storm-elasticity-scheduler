@@ -22,7 +22,6 @@ import backtype.storm.scheduler.Elasticity.Node;
 import backtype.storm.scheduler.Elasticity.GetStats.ComponentStats;
 import backtype.storm.scheduler.Elasticity.GlobalState;
 import backtype.storm.scheduler.Elasticity.HelperFuncs;
-import bsh.This;
 
 public class LinkLoadBasedStrategy implements IStrategy{
 	protected Logger LOG = null;
