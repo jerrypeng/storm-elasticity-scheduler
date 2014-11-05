@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -132,7 +133,7 @@ public class GetStats {
 
 		// reseting values
 		this.nodeStats.clear();
-		this.componentStats.clear();
+		//this.componentStats.clear();
 
 		TSocket tsocket = new TSocket("localhost", 6627);
 		TFramedTransport tTransport = new TFramedTransport(tsocket);
@@ -313,6 +314,17 @@ public class GetStats {
 						}
 					}
 				}
+				
+				//remove none existing components
+				 for(Iterator<Map.Entry<String, ComponentStats>> it = this.componentStats.entrySet().iterator(); it.hasNext(); ) {
+				      Map.Entry<String, ComponentStats> entry = it.next();
+				      for(ExecutorSummary exec : executorSummaries){
+				    	  if(exec.get_component_id().equals(entry.getKey())==true) {
+				    		  it.remove();
+				    	  }
+				      }
+				     
+				    }
 				
 				//weighted moving avg purposes
 				for(Map.Entry<String, ComponentStats> entry : this.componentStats.entrySet()) {
