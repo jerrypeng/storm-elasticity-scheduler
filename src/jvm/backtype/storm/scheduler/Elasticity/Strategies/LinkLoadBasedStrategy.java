@@ -90,10 +90,14 @@ public class LinkLoadBasedStrategy implements IStrategy{
 		List<ExecutorDetails> migratedTasks = new ArrayList<ExecutorDetails>();
 		
 		for (Component comp : this.ComponentThroughputRank.keySet()) {
+			if(migratedTasks.size() >= THRESHOLD) {
+				break;
+			}
 			List<ExecutorDetails> compTasks = new ArrayList<ExecutorDetails>();
 			compTasks.addAll(comp.execs);
 			List<ExecutorDetails> childrenTasks = this.getChildrenTasks(comp);
 			
+			LOG.info("comp: {}", comp.id);
 			LOG.info("comTasks: {}", compTasks);
 			LOG.info("childrenTasks: {}", childrenTasks);
 			

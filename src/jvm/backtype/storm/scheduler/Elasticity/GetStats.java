@@ -181,7 +181,7 @@ public class GetStats {
 					if (this.nodeStats.containsKey(host) == false) {
 						this.nodeStats.put(host, new NodeStats(host));
 					}
-					if (this.componentStats.containsKey(componentId) == false) {
+					if (this.componentStats.containsKey(componentId) == false && componentId.matches("(__).*") == false) {
 						this.componentStats.put(componentId,
 								new ComponentStats(componentId));
 					}
