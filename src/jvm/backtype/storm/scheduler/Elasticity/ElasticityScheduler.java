@@ -16,6 +16,7 @@ import backtype.storm.scheduler.Topologies;
 import backtype.storm.scheduler.EvenScheduler;
 import backtype.storm.scheduler.TopologyDetails;
 import backtype.storm.scheduler.WorkerSlot;
+import backtype.storm.scheduler.Elasticity.GetStats.ComponentStats;
 import backtype.storm.scheduler.Elasticity.Strategies.*;
 
 public class ElasticityScheduler implements IScheduler {
@@ -46,6 +47,9 @@ public class ElasticityScheduler implements IScheduler {
 		 */
 		GetStats stats = GetStats.getInstance("ElasticityScheduler");
 		stats.getStatistics();
+		for( Map.Entry<String, ComponentStats> entry : stats.componentStats.entrySet()) {
+			LOG.info("Component: {} history: {} mvgAvg: {}", new Object[] {entry.getKey(), entry.getValue().transferThroughputHistory, HelperFuncs.computeMovAvg(entry.getValue().transferThroughputHistory)});
+		}
 		// LOG.info("links: {}", stats.transferStatsTable);
 
 		/**
