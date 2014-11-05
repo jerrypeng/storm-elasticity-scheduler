@@ -47,7 +47,6 @@ public class GetStats {
 			this.spouts_on_node_throughput.put("emit", 0);
 			this.emit_throughput = 0;
 			this.transfer_throughput = 0;
-
 		}
 	}
 
@@ -56,26 +55,31 @@ public class GetStats {
 		public Integer total_emit_throughput;
 		public Integer total_transfer_throughput;
 		public Integer parallelism_hint;
+		
+		public List<Integer> transferThroughputHistory;
+		public List<Integer> emitThroughputHistory;
+		public Double weight_avg_transfer_throughput;
+		public Double weight_avg_emit_throughput;
 
 		public ComponentStats(String id) {
 			this.componentId = id;
 			this.total_emit_throughput = 0;
 			this.total_transfer_throughput = 0;
+			this.weight_avg_transfer_throughput=0.0;
+			this.weight_avg_emit_throughput=0.0;
+			this.transferThroughputHistory = new ArrayList<Integer>();
+			this.emitThroughputHistory = new ArrayList<Integer>();
 		}
 
 	}
 
+	private final static Integer MOVING_AVG_WINDOW = 30;
 	private static GetStats instance = null;
 	private static final Logger LOG = LoggerFactory.getLogger(GetStats.class);
 	public HashMap<String, Integer> transferStatsTable;
 	public HashMap<String, Integer> emitStatsTable;
 	public HashMap<String, Long> startTimes;
-	// public HashMap<String, Integer> node_stats;
-	// public HashMap<String, HashMap<String, ArrayList<ExecutorSummary>>>
-	// location_stats;
-	// public HashMap<String, Integer> indv_component_stats;
-	// public HashMap<String, HashMap<String, Integer>> node_component_stats;
-	// public HashMap<String, Integer> parallelism_hint;
+
 	public HashMap<String, NodeStats> nodeStats;
 	public HashMap<String, ComponentStats> componentStats;
 	private File complete_log;
@@ -89,13 +93,7 @@ public class GetStats {
 		transferStatsTable = new HashMap<String, Integer>();
 		emitStatsTable = new HashMap<String, Integer>();
 		startTimes = new HashMap<String, Long>();
-		// node_stats = new HashMap<String, Integer>();
-		// location_stats = new HashMap<String, HashMap<String,
-		// ArrayList<ExecutorSummary>>>();
-		// indv_component_stats = new HashMap<String, Integer>();
-		// node_component_stats = new HashMap<String, HashMap<String,
-		// Integer>>();
-		// parallelism_hint = new HashMap<String, Integer> ();
+
 		nodeStats = new HashMap<String, NodeStats>();
 		componentStats = new HashMap<String, ComponentStats>();
 
@@ -116,7 +114,12 @@ public class GetStats {
 		}
 
 	}
-
+	public static GetStats getInstanceifInit() {
+		if(instance != null) {
+			return instance;
+		}
+		return null;
+	}
 	public static GetStats getInstance(String filename) {
 		if (instance == null) {
 			instance = new GetStats(filename);
@@ -310,6 +313,20 @@ public class GetStats {
 						}
 					}
 				}
+				
+				//weighted moving avg purposes
+				for(Map.Entry<String, ComponentStats> entry : this.componentStats.entrySet()) {
+					if(entry.getValue().transferThroughputHistory.size() >= MOVING_AVG_WINDOW) {
+						entry.getValue().transferThroughputHistory.remove(0);
+					} 
+					if(entry.getValue().emitThroughputHistory.size() >= MOVING_AVG_WINDOW) {
+						entry.getValue().emitThroughputHistory.remove(0);
+					} 
+					
+					entry.getValue().transferThroughputHistory.add(entry.getValue().total_transfer_throughput);
+					entry.getValue().emitThroughputHistory.add(entry.getValue().total_emit_throughput);
+				}
+				
 				LOG.info("!!!- GENERAL STATISTICS -!!!");
 				LOG.info("OVERALL THROUGHPUT:");
 				for (Map.Entry<String, NodeStats> ns : this.nodeStats

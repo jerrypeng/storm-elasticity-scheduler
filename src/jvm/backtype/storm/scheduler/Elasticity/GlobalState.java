@@ -26,14 +26,24 @@ public class GlobalState {
 	
 	private static GlobalState instance = null;
 	
-	//supervisor id -> Node
+	/**
+	 * supervisor id -> Node
+	 */
 	public Map<String, Node> nodes;
-	//topology id -> <component name - > Component>
+	
+	/**
+	 * topology id -> <component name - > Component>
+	 */
 	public Map<String, Map<String, Component>>components;
 	
-	//Topology id -> <worker slot -> collection<executors>>
+	/**
+	 * Topology id -> <worker slot -> collection<executors>>
+	 */
 	public Map <String, Map<WorkerSlot, List<ExecutorDetails>>> schedState;
 	
+	/**
+	 * Topology id -> num of workers
+	 */
 	public Map<String, Integer> topoWorkers = new HashMap<String, Integer>();
 	
 	//edge and throughput

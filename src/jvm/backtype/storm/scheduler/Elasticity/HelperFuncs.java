@@ -171,13 +171,32 @@ public class HelperFuncs {
 		}
 	}
 	
-	static String printPriorityQueue(TreeMap<ExecutorDetails, Integer> priorityQueue, TopologyDetails topo) {
+	public static String printPriorityQueue(TreeMap<ExecutorDetails, Integer> priorityQueue, TopologyDetails topo) {
 		String retVal= "";
 		for (ExecutorDetails exec : priorityQueue.keySet()) {
 			retVal+=exec.toString()+"-->"+topo.getExecutorToComponent().get(exec)+"\n";
 		}
 		return retVal;
 	}
+	public static Double weightedMovingAverageAlg1(List<Integer> values) {
+		return null;
+	}
 	
+	public static Double computeMovAvg(List<Integer> values) {
+		Double sum = 0.0;
+		for (Integer val : values) {
+			sum+=val;
+		}
+		return sum/(values.size()*1.0);
+	}
+	
+	public static ExecutorDetails idToExecutor(Integer taskId, TopologyDetails topo) {
+		for (ExecutorDetails exec : topo.getExecutors()) {
+			if(exec.getStartTask() == taskId.intValue()) {
+				return exec;
+			}
+		}
+		return null;
+	}
 	
 }

@@ -7,7 +7,6 @@ import java.util.TreeMap;
 import backtype.storm.scheduler.Cluster;
 import backtype.storm.scheduler.Topologies;
 import backtype.storm.scheduler.TopologyDetails;
-import backtype.storm.scheduler.Elasticity.ComponentComparator;
 import backtype.storm.scheduler.Elasticity.GetStats;
 import backtype.storm.scheduler.Elasticity.GlobalState;
 import backtype.storm.scheduler.Elasticity.Component;
