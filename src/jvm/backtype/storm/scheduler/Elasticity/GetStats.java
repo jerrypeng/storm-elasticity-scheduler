@@ -364,7 +364,7 @@ public class GetStats {
 				.get(topo.get_id());
 		HashMap<String, List<Integer>> compEmitHistory = this.emitThroughputHistory
 				.get(topo.get_id());
-
+		LOG.info("compTransferHistory: {}", compTransferHistory);
 		for (Map.Entry<String, ComponentStats> entry : this.componentStats.get(
 				topo.get_id()).entrySet()) {
 			if (compTransferHistory.get(entry.getKey()).size() >= MOVING_AVG_WINDOW) {
