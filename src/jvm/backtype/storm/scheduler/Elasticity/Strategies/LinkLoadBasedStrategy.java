@@ -52,13 +52,14 @@ public class LinkLoadBasedStrategy implements IStrategy{
 	}
 	private void prepare() {
 		HashMap<String, Integer> transferTable=this._getStats.transferStatsTable;
-		HashMap<String,GetStats.ComponentStats> components = this._getStats.componentStats;
+		HashMap<String,GetStats.ComponentStats> components = this._getStats.componentStats.get(this._topo.getId());
+		 HashMap<String, List<Integer>> compTransferHistory = this._getStats.transferThroughputHistory.get(this._topo.getId());
 		
 		HashMap<Component, Double> compThroughput = new HashMap<Component, Double>();
 		ComponentComparator bvc = new ComponentComparator(compThroughput);
 		this.ComponentThroughputRank = new TreeMap<Component, Double>(bvc);
 		for(Map.Entry<String, ComponentStats> entry : components.entrySet()) {
-			Double movAvg = HelperFuncs.computeMovAvg(entry.getValue().transferThroughputHistory);
+			Double movAvg = HelperFuncs.computeMovAvg(compTransferHistory.get(entry.getKey()));
 			Component comp = this._globalState.components.get(this._topo.getId()).get(entry.getKey());
 			compThroughput.put(comp, movAvg);
 		}
