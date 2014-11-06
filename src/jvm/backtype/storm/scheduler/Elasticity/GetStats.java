@@ -443,6 +443,7 @@ public class GetStats {
 			for(Map.Entry<String, List<Integer>> k : i.getValue().entrySet()) {
 				retVal+="Component: "+k.getKey()+"\n";
 				retVal+="Transfer History: "+k.getValue().toString()+"\n";
+				retVal+="MvgAvg: "+HelperFuncs.computeMovAvg(k.getValue());
 			}
 		}
 		return retVal;
