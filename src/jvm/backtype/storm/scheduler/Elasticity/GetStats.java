@@ -302,7 +302,10 @@ public class GetStats {
 				}
 
 				// weighted moving avg purposes
-				this.updateThroughputHistory(topo);
+				LOG.info("executorSummaries {}", executorSummaries);
+				if(executorSummaries.size()>0) {
+					this.updateThroughputHistory(topo);
+				}
 
 				// print stats in log
 				this.logGeneralStats();
