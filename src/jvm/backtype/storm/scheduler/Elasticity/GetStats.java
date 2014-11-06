@@ -196,8 +196,8 @@ public class GetStats {
 
 					// populating data structures
 					this.initDataStructs(componentId, host, executorSummary, stormTopo, topo);
-					LOG.info("componentStats: {}", this.componentStats);
-					LOG.info("transferThroughputHistory: {}", this.transferThroughputHistory);
+					//LOG.info("componentStats: {}", this.componentStats);
+					//LOG.info("transferThroughputHistory: {}", this.transferThroughputHistory);
 					
 					//executor stats
 					ExecutorStats executorStats = executorSummary.get_stats();
@@ -302,7 +302,7 @@ public class GetStats {
 				}
 
 				// weighted moving avg purposes
-				LOG.info("executorSummaries {}", executorSummaries);
+				//LOG.info("executorSummaries {}", executorSummaries);
 				if(executorSummaries.size()>0) {
 					this.updateThroughputHistory(topo);
 					// print stats in log
@@ -324,8 +324,8 @@ public class GetStats {
 				.get(topo.get_id());
 		HashMap<String, List<Integer>> compEmitHistory = this.emitThroughputHistory
 				.get(topo.get_id());
-		LOG.info("compTransferHistory: {}", compTransferHistory);
-		LOG.info("componentStats: {}", this.componentStats);
+		//LOG.info("compTransferHistory: {}", compTransferHistory);
+		//LOG.info("componentStats: {}", this.componentStats);
 		for (Map.Entry<String, ComponentStats> entry : this.componentStats.get(
 				topo.get_id()).entrySet()) {
 			if (compTransferHistory.get(entry.getKey()).size() >= MOVING_AVG_WINDOW) {
