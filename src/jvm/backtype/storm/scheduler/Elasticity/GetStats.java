@@ -202,6 +202,8 @@ public class GetStats {
 
 					// populating data structures
 					this.initDataStructs(componentId, host, executorSummary, stormTopo, topo);
+					LOG.info("componentStats: {}", this.componentStats);
+					LOG.info("transferThroughputHistory: {}", this.transferThroughputHistory);
 					// get transfer info
 					Map<String, Map<String, Long>> transfer = executorStats
 							.get_transferred();
