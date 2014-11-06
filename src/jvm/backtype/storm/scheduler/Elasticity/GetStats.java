@@ -187,12 +187,6 @@ public class GetStats {
 						.get_executors();
 				// iterate all executors
 				for (ExecutorSummary executorSummary : executorSummaries) {
-
-					ExecutorStats executorStats = executorSummary.get_stats();
-					if (executorStats == null) {
-						continue;
-					}
-
 					// getting general info
 					String host = executorSummary.get_host();
 					String port = String.valueOf(executorSummary.get_port());
@@ -204,6 +198,12 @@ public class GetStats {
 					this.initDataStructs(componentId, host, executorSummary, stormTopo, topo);
 					LOG.info("componentStats: {}", this.componentStats);
 					LOG.info("transferThroughputHistory: {}", this.transferThroughputHistory);
+					
+					//executor stats
+					ExecutorStats executorStats = executorSummary.get_stats();
+					if (executorStats == null) {
+						continue;
+					}
 					// get transfer info
 					Map<String, Map<String, Long>> transfer = executorStats
 							.get_transferred();
