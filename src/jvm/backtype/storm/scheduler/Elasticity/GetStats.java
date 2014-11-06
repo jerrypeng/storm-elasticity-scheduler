@@ -305,12 +305,13 @@ public class GetStats {
 				LOG.info("executorSummaries {}", executorSummaries);
 				if(executorSummaries.size()>0) {
 					this.updateThroughputHistory(topo);
+					// print stats in log
+					this.logGeneralStats();
+					this.logNodeStats();
+					this.logComponentStats(topo);
 				}
 
-				// print stats in log
-				this.logGeneralStats();
-				this.logNodeStats();
-				this.logComponentStats(topo);
+				
 			}
 		} catch (TException e) {
 			e.printStackTrace();
