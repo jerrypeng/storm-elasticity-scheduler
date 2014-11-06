@@ -205,7 +205,11 @@ public class GetStats {
 						if (this.nodeStats.containsKey(host) == false) {
 							this.nodeStats.put(host, new NodeStats(host));
 						}
-						if (this.componentStats.containsKey(componentId) == false) {
+						if(this.componentStats.containsKey(topo.get_id())==false) {
+							this.componentStats.put(topo.get_id(), new HashMap<String, ComponentStats>());
+							
+						}
+						if (this.componentStats.get(topo.get_id()).containsKey(componentId) == false) {
 							this.componentStats.get(topo.get_id()).put(
 									componentId,
 									new ComponentStats(componentId));
