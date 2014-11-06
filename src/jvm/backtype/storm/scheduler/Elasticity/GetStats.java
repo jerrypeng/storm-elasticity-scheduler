@@ -201,46 +201,7 @@ public class GetStats {
 							.get_executor_info().get_task_start());
 
 					// populating data structures
-					if (componentId.matches("(__).*") == false) {
-						if (this.nodeStats.containsKey(host) == false) {
-							this.nodeStats.put(host, new NodeStats(host));
-						}
-						if(this.componentStats.containsKey(topo.get_id())==false) {
-							this.componentStats.put(topo.get_id(), new HashMap<String, ComponentStats>());
-							
-						}
-						if (this.componentStats.get(topo.get_id()).containsKey(componentId) == false) {
-							this.componentStats.get(topo.get_id()).put(
-									componentId,
-									new ComponentStats(componentId));
-						}
-
-						// getting component info
-						if (stormTopo.get_bolts().containsKey(componentId) == true) {
-
-							// adding bolt to host
-							this.nodeStats.get(host).bolts_on_node
-									.add(executorSummary);
-							// getting parallelism hint
-							this.componentStats.get(topo.get_id()).get(
-									componentId).parallelism_hint = stormTopo
-									.get_bolts().get(componentId).get_common()
-									.get_parallelism_hint();
-						} else if (stormTopo.get_spouts().containsKey(
-								componentId) == true) {
-
-							// adding spout to host
-							this.nodeStats.get(host).spouts_on_node
-									.add(executorSummary);
-							// getting parallelism hint
-							this.componentStats.get(topo.get_id()).get(
-									componentId).parallelism_hint = stormTopo
-									.get_spouts().get(componentId).get_common()
-									.get_parallelism_hint();
-						} else {
-							LOG.info("ERROR: type of component not determined!");
-						}
-					}
+					this.initDataStructs(componentId, host, executorSummary, stormTopo, topo);
 					// get transfer info
 					Map<String, Map<String, Long>> transfer = executorStats
 							.get_transferred();
@@ -352,14 +313,7 @@ public class GetStats {
 	}
 
 	private void updateThroughputHistory(TopologySummary topo) {
-		if (this.transferThroughputHistory.containsKey(topo.get_id()) == false) {
-			this.transferThroughputHistory.put(topo.get_id(),
-					new HashMap<String, List<Integer>>());
-		}
-		if (this.emitThroughputHistory.containsKey(topo.get_id()) == false) {
-			this.emitThroughputHistory.put(topo.get_id(),
-					new HashMap<String, List<Integer>>());
-		}
+		
 		HashMap<String, List<Integer>> compTransferHistory = this.transferThroughputHistory
 				.get(topo.get_id());
 		HashMap<String, List<Integer>> compEmitHistory = this.emitThroughputHistory
@@ -492,6 +446,63 @@ public class GetStats {
 			}
 		}
 		return retVal;
+	}
+	
+	public void initDataStructs(String componentId, String host, ExecutorSummary executorSummary, StormTopology stormTopo, TopologySummary topo) {
+		if (this.transferThroughputHistory.containsKey(topo.get_id()) == false) {
+			this.transferThroughputHistory.put(topo.get_id(),
+					new HashMap<String, List<Integer>>());
+		}
+		if (this.emitThroughputHistory.containsKey(topo.get_id()) == false) {
+			this.emitThroughputHistory.put(topo.get_id(),
+					new HashMap<String, List<Integer>>());
+		}
+		if(this.componentStats.containsKey(topo.get_id())==false) {
+			this.componentStats.put(topo.get_id(), new HashMap<String, ComponentStats>());
+			
+		}
+		if (componentId.matches("(__).*") == false) {
+			if (this.nodeStats.containsKey(host) == false) {
+				this.nodeStats.put(host, new NodeStats(host));
+			}
+			
+			if (this.componentStats.get(topo.get_id()).containsKey(componentId) == false) {
+				this.componentStats.get(topo.get_id()).put(
+						componentId,
+						new ComponentStats(componentId));
+			}
+			if(this.transferThroughputHistory.get(topo.get_id()).containsKey(componentId) == false) {
+				this.transferThroughputHistory.get(topo.get_id()).put(componentId, new ArrayList<Integer>());
+			}
+			if(this.emitThroughputHistory.get(topo.get_id()).containsKey(componentId) == false) {
+				this.emitThroughputHistory.get(topo.get_id()).put(componentId, new ArrayList<Integer>());
+			}
+			// getting component info
+			if (stormTopo.get_bolts().containsKey(componentId) == true) {
+
+				// adding bolt to host
+				this.nodeStats.get(host).bolts_on_node
+						.add(executorSummary);
+				// getting parallelism hint
+				this.componentStats.get(topo.get_id()).get(
+						componentId).parallelism_hint = stormTopo
+						.get_bolts().get(componentId).get_common()
+						.get_parallelism_hint();
+			} else if (stormTopo.get_spouts().containsKey(
+					componentId) == true) {
+
+				// adding spout to host
+				this.nodeStats.get(host).spouts_on_node
+						.add(executorSummary);
+				// getting parallelism hint
+				this.componentStats.get(topo.get_id()).get(
+						componentId).parallelism_hint = stormTopo
+						.get_spouts().get(componentId).get_common()
+						.get_parallelism_hint();
+			} else {
+				LOG.info("ERROR: type of component not determined!");
+			}
+		}
 	}
 
 }
