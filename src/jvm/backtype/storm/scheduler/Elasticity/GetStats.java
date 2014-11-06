@@ -477,5 +477,17 @@ public class GetStats {
 		Long rebalanceTime = this.startTimes.get(topoId);
 
 	}
+	
+	public String printTransferThroughputHistory(){
+		String retVal="";
+		for( Map.Entry<String, HashMap<String, List<Integer>>> i : this.transferThroughputHistory.entrySet()) {
+			retVal+="Topology: "+i.getKey()+"\n";
+			for(Map.Entry<String, List<Integer>> k : i.getValue().entrySet()) {
+				retVal+="Component: "+k.getKey()+"\n";
+				retVal+="Transfer History: "+k.getValue().toString();
+			}
+		}
+		return retVal;
+	}
 
 }

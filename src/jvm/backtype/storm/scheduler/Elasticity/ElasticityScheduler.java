@@ -1,6 +1,7 @@
 package backtype.storm.scheduler.Elasticity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -47,10 +48,7 @@ public class ElasticityScheduler implements IScheduler {
 		 */
 		GetStats stats = GetStats.getInstance("ElasticityScheduler");
 		stats.getStatistics();
-		for( Map.Entry<String, ComponentStats> entry : stats.componentStats.entrySet()) {
-			LOG.info("Component: {} history: {} mvgAvg: {}", new Object[] {entry.getKey(), entry.getValue().transferThroughputHistory, HelperFuncs.computeMovAvg(entry.getValue().transferThroughputHistory)});
-		}
-		// LOG.info("links: {}", stats.transferStatsTable);
+		LOG.info(stats.printTransferThroughputHistory());
 
 		/**
 		 * Start hardware monitoring server
