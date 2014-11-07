@@ -1,6 +1,7 @@
 package backtype.storm.scheduler.Elasticity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -16,6 +17,8 @@ import backtype.storm.scheduler.Topologies;
 import backtype.storm.scheduler.EvenScheduler;
 import backtype.storm.scheduler.TopologyDetails;
 import backtype.storm.scheduler.WorkerSlot;
+import backtype.storm.scheduler.Elasticity.GetStats.ComponentStats;
+import backtype.storm.scheduler.Elasticity.Strategies.*;
 
 public class ElasticityScheduler implements IScheduler {
 	private static final Logger LOG = LoggerFactory
@@ -43,9 +46,9 @@ public class ElasticityScheduler implements IScheduler {
 		/**
 		 * Get stats
 		 */
-		 GetStats stats = GetStats.getInstance("ElasticityScheduler");
-		 stats.getStatistics();
-		 //LOG.info("links: {}", stats.transferStatsTable);
+		GetStats stats = GetStats.getInstance("ElasticityScheduler");
+		stats.getStatistics();
+		LOG.info(stats.printTransferThroughputHistory());
 
 		/**
 		 * Start hardware monitoring server
@@ -60,53 +63,30 @@ public class ElasticityScheduler implements IScheduler {
 			LOG.info("status: {}", status);
 			if (status.equals("REBALANCING")) {
 				if (globalState.isBalanced == false) {
-					LOG.info("Rebalancing...{}=={}", cluster.getUnassignedExecutors(topo).size(), topo
+					LOG.info("Rebalancing...{}=={}", cluster
+							.getUnassignedExecutors(topo).size(), topo
 							.getExecutors().size());
 					if (cluster.getUnassignedExecutors(topo).size() == topo
 							.getExecutors().size()) {
-						LOG.info("Making migration assignments...");
-						
-						TreeMap<Component, Integer> priorityQueue = Strategies.numDescendantStrategy(globalState.components.get(topo.getId()));
-						Strategies.centralityStrategy(globalState.components.get(topo.getId()));
-						
-						LOG.info("priorityQueue: {}", priorityQueue);
-						
-						List<Node> newNodes = globalState.getNewNode();
-						
-						if(newNodes.size()<=0) {
-							LOG.error("No new Nodes!");
-							break;
-						}
-						
-						Map<WorkerSlot, List<ExecutorDetails>> schedMap = globalState.schedState.get(topo.getId());
-						
-						Node targetNode = newNodes.get(0);
-						WorkerSlot target_ws = targetNode.slots.get(0);
-						LOG.info("target location: {}:{}", targetNode.hostname, target_ws.getPort());
-						
-						int THRESHOLD = (topo.getExecutors().size())/cluster.getSupervisors().size();
-						LOG.info("Threshold: {}", THRESHOLD);
-						List<ExecutorDetails> migratedTasks = new ArrayList<ExecutorDetails>();
-						for (Component comp : priorityQueue.keySet()) {
-							if(migratedTasks.size()>=THRESHOLD) {
-								break;
-							}
-							for(ExecutorDetails exec : comp.execs) {
-								if(migratedTasks.size()>=THRESHOLD) {
-									break;
-								}
-								globalState.migrateTask(exec, target_ws, topo);
-								migratedTasks.add(exec);
-							}
-						}
-						
-						LOG.info("Tasks migrated: {}", migratedTasks);
-						for(Map.Entry<WorkerSlot, List<ExecutorDetails>> sched : schedMap.entrySet()) {
-							//cluster.assign(sched.getKey(), topo.getId(), sched.getValue());
-							HelperFuncs.assignTasks(sched.getKey(), topo.getId(), sched.getValue(), cluster, topologies);
-							LOG.info("Assigning {}=>{}",sched.getKey(), sched.getValue());
-						}
+						if (globalState.stateEmpty() == false) {
+							LOG.info("Making migration assignments...");
+							
+							LinkLoadBasedStrategy strategy = new LinkLoadBasedStrategy(
+									globalState, stats, topo, cluster,
+									topologies);
+							Map<WorkerSlot, List<ExecutorDetails>> schedMap = strategy
+									.getNewScheduling();
 
+							for (Map.Entry<WorkerSlot, List<ExecutorDetails>> sched : schedMap
+									.entrySet()) {
+								HelperFuncs.assignTasks(sched.getKey(),
+										topo.getId(), sched.getValue(),
+										cluster, topologies);
+								LOG.info("Assigning {}=>{}", sched.getKey(),
+										sched.getValue());
+							}
+							
+						}
 						globalState.isBalanced = true;
 					}
 				}
@@ -132,10 +112,9 @@ public class ElasticityScheduler implements IScheduler {
 			LOG.info("Current Assignment: {}",
 					HelperFuncs.nodeToTask(cluster, topo.getId()));
 		}
-		if(topologies.getTopologies().size()==0){
+		if (topologies.getTopologies().size() == 0) {
 			globalState.clearStoreState();
 		}
-		
 
 	}
 }

@@ -26,14 +26,24 @@ public class GlobalState {
 	
 	private static GlobalState instance = null;
 	
-	//supervisor id -> Node
+	/**
+	 * supervisor id -> Node
+	 */
 	public Map<String, Node> nodes;
-	//topology id -> <component name - > Component>
+	
+	/**
+	 * topology id -> <component name - > Component>
+	 */
 	public Map<String, Map<String, Component>>components;
 	
-	//Topology id -> <worker slot -> collection<executors>>
+	/**
+	 * Topology id -> <worker slot -> collection<executors>>
+	 */
 	public Map <String, Map<WorkerSlot, List<ExecutorDetails>>> schedState;
 	
+	/**
+	 * Topology id -> num of workers
+	 */
 	public Map<String, Integer> topoWorkers = new HashMap<String, Integer>();
 	
 	//edge and throughput
@@ -55,6 +65,10 @@ public class GlobalState {
 	
 	public void storeState(Cluster cluster, Topologies topologies) {
 		this.storeSchedState(cluster, topologies);
+	}
+	
+	public boolean stateEmpty() {
+		return this.schedState.isEmpty();
 	}
 	
 	public void storeSchedState(Cluster cluster, Topologies topologies) {
@@ -87,7 +101,7 @@ public class GlobalState {
 		this.components = this.getComponents(topologies);
 	}
 
-	public  Map<String, Map<String, Component>> getComponents(Topologies topologies) {
+	private  Map<String, Map<String, Component>> getComponents(Topologies topologies) {
 		Map<String, Map<String, Component>> retVal = new HashMap<String, Map<String, Component>>();
 		this.topoWorkers = new HashMap<String, Integer>();
 		GetTopologyInfo gt = new GetTopologyInfo();
@@ -104,7 +118,7 @@ public class GlobalState {
 		return retVal;
 	}
 	
-	public Map<String, Node> getNodes(Cluster cluster) {
+	private Map<String, Node> getNodes(Cluster cluster) {
 		Map<String, Node> retVal = new HashMap<String, Node>();
 		for (Map.Entry<String, SupervisorDetails> sup : cluster
 				.getSupervisors().entrySet()) {
