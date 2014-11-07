@@ -6,7 +6,7 @@ import java.util.List;
 import backtype.storm.scheduler.ExecutorDetails;
 
 public class Component {
-	String id;
+	public String id;
 	public List<String> parents = null;
 	public List<String> children = null;
 	public List<ExecutorDetails> execs = null;

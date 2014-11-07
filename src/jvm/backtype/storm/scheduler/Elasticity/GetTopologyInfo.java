@@ -61,7 +61,7 @@ public class GetTopologyInfo {
 					
 					this.numWorkers = topo.get_num_workers();
 					
-					LOG.info("Topology: {} conf->{}",topo.get_name(), client.getTopologyConf(topo.get_id()));
+					//LOG.info("Topology: {} conf->{}",topo.get_name(), client.getTopologyConf(topo.get_id()));
 					// spouts
 					for (Map.Entry<String, SpoutSpec> s : storm_topo
 							.get_spouts().entrySet()) {
@@ -75,6 +75,7 @@ public class GetTopologyInfo {
 								this.all_comp.put(s.getKey(), newComp);
 							}
 
+							
 							for (Map.Entry<GlobalStreamId, Grouping> entry : s
 									.getValue().get_common().get_inputs()
 									.entrySet()) {
@@ -110,12 +111,21 @@ public class GetTopologyInfo {
 								newComp = new Component(s.getKey());
 								this.all_comp.put(s.getKey(), newComp);
 							}
+//							LOG.info("get_common: {}",s.getValue().get_common());
+//							LOG.info("Streams: {}",s.getValue().get_common().get_streams());
+//							for(Map.Entry<String, StreamInfo> entry : s.getValue().get_common().get_streams().entrySet()){
+//								LOG.info("Key: {} Value: {}", entry.getKey(), entry.getValue());
+//								LOG.info("outputFields: {}", entry.getValue().get_output_fields());
+//							
+//							}
+//							LOG.info("INputs: {}",s.getValue().get_common().get_inputs());
 							for (Map.Entry<GlobalStreamId, Grouping> entry : s
 									.getValue().get_common().get_inputs()
 									.entrySet()) {
 								if (entry.getKey().get_componentId()
 										.matches("(__).*") == false) {
-
+									//LOG.info("ComponentID: {} --- {}",entry.getKey().get_componentId(), entry.getValue());
+									
 									newComp.parents.add(entry.getKey()
 											.get_componentId());
 									if (this.all_comp.containsKey(entry
