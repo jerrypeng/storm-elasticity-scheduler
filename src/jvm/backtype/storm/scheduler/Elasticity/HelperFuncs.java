@@ -199,4 +199,13 @@ public class HelperFuncs {
 		return null;
 	}
 	
+	public static String printRank(TreeMap<Component, Double> rankMap) {
+		String retVal="";
+		int rank=1;
+		for(Map.Entry<Component, Double> entry : rankMap.entrySet()) {
+			retVal+=rank+". Component: "+entry.getKey().id+ " value: " + entry.getValue();
+			rank++;
+		}
+		return retVal;
+	}
 }

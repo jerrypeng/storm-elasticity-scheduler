@@ -15,6 +15,7 @@ import backtype.storm.scheduler.WorkerSlot;
 import backtype.storm.scheduler.Elasticity.Component;
 import backtype.storm.scheduler.Elasticity.GetStats;
 import backtype.storm.scheduler.Elasticity.GlobalState;
+import backtype.storm.scheduler.Elasticity.HelperFuncs;
 import backtype.storm.scheduler.Elasticity.Node;
 import backtype.storm.scheduler.Elasticity.Strategies.LinkLoadBasedStrategy.ComponentComparator;
 
@@ -32,6 +33,9 @@ public class LeastLinkLoad extends LinkLoadBasedStrategy{
 		for(Map.Entry<Component, Double> entry : this.ComponentThroughputRank.entrySet()) {
 			this.ComponentThroughputRankLeast.put(entry.getKey(), entry.getValue()*-1);
 		}
+		
+		
+		LOG.info("ComponentThroughputRankLeast: {}", HelperFuncs.printRank(this.ComponentThroughputRankLeast));
 	}
 
 	@Override
