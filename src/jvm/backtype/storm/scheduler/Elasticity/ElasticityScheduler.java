@@ -71,7 +71,7 @@ public class ElasticityScheduler implements IScheduler {
 						if (globalState.stateEmpty() == false) {
 							LOG.info("Making migration assignments...");
 							
-							LinkLoadBasedStrategy strategy = new LinkLoadBasedStrategy(
+							LeastLinkLoad strategy = new LeastLinkLoad(
 									globalState, stats, topo, cluster,
 									topologies);
 							Map<WorkerSlot, List<ExecutorDetails>> schedMap = strategy
