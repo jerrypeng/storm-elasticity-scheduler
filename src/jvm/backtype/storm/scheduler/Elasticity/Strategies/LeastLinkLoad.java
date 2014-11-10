@@ -28,13 +28,13 @@ public class LeastLinkLoad extends LinkLoadBasedStrategy{
 		
 		HashMap<Component, Double> tmp = new HashMap<Component, Double>();
 		ComponentComparator bvc = new ComponentComparator(tmp);
-		tmp.putAll(this.ComponentThroughputRank);
+		
 		this.ComponentThroughputRankLeast = new TreeMap<Component, Double>(bvc);
 		for(Map.Entry<Component, Double> entry : this.ComponentThroughputRank.entrySet()) {
-			this.ComponentThroughputRankLeast.put(entry.getKey(), entry.getValue()*-1);
+			tmp.put(entry.getKey(), entry.getValue()*-1);
 		}
 		
-		
+		this.ComponentThroughputRank.putAll(tmp);
 		LOG.info("ComponentThroughputRankLeast: {}", HelperFuncs.printRank(this.ComponentThroughputRankLeast));
 	}
 
