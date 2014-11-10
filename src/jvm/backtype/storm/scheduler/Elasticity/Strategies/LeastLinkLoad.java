@@ -34,7 +34,7 @@ public class LeastLinkLoad extends LinkLoadBasedStrategy{
 			tmp.put(entry.getKey(), entry.getValue()*-1);
 		}
 		
-		this.ComponentThroughputRank.putAll(tmp);
+		this.ComponentThroughputRankLeast.putAll(tmp);
 		LOG.info("ComponentThroughputRankLeast: {}", HelperFuncs.printRank(this.ComponentThroughputRankLeast));
 	}
 
