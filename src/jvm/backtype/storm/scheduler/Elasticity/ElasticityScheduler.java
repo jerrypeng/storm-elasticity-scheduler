@@ -76,14 +76,15 @@ public class ElasticityScheduler implements IScheduler {
 									topologies);
 							Map<WorkerSlot, List<ExecutorDetails>> schedMap = strategy
 									.getNewScheduling();
-
-							for (Map.Entry<WorkerSlot, List<ExecutorDetails>> sched : schedMap
-									.entrySet()) {
-								HelperFuncs.assignTasks(sched.getKey(),
-										topo.getId(), sched.getValue(),
-										cluster, topologies);
-								LOG.info("Assigning {}=>{}", sched.getKey(),
-										sched.getValue());
+							if(schedMap != null) {
+								for (Map.Entry<WorkerSlot, List<ExecutorDetails>> sched : schedMap
+										.entrySet()) {
+									HelperFuncs.assignTasks(sched.getKey(),
+											topo.getId(), sched.getValue(),
+											cluster, topologies);
+									LOG.info("Assigning {}=>{}", sched.getKey(),
+											sched.getValue());
+								}
 							}
 							
 						}
