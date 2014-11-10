@@ -1,12 +1,8 @@
 package backtype.storm.scheduler.Elasticity;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -296,7 +292,7 @@ public class GetStats {
 								+ taskId + "," + transfer_throughput + "\n";
 
 						// write log to file
-						this.writeToFile(this.complete_log, data);
+						HelperFuncs.writeToFile(this.complete_log, data);
 
 					}
 				}
@@ -347,18 +343,6 @@ public class GetStats {
 		String hash_id = host + ':' + port + ':' + componentId + ":"
 				+ topo.get_id() + ":" + taskId;
 		return hash_id;
-	}
-
-	private void writeToFile(File file, String data) {
-		try {
-			FileWriter fileWritter = new FileWriter(file, true);
-			BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
-			bufferWritter.append(data);
-			bufferWritter.close();
-			fileWritter.close();
-		} catch (IOException ex) {
-			LOG.info("error! writin to file {}", ex);
-		}
 	}
 
 	private void logGeneralStats() {
@@ -430,7 +414,7 @@ public class GetStats {
 					+ ":" + output_bolts + ":" + topo.get_id() + ":"
 					+ total_output_bolt_emit / num_output_bolt + "\n";
 			LOG.info(data);
-			this.writeToFile(this.output_bolt_log, data);
+			HelperFuncs.writeToFile(this.output_bolt_log, data);
 		}
 	}
 

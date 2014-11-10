@@ -1,7 +1,7 @@
 package backtype.storm.scheduler.Elasticity;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +10,6 @@ import java.util.TreeMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import clojure.lang.IFn.LO;
 import backtype.storm.scheduler.Cluster;
 import backtype.storm.scheduler.ExecutorDetails;
 import backtype.storm.scheduler.SchedulerAssignment;
@@ -215,9 +214,22 @@ public class GlobalState {
 		*/
 		return retVal;
 	}
+	public String ComponentsToString() {
+		String str = "";
+		str+="\n!--Components--!\n";
+		for(Map.Entry<String, Map<String, Component>> entry : this.components.entrySet()) {
+			str+="->Topology: "+entry.getKey()+"\n";
+			for (Map.Entry<String, Component> comp : entry.getValue().entrySet()) {
+				str+="-->Component: "+comp.getValue().id+"=="+entry.getKey()+"\n";
+				str+="--->Parents: "+comp.getValue().parents+"\n";
+				str+="--->Children: "+comp.getValue().children+"\n";
+				str+="--->execs: " + comp.getValue().execs+"\n";
+			}
+		}
+		return str;
+	}
 	
-	@Override 
-	public String toString(){
+	public String NodesToString() {
 		String str = "";
 		str+="\n!--Nodes--! \n";
 		for (Map.Entry<String, Node> n : this.nodes.entrySet()) {
@@ -228,20 +240,11 @@ public class GlobalState {
 				str+="-->"+entry.getKey().getPort()+" => "+entry.getValue()+"\n";
 			}	
 		}
-		
-		str+="\n!--Components--!\n";
-		for(Map.Entry<String, Map<String, Component>> entry : this.components.entrySet()) {
-			str+="->Topology: "+entry.getKey()+"\n";
-			for (Map.Entry<String, Component> comp : entry.getValue().entrySet()) {
-				str+="-->Component: "+comp.getValue().id+"=="+entry.getKey()+"\n";
-				str+="--->Parents: "+comp.getValue().parents+"\n";
-				str+="--->Children: "+comp.getValue().children+"\n";
-				str+="--->execs: " + comp.getValue().execs+"\n";
-			}
-			
-			
-		}
-		
+		return str;
+	}
+	
+	public String StoredStateToString() {
+		String str="";
 		str+="\n!--Stored Scheduling State--!\n";
 		for(Map.Entry<String, Map<WorkerSlot, List<ExecutorDetails>>> entry : this.schedState.entrySet()) {
 			str+="->Topology: "+entry.getKey()+"\n";
@@ -250,11 +253,57 @@ public class GlobalState {
 				str+=sched.getValue()+"\n";
 			}
 		}
-		
+		return str;
+	}
+	
+	
+	@Override 
+	public String toString(){
+		String str="";
+		str+=this.NodesToString();
+		str+=this.ComponentsToString();
+		str+=this.StoredStateToString();
 		str+="\n topWorkers: "+ this.topoWorkers+"\n";
-		
 		
 		return str;
 	}
-
+	
+	private boolean log_pre = false;
+	private boolean log_after = false;
+	private boolean log_scheduling_info = false;
+	
+	public void logBeforeSchedulingInfo(String filename, TopologyDetails topo){
+		String LOG_PATH = "/tmp/";
+		File file= new File(LOG_PATH + filename + "_SchedulingInfo");
+		if(HelperFuncs.getStatus(topo.getId()).equals("ACTIVE") && log_pre==false) {
+			String data = "<!---Before Rebalancing---!>\n\n";
+			data+=this.NodesToString();
+			
+			HelperFuncs.writeToFile(file, data);
+			this.log_pre=true;
+		}
+	}
+	
+	public void logAfterSchedulingInfo(String filename, TopologyDetails topo){
+		String LOG_PATH = "/tmp/";
+		File file= new File(LOG_PATH + filename + "_SchedulingInfo");
+		if(HelperFuncs.getStatus(topo.getId()).equals("REBALANCING") && log_after==false) {
+			String data = "<!--After Re-balancing--!>\n\n";
+			data+=this.NodesToString();
+			
+			HelperFuncs.writeToFile(file, data);
+			this.log_after = true;
+		}
+	}
+	
+	public void logTopologyInfo(String filename, TopologyDetails topo){
+		String LOG_PATH = "/tmp/";
+		File file= new File(LOG_PATH + filename + "_SchedulingInfo");
+		if(log_scheduling_info==false) {
+			String data = "<!---Topology Info---!>\n\n";
+			data+=this.ComponentsToString();
+			
+			HelperFuncs.writeToFile(file, data);
+		}
+	}
 }

@@ -59,6 +59,7 @@ public class ElasticityScheduler implements IScheduler {
 		 * Start Scheduling
 		 */
 		for (TopologyDetails topo : topologies.getTopologies()) {
+			globalState.logTopologyInfo("ElasticityScheduler", topo);
 			String status = HelperFuncs.getStatus(topo.getId());
 			LOG.info("status: {}", status);
 			if (status.equals("REBALANCING")) {
@@ -88,6 +89,7 @@ public class ElasticityScheduler implements IScheduler {
 							}
 							
 						}
+						globalState.logAfterSchedulingInfo("ElasticityScheduler", topo);
 						globalState.isBalanced = true;
 					}
 				}
@@ -106,6 +108,7 @@ public class ElasticityScheduler implements IScheduler {
 				new backtype.storm.scheduler.EvenScheduler().schedule(
 						topologies, cluster);
 
+				globalState.logBeforeSchedulingInfo("ElasticityScheduler", topo);
 				globalState.storeState(cluster, topologies);
 				globalState.isBalanced = false;
 			}

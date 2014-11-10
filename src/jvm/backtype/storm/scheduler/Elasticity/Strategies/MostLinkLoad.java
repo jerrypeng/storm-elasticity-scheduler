@@ -74,7 +74,7 @@ public class MostLinkLoad extends LinkLoadBasedStrategy{
 				}
 				
 				if (parentTaskItr.hasNext()) {
-					ExecutorDetails exec = childrenTasksItr.next();
+					ExecutorDetails exec = parentTaskItr.next();
 					if(migratedTasks.contains(exec) == false) {
 						this._globalState.migrateTask(exec, target_ws, this._topo);
 						migratedTasks.add(exec);
