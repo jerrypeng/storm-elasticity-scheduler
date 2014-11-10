@@ -47,6 +47,7 @@ public class MostLinkLoad extends LinkLoadBasedStrategy{
 			List<ExecutorDetails> compTasks = new ArrayList<ExecutorDetails>();
 			compTasks.addAll(comp.execs);
 			List<ExecutorDetails> childrenTasks = this.getChildrenTasks(comp);
+			List<ExecutorDetails> parentTasks = this.getParentTasks(comp);
 			
 			LOG.info("comp: {}", comp.id);
 			LOG.info("comTasks: {}", compTasks);
@@ -54,17 +55,30 @@ public class MostLinkLoad extends LinkLoadBasedStrategy{
 			
 			Iterator<ExecutorDetails> compTasksItr = compTasks.iterator();
 			Iterator<ExecutorDetails> childrenTasksItr = childrenTasks.iterator();
-			while(migratedTasks.size()<THRESHOLD && (compTasksItr.hasNext() || childrenTasksItr.hasNext())){
+			Iterator<ExecutorDetails> parentTaskItr = parentTasks.iterator();
+			while(migratedTasks.size()<THRESHOLD && (compTasksItr.hasNext() || childrenTasksItr.hasNext() || parentTaskItr.hasNext())){
 				if(compTasksItr.hasNext()){
 					ExecutorDetails exec = compTasksItr.next();
-					this._globalState.migrateTask(exec, target_ws, this._topo);
-					migratedTasks.add(exec);
+					if(migratedTasks.contains(exec) == false) {
+						this._globalState.migrateTask(exec, target_ws, this._topo);
+						migratedTasks.add(exec);
+					}
 				}
 				
 				if(childrenTasksItr.hasNext()) {
 					ExecutorDetails exec = childrenTasksItr.next();
-					this._globalState.migrateTask(exec, target_ws, this._topo);
-					migratedTasks.add(exec);
+					if(migratedTasks.contains(exec) == false) {
+						this._globalState.migrateTask(exec, target_ws, this._topo);
+						migratedTasks.add(exec);
+					}
+				}
+				
+				if (parentTaskItr.hasNext()) {
+					ExecutorDetails exec = childrenTasksItr.next();
+					if(migratedTasks.contains(exec) == false) {
+						this._globalState.migrateTask(exec, target_ws, this._topo);
+						migratedTasks.add(exec);
+					}
 				}
 			}
 			

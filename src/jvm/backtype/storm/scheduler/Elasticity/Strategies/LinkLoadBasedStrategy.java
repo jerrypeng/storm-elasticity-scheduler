@@ -89,6 +89,15 @@ public abstract class LinkLoadBasedStrategy implements IStrategy{
 		}
 		return retVal;
 	}
+	
+	public List<ExecutorDetails>getParentTasks(Component comp) {
+		List<ExecutorDetails> retVal = new ArrayList<ExecutorDetails>();
+		for(String parent : comp.parents) {
+			Component c = this._globalState.components.get(this._topo.getId()).get(parent);
+			retVal.addAll(c.execs);
+		}
+		return retVal;
+	}
 	public class ComponentComparator implements Comparator<Component> {
 
 		HashMap<Component, Double> base;
