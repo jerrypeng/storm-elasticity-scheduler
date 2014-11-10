@@ -304,6 +304,7 @@ public class GlobalState {
 			data+=this.ComponentsToString();
 			
 			HelperFuncs.writeToFile(file, data);
+			this.log_scheduling_info = true;
 		}
 	}
 }
