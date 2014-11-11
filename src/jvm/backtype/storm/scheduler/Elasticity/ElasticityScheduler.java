@@ -108,6 +108,7 @@ public class ElasticityScheduler implements IScheduler {
 				new backtype.storm.scheduler.EvenScheduler().schedule(
 						topologies, cluster);
 
+				LOG.info("LOG... before...{}, {}",cluster.getUnassignedExecutors(topo).size(), HelperFuncs.getStatus(topo.getId()) );
 				if (cluster.getUnassignedExecutors(topo).size() == 0) {
 					globalState.logBeforeSchedulingInfo("ElasticityScheduler", topo);
 				}

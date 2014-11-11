@@ -283,6 +283,7 @@ public class GlobalState {
 			data+=this.NodesToString();
 			
 			HelperFuncs.writeToFile(file, data);
+			LOG.info("logBeforeSchedulingInfo: {}",data);
 			this.log_pre.put(topo.getId(), true);
 		}
 	}
