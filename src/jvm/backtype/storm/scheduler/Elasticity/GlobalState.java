@@ -141,10 +141,10 @@ public class GlobalState {
 		}
 		String data = "\n\n<!---Scheduling Change---!>\n";
 		for(Map.Entry<String, Map<WorkerSlot, List<ExecutorDetails>>> i : node_to_worker.entrySet()) {
-			data+="->hostname: "+this.nodes.get(i.getKey())+" Supervisor Id: "+i.getKey();
+			data+="->hostname: "+this.nodes.get(i.getKey()).hostname+" Supervisor Id: "+i.getKey()+"\n";
 			data+="->WorkerToExec: \n";
 			for(Map.Entry<WorkerSlot, List<ExecutorDetails>> entry : i.getValue().entrySet()) {
-				data+="-->"+entry.getKey().getPort()+ " => "+entry.getValue().toString();
+				data+="-->"+entry.getKey().getPort()+ " => "+entry.getValue().toString()+"\n";
 			}
 			
 		}
@@ -203,12 +203,12 @@ public class GlobalState {
 						LOG.info(
 								"ERROR: should have node {} should have worker: {}",
 								exec.getValue().getNodeId(), exec.getValue());
-						return null;
+						//return null;
 					}
 				} else {
 					LOG.info("ERROR: should have node {}", exec.getValue()
 							.getNodeId());
-					return null;
+					//return null;
 				}
 			}
 		}
