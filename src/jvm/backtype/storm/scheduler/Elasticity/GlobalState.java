@@ -98,7 +98,7 @@ public class GlobalState {
 		}
 		LOG.info("sched_state: {}",sched_state);
 		LOG.info("this.schedState: {}", this.schedState);
-		if(this.detectChangeSched(sched_state)==true) {
+		if(sched_state.hashCode()!=this.schedState.hashCode()) {
 			this.logSchedChange(sched_state);
 		}
 		this.schedState = new HashMap<String, Map<WorkerSlot, List<ExecutorDetails>>>();
