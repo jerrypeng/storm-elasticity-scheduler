@@ -109,7 +109,7 @@ public class ElasticityScheduler implements IScheduler {
 						topologies, cluster);
 
 				LOG.info("LOG... before...{}, {}, {}",new Object[] {cluster.getUnassignedExecutors(topo).size(), HelperFuncs.getStatus(topo.getId()), globalState.log_pre});
-				if (cluster.getUnassignedExecutors(topo).size() == 0 || globalState.schedState.size() == 0) {
+				if (cluster.getUnassignedExecutors(topo).size() == 0 || globalState.schedState.size() > 0) {
 					globalState.logBeforeSchedulingInfo("ElasticityScheduler", topo);
 				}
 				globalState.storeState(cluster, topologies);
