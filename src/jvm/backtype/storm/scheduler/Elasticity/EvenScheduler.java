@@ -40,7 +40,7 @@ public class EvenScheduler implements IScheduler{
 			LOG.info("Unassigned Executors for {}: ", topo.getName());
 			LOG.info("Current Assignment: {}", HelperFuncs.nodeToTask(cluster, topo.getId()));
 
-			globalState.logTopologyInfo("EvenScheduler", topo);
+			globalState.logTopologyInfo(topo);
 		}
 
 		//Master server = Master.getInstance();

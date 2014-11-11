@@ -308,9 +308,9 @@ public class GlobalState {
 	}
 	
 	private Map<String, Boolean> log_scheduling_info = new HashMap<String, Boolean>();
-	public void logTopologyInfo(String filename, TopologyDetails topo){
+	public void logTopologyInfo(TopologyDetails topo){
 		if(this.components.size()>0) {
-			File file= new File(Config.LOG_PATH + filename + "_SchedulingInfo");
+			File file= this.scheduling_log;
 			if(this.log_scheduling_info.containsKey(topo.getId())==false) {
 				this.log_scheduling_info.put(topo.getId(), false);
 			}

@@ -83,12 +83,20 @@ public class LeastLinkLoad extends LinkLoadBasedStrategy{
 					}
 				}
 				
+				if(migratedTasks.size()>= THRESHOLD) {
+					break;
+				}
+				
 				if(childrenTasksItr.hasNext()) {
 					ExecutorDetails exec = childrenTasksItr.next();
 					if(migratedTasks.contains(exec) == false) {
 						this._globalState.migrateTask(exec, target_ws, this._topo);
 						migratedTasks.add(exec);
 					}
+				}
+				
+				if(migratedTasks.size()>= THRESHOLD) {
+					break;
 				}
 				
 				if (parentTaskItr.hasNext()) {

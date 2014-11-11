@@ -59,7 +59,7 @@ public class ElasticityScheduler implements IScheduler {
 		 * Start Scheduling
 		 */
 		for (TopologyDetails topo : topologies.getTopologies()) {
-			globalState.logTopologyInfo("ElasticityScheduler", topo);
+			globalState.logTopologyInfo(topo);
 			String status = HelperFuncs.getStatus(topo.getId());
 			LOG.info("status: {}", status);
 			if (status.equals("REBALANCING")) {
@@ -110,7 +110,7 @@ public class ElasticityScheduler implements IScheduler {
 
 				globalState.storeState(cluster, topologies);
 				globalState.isBalanced = false;
-			}
+			}String filename,
 
 			LOG.info("Current Assignment: {}",
 					HelperFuncs.nodeToTask(cluster, topo.getId()));
