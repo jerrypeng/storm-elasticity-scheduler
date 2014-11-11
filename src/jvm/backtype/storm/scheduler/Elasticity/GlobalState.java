@@ -285,7 +285,7 @@ public class GlobalState {
 		if(this.log_pre.containsKey(topo.getId())==false) {
 			this.log_pre.put(topo.getId(), false);
 		}
-		if(HelperFuncs.getStatus(topo.getId()).equals("ACTIVE") && log_pre.get(topo.getId())==false) {
+		if(log_pre.get(topo.getId())==false) {
 			String data = "\n\n<!---Before Rebalancing---!>\n";
 			data+=this.NodesToString();
 			
@@ -301,7 +301,7 @@ public class GlobalState {
 		if(this.log_after.containsKey(topo.getId())==false) {
 			this.log_after.put(topo.getId(), false);
 		}
-		if(HelperFuncs.getStatus(topo.getId()).equals("REBALANCING") && log_after.get(topo.getId())==false) {
+		if(log_after.get(topo.getId())==false) {
 			String data = "\n\n<!--After Re-balancing--!>\n";
 			data+=this.NodesToString();
 			
