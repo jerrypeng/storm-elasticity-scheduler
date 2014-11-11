@@ -309,17 +309,18 @@ public class GlobalState {
 	
 	private Map<String, Boolean> log_scheduling_info = new HashMap<String, Boolean>();
 	public void logTopologyInfo(String filename, TopologyDetails topo){
-		String LOG_PATH = "/tmp/";
-		File file= new File(LOG_PATH + filename + "_SchedulingInfo");
-		if(this.log_scheduling_info.containsKey(topo.getId())==false) {
-			this.log_scheduling_info.put(topo.getId(), false);
-		}
-		if(log_scheduling_info.get(topo.getId())==false) {
-			String data = "\n\n<!---Topology Info---!>\n";
-			data+=this.ComponentsToString();
-			
-			HelperFuncs.writeToFile(file, data);
-			this.log_scheduling_info.put(topo.getId(), true);
+		if(this.components.size()>0) {
+			File file= new File(Config.LOG_PATH + filename + "_SchedulingInfo");
+			if(this.log_scheduling_info.containsKey(topo.getId())==false) {
+				this.log_scheduling_info.put(topo.getId(), false);
+			}
+			if(log_scheduling_info.get(topo.getId())==false) {
+				String data = "\n\n<!---Topology Info---!>\n";
+				data+=this.ComponentsToString();
+				
+				HelperFuncs.writeToFile(file, data);
+				this.log_scheduling_info.put(topo.getId(), true);
+			}
 		}
 	}
 }
