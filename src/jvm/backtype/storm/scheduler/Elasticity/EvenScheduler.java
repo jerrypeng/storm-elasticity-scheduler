@@ -25,21 +25,24 @@ public class EvenScheduler implements IScheduler{
 	@Override
 	public void schedule(Topologies topologies, Cluster cluster) {
 		LOG.info("\n\n\nRerunning EvenScheduler...");
-		for (TopologyDetails topo : topologies.getTopologies()) {
-			LOG.info("ID: {} NAME: {}", topo.getId(), topo.getName());
-			LOG.info("Unassigned Executors for {}: ", topo.getName());
-			LOG.info("Current Assignment: {}", HelperFuncs.nodeToTask(cluster, topo.getId()));
-		}
 		GetStats gs = GetStats.getInstance("EvenScheduler");
 		gs.getStatistics();
 		/**
 		 * Get Global info
 		 */
-		GlobalState globalState = GlobalState.getInstance();
+		GlobalState globalState = GlobalState.getInstance("EvenScheduler");
 		globalState.updateInfo(cluster, topologies);
-
+		globalState.storeState(cluster, topologies);
 		LOG.info("Global State:\n{}", globalState);
-		
+
+		for (TopologyDetails topo : topologies.getTopologies()) {
+			LOG.info("ID: {} NAME: {}", topo.getId(), topo.getName());
+			LOG.info("Unassigned Executors for {}: ", topo.getName());
+			LOG.info("Current Assignment: {}", HelperFuncs.nodeToTask(cluster, topo.getId()));
+
+			globalState.logTopologyInfo(topo);
+		}
+
 		//Master server = Master.getInstance();
 		
 		LOG.info("running EvenScheduler now...");

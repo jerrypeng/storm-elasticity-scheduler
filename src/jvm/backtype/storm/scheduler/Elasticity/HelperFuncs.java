@@ -1,5 +1,9 @@
 package backtype.storm.scheduler.Elasticity;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -199,4 +203,25 @@ public class HelperFuncs {
 		return null;
 	}
 	
+	public static String printRank(TreeMap<Component, Double> rankMap) {
+		String retVal="";
+		int rank=1;
+		for(Map.Entry<Component, Double> entry : rankMap.entrySet()) {
+			retVal+=rank+". Component: "+entry.getKey().id+ " value: " + entry.getValue();
+			rank++;
+		}
+		return retVal;
+	}
+	
+	public static void writeToFile(File file, String data) {
+		try {
+			FileWriter fileWritter = new FileWriter(file, true);
+			BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
+			bufferWritter.append(data);
+			bufferWritter.close();
+			fileWritter.close();
+		} catch (IOException ex) {
+			LOG.info("error! writin to file {}", ex);
+		}
+	}
 }

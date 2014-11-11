@@ -1,6 +1,5 @@
 package backtype.storm.scheduler.Elasticity;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,15 +19,12 @@ import backtype.storm.generated.Nimbus;
 import backtype.storm.generated.NotAliveException;
 import backtype.storm.generated.SpoutSpec;
 import backtype.storm.generated.StormTopology;
-import backtype.storm.generated.StreamInfo;
 import backtype.storm.generated.TopologySummary;
-import backtype.storm.scheduler.ExecutorDetails;
 
 public class GetTopologyInfo {
 
 	// private static GetTopologyInfo instance = null;
-	private HashMap<String, Component> bolts = null;
-	private HashMap<String, Component> spouts = null;
+
 	public HashMap<String, Component> all_comp = null;
 	public int numWorkers = 0;
 
@@ -36,8 +32,6 @@ public class GetTopologyInfo {
 			.getLogger(GetTopologyInfo.class);
 
 	public GetTopologyInfo() {
-		this.bolts = new HashMap<String, Component>();
-		this.spouts = new HashMap<String, Component>();
 		this.all_comp = new HashMap<String, Component>();
 	}
 

@@ -34,11 +34,11 @@ public class ElasticityScheduler implements IScheduler {
 	@Override
 	public void schedule(Topologies topologies, Cluster cluster) {
 		LOG.info("\n\n\nRerunning ElasticityScheduler...");
-
+		
 		/**
 		 * Get Global info
 		 */
-		GlobalState globalState = GlobalState.getInstance();
+		GlobalState globalState = GlobalState.getInstance("ElasticityScheduler");
 		globalState.updateInfo(cluster, topologies);
 
 		LOG.info("Global State:\n{}", globalState);
@@ -59,6 +59,7 @@ public class ElasticityScheduler implements IScheduler {
 		 * Start Scheduling
 		 */
 		for (TopologyDetails topo : topologies.getTopologies()) {
+			globalState.logTopologyInfo(topo);
 			String status = HelperFuncs.getStatus(topo.getId());
 			LOG.info("status: {}", status);
 			if (status.equals("REBALANCING")) {
@@ -71,22 +72,24 @@ public class ElasticityScheduler implements IScheduler {
 						if (globalState.stateEmpty() == false) {
 							LOG.info("Making migration assignments...");
 							
-							LinkLoadBasedStrategy strategy = new LinkLoadBasedStrategy(
+							LeastLinkLoad strategy = new LeastLinkLoad(
 									globalState, stats, topo, cluster,
 									topologies);
 							Map<WorkerSlot, List<ExecutorDetails>> schedMap = strategy
 									.getNewScheduling();
-
-							for (Map.Entry<WorkerSlot, List<ExecutorDetails>> sched : schedMap
-									.entrySet()) {
-								HelperFuncs.assignTasks(sched.getKey(),
-										topo.getId(), sched.getValue(),
-										cluster, topologies);
-								LOG.info("Assigning {}=>{}", sched.getKey(),
-										sched.getValue());
+							if(schedMap != null) {
+								for (Map.Entry<WorkerSlot, List<ExecutorDetails>> sched : schedMap
+										.entrySet()) {
+									HelperFuncs.assignTasks(sched.getKey(),
+											topo.getId(), sched.getValue(),
+											cluster, topologies);
+									LOG.info("Assigning {}=>{}", sched.getKey(),
+											sched.getValue());
+								}
 							}
 							
 						}
+						
 						globalState.isBalanced = true;
 					}
 				}
