@@ -268,43 +268,52 @@ public class GlobalState {
 		return str;
 	}
 	
-	private boolean log_pre = false;
-	private boolean log_after = false;
-	private boolean log_scheduling_info = false;
+	private Map<String, Boolean> log_pre = new HashMap<String, Boolean>();
+	private Map<String, Boolean> log_after = new HashMap<String, Boolean>();
+	private Map<String, Boolean> log_scheduling_info = new HashMap<String, Boolean>();
 	
 	public void logBeforeSchedulingInfo(String filename, TopologyDetails topo){
 		String LOG_PATH = "/tmp/";
 		File file= new File(LOG_PATH + filename + "_SchedulingInfo");
-		if(HelperFuncs.getStatus(topo.getId()).equals("ACTIVE") && log_pre==false) {
-			String data = "<!---Before Rebalancing---!>\n\n";
+		if(this.log_pre.containsKey(topo.getId())==false) {
+			this.log_pre.put(topo.getId(), false);
+		}
+		if(this.log_after.containsKey(topo.getId())==false) {
+			this.log_after.put(topo.getId(), false);
+		}
+		if(this.log_scheduling_info.containsKey(topo.getId())==false) {
+			this.log_scheduling_info.put(topo.getId(), false);
+		}
+		if(HelperFuncs.getStatus(topo.getId()).equals("ACTIVE") && log_pre.get(topo.getId())==false) {
+			String data = "\n\n<!---Before Rebalancing---!>\n";
 			data+=this.NodesToString();
 			
 			HelperFuncs.writeToFile(file, data);
-			this.log_pre=true;
+			this.log_pre.put(topo.getId(), true);
 		}
 	}
 	
 	public void logAfterSchedulingInfo(String filename, TopologyDetails topo){
 		String LOG_PATH = "/tmp/";
 		File file= new File(LOG_PATH + filename + "_SchedulingInfo");
-		if(HelperFuncs.getStatus(topo.getId()).equals("REBALANCING") && log_after==false) {
-			String data = "<!--After Re-balancing--!>\n\n";
+		if(HelperFuncs.getStatus(topo.getId()).equals("REBALANCING") && log_after.get(topo.getId())==false) {
+			String data = "\n\n<!--After Re-balancing--!>\n";
 			data+=this.NodesToString();
 			
 			HelperFuncs.writeToFile(file, data);
-			this.log_after = true;
+			this.log_after.put(topo.getId(), true);
 		}
 	}
 	
 	public void logTopologyInfo(String filename, TopologyDetails topo){
 		String LOG_PATH = "/tmp/";
 		File file= new File(LOG_PATH + filename + "_SchedulingInfo");
-		if(log_scheduling_info==false) {
-			String data = "<!---Topology Info---!>\n\n";
+		if(log_scheduling_info.get(topo.getId())==false) {
+			String data = "\n\n<!---Topology Info---!>\n";
 			data+=this.ComponentsToString();
 			
 			HelperFuncs.writeToFile(file, data);
-			this.log_scheduling_info = true;
+			this.log_scheduling_info.put(topo.getId(), true);
 		}
 	}
 }
