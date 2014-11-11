@@ -34,11 +34,11 @@ public class ElasticityScheduler implements IScheduler {
 	@Override
 	public void schedule(Topologies topologies, Cluster cluster) {
 		LOG.info("\n\n\nRerunning ElasticityScheduler...");
-
+		
 		/**
 		 * Get Global info
 		 */
-		GlobalState globalState = GlobalState.getInstance();
+		GlobalState globalState = GlobalState.getInstance("ElasticityScheduler");
 		globalState.updateInfo(cluster, topologies);
 
 		LOG.info("Global State:\n{}", globalState);
@@ -108,14 +108,14 @@ public class ElasticityScheduler implements IScheduler {
 				new backtype.storm.scheduler.EvenScheduler().schedule(
 						topologies, cluster);
 
-				LOG.info("LOG... before...{}, {}, {}",new Object[] {cluster.getUnassignedExecutors(topo).size(), HelperFuncs.getStatus(topo.getId()), globalState.log_pre});
-				if(globalState.isBalanced==true) {
-					globalState.logAfterSchedulingInfo("ElasticityScheduler", topo);
-				} else {
-					if (globalState.schedState.size() > 0) {
-						globalState.logBeforeSchedulingInfo("ElasticityScheduler", topo);
-					}
-				}
+//				LOG.info("LOG... before...{}, {}, {}",new Object[] {cluster.getUnassignedExecutors(topo).size(), HelperFuncs.getStatus(topo.getId()), globalState.log_pre});
+//				if(globalState.isBalanced==true) {
+//					globalState.logAfterSchedulingInfo("ElasticityScheduler", topo);
+//				} else {
+//					if (globalState.schedState.size() > 0) {
+//						globalState.logBeforeSchedulingInfo("ElasticityScheduler", topo);
+//					}
+//				}
 				globalState.storeState(cluster, topologies);
 				globalState.isBalanced = false;
 			}

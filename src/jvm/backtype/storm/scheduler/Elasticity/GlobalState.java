@@ -48,23 +48,24 @@ public class GlobalState {
 	//edge and throughput
 	public TreeMap<List<Component>, Integer> edgeThroughput;
 	
+	private File scheduling_log;
+	
 	public boolean isBalanced = false;
 	
-	private GlobalState() {
+	private GlobalState(String filename) {
 		this.schedState = new HashMap<String, Map<WorkerSlot, List<ExecutorDetails>>>();
+		this.scheduling_log = new File(Config.LOG_PATH + filename + "_SchedulingInfo");
 		try {
-			File scheduling_log = new File("/tmp/ElasticityScheduler_SchedulingInfo");
-			
-			scheduling_log.delete();
+			this.scheduling_log.delete();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
 	}
 
-	public static GlobalState getInstance() {
+	public static GlobalState getInstance(String filename) {
 		if(instance==null) {
-			instance = new GlobalState();
+			instance = new GlobalState(filename);
 		}
 		return instance;
 	}
@@ -78,8 +79,7 @@ public class GlobalState {
 	}
 	
 	public void storeSchedState(Cluster cluster, Topologies topologies) {
-		this.schedState = new HashMap<String, Map<WorkerSlot, List<ExecutorDetails>>>();
-		
+		HashMap<String, Map<WorkerSlot, List<ExecutorDetails>>> sched_state = new HashMap<String, Map<WorkerSlot, List<ExecutorDetails>>>();
 		for(TopologyDetails topo : topologies.getTopologies()) {
 			if(cluster.getAssignmentById(topo.getId())!=null) {
 				
@@ -91,11 +91,66 @@ public class GlobalState {
 					topoSched.get(entry.getValue()).add(entry.getKey());
 				}
 				
-				this.schedState.put(topo.getId(), topoSched);
+				sched_state.put(topo.getId(), topoSched);
 				
 			}
 			
 		}
+		
+		if(this.detectChangeSched(sched_state)==true) {
+			this.logSchedChange(sched_state);
+		}
+		this.schedState = new HashMap<String, Map<WorkerSlot, List<ExecutorDetails>>>();
+		this.schedState.putAll(sched_state);
+	}
+	
+	public Boolean detectChangeSched(HashMap<String, Map<WorkerSlot, List<ExecutorDetails>>> sched_state) {
+		for(Map.Entry<String, Map<WorkerSlot, List<ExecutorDetails>>> i : sched_state.entrySet()) {
+			
+			if(this.schedState.containsKey(i.getKey())==false) {
+				return true;
+			}
+			for(Map.Entry<WorkerSlot, List<ExecutorDetails>> k : i.getValue().entrySet()) {
+				if(this.schedState.get(i.getKey()).containsKey(k.getKey())==false) {
+					return true;
+				}
+				for(ExecutorDetails z : k.getValue() ) {
+					if(this.schedState.get(i.getKey()).get(k.getKey()).contains(z)==false) {
+						return true;
+					}
+				}
+			}
+			
+		}
+		return false;
+	}
+	
+	public void logSchedChange(Map<String, Map<WorkerSlot, List<ExecutorDetails>>>sched_state) {
+		Map<String, Map<WorkerSlot, List<ExecutorDetails>>> node_to_worker =new HashMap<String, Map<WorkerSlot, List<ExecutorDetails>>>();
+		for(Node n : this.nodes.values()) {
+			node_to_worker.put(n.supervisor_id, new HashMap<WorkerSlot, List<ExecutorDetails>>());
+			for(WorkerSlot ws : n.slots) {
+				node_to_worker.get(n.supervisor_id).put(ws, new ArrayList<ExecutorDetails>());
+			}
+		}
+		
+		for(Map.Entry<String, Map<WorkerSlot, List<ExecutorDetails>>> i : sched_state.entrySet()) {
+			for(Map.Entry<WorkerSlot, List<ExecutorDetails>> k : i.getValue().entrySet()) {
+				node_to_worker.get(k.getKey().getNodeId()).get(k.getKey()).addAll(k.getValue());
+			}
+		}
+		String data = "\n\n<!---Scheduling Change---!>\n";
+		for(Map.Entry<String, Map<WorkerSlot, List<ExecutorDetails>>> i : node_to_worker.entrySet()) {
+			data+="->hostname: "+this.nodes.get(i.getKey())+" Supervisor Id: "+i.getKey();
+			data+="->WorkerToExec: \n";
+			for(Map.Entry<WorkerSlot, List<ExecutorDetails>> entry : i.getValue().entrySet()) {
+				data+="-->"+entry.getKey().getPort()+ " => "+entry.getValue().toString();
+			}
+			
+		}
+		
+		HelperFuncs.writeToFile(this.scheduling_log, data);
+		
 	}
 	
 	public void clearStoreState() {
@@ -263,7 +318,6 @@ public class GlobalState {
 		return str;
 	}
 	
-	
 	@Override 
 	public String toString(){
 		String str="";
@@ -274,6 +328,8 @@ public class GlobalState {
 		
 		return str;
 	}
+	
+
 	
 	public Map<String, Boolean> log_pre = new HashMap<String, Boolean>();
 	private Map<String, Boolean> log_after = new HashMap<String, Boolean>();

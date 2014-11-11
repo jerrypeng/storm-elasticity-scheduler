@@ -102,7 +102,7 @@ public class GetStats {
 	private File avg_log;
 	private File output_bolt_log;
 	private String sched_type;
-	private static String LOG_PATH = "/tmp/";
+	
 
 	private final static Integer MOVING_AVG_WINDOW = 30;
 	private static GetStats instance = null;
@@ -119,9 +119,9 @@ public class GetStats {
 
 		// delete old files
 		try {
-			complete_log = new File(LOG_PATH + filename + "_complete");
-			avg_log = new File(LOG_PATH + filename + "_complete");
-			output_bolt_log = new File(LOG_PATH + filename + "output_bolt");
+			complete_log = new File(Config.LOG_PATH + filename + "_complete");
+			avg_log = new File(Config.LOG_PATH + filename + "_complete");
+			output_bolt_log = new File(Config.LOG_PATH + filename + "output_bolt");
 			sched_type = filename;
 
 			complete_log.delete();
