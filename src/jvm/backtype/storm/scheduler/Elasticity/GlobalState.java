@@ -96,7 +96,8 @@ public class GlobalState {
 			}
 			
 		}
-		
+		LOG.info("sched_state: {}",sched_state);
+		LOG.info("this.schedState: {}", this.schedState);
 		if(this.detectChangeSched(sched_state)==true) {
 			this.logSchedChange(sched_state);
 		}
