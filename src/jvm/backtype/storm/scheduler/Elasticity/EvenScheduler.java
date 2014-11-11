@@ -35,8 +35,9 @@ public class EvenScheduler implements IScheduler{
 		/**
 		 * Get Global info
 		 */
-		GlobalState globalState = GlobalState.getInstance();
+		GlobalState globalState = GlobalState.getInstance("EvenScheduler");
 		globalState.updateInfo(cluster, topologies);
+		globalState.storeState(cluster, topologies);
 
 		LOG.info("Global State:\n{}", globalState);
 		
