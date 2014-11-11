@@ -52,6 +52,13 @@ public class GlobalState {
 	
 	private GlobalState() {
 		this.schedState = new HashMap<String, Map<WorkerSlot, List<ExecutorDetails>>>();
+		try {
+			File scheduling_log = new File("/tmp/ElasticityScheduler_SchedulingInfo");
+			
+			scheduling_log.delete();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		
 	}
 
@@ -268,7 +275,7 @@ public class GlobalState {
 		return str;
 	}
 	
-	private Map<String, Boolean> log_pre = new HashMap<String, Boolean>();
+	public Map<String, Boolean> log_pre = new HashMap<String, Boolean>();
 	private Map<String, Boolean> log_after = new HashMap<String, Boolean>();
 	private Map<String, Boolean> log_scheduling_info = new HashMap<String, Boolean>();
 	
