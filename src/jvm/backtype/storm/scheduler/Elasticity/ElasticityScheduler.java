@@ -110,7 +110,7 @@ public class ElasticityScheduler implements IScheduler {
 
 				globalState.storeState(cluster, topologies);
 				globalState.isBalanced = false;
-			}String filename,
+			}
 
 			LOG.info("Current Assignment: {}",
 					HelperFuncs.nodeToTask(cluster, topo.getId()));
