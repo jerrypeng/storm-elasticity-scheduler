@@ -33,7 +33,11 @@ public class DummyStrategy extends TopologyHeuristicStrategy {
 			/*rankMap.put(entry.getValue(), entry.getValue().children.size()
 					+ entry.getValue().parents.size());*/
 			if(entry.getKey().equals("bolt_transform")){
-				rankMap.put(entry.getValue(), 1);
+				rankMap.put(entry.getValue(), 100);
+			}
+			else{
+				rankMap.put(entry.getValue(), entry.getValue().children.size()
+						+ entry.getValue().parents.size());
 			}
 		}
 		retMap.putAll(rankMap);
