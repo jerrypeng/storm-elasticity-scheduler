@@ -32,10 +32,16 @@ public class DummyStrategy extends TopologyHeuristicStrategy {
 		for (Map.Entry<String, Component> entry : map.entrySet()) {
 			/*rankMap.put(entry.getValue(), entry.getValue().children.size()
 					+ entry.getValue().parents.size());*/
-			if(entry.getKey().equals("bolt_transform"))
-				rankMap.put(entry.getValue(), 1);
+			if(entry.getKey().equals("bolt_transform")){
+				rankMap.put(entry.getValue(), 100);
+			}
+			else{
+				rankMap.put(entry.getValue(), entry.getValue().children.size()
+						+ entry.getValue().parents.size());
+			}
 		}
 		retMap.putAll(rankMap);
+		LOG.info("priority queue: {}", retMap);
 		return retMap;
 	}
 
