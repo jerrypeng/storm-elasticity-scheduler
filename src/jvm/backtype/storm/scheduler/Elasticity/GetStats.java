@@ -13,7 +13,9 @@ import org.apache.thrift.transport.TSocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import backtype.storm.generated.BoltStats;
 import backtype.storm.generated.ClusterSummary;
+import backtype.storm.generated.ExecutorSpecificStats;
 import backtype.storm.generated.ExecutorStats;
 import backtype.storm.generated.ExecutorSummary;
 import backtype.storm.generated.Nimbus;
@@ -70,7 +72,12 @@ public class GetStats {
 	 * Unique Task id hash -> emit throughput
 	 */
 	public HashMap<String, Integer> emitStatsTable;
-
+	
+	/**
+	 * Unique Task id hash -> executed throughput
+	 */
+	public HashMap<String, Integer> executeStatsTable;
+	
 	/**
 	 * Topology_id->start time
 	 */
@@ -111,6 +118,7 @@ public class GetStats {
 	protected GetStats(String filename) {
 		this.transferStatsTable = new HashMap<String, Integer>();
 		this.emitStatsTable = new HashMap<String, Integer>();
+		this.executeStatsTable = new HashMap<String, Integer>();
 		this.emitThroughputHistory = new HashMap<String, HashMap<String, List<Integer>>>();
 		this.transferThroughputHistory = new HashMap<String, HashMap<String, List<Integer>>>();
 		this.startTimes = new HashMap<String, Long>();
@@ -200,13 +208,21 @@ public class GetStats {
 					if (executorStats == null) {
 						continue;
 					}
+					//get specific stats
+					ExecutorSpecificStats execSpecStats = executorStats.get_specific();
 					// get transfer info
 					Map<String, Map<String, Long>> transfer = executorStats
 							.get_transferred();
 					// get emit info
 					Map<String, Map<String, Long>> emit = executorStats
 							.get_emitted();
-
+					//if it's a bolt, getting executed
+					if(execSpecStats.is_set_bolt()){
+						BoltStats boltStats = execSpecStats.get_bolt();
+						//Integer executed_count=boltStats.get_executed();
+						
+						LOG.info("Executor {}: GLOBAL STREAM ID: {}",taskId, boltStats.get_executed());
+					}
 					// LOG.info("Transfer: {}", transfer);
 					if (transfer.get(":all-time").get("default") != null
 							&& emit.get(":all-time").get("default") != null) {
