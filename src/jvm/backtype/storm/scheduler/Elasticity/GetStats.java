@@ -276,7 +276,10 @@ public class GetStats {
 								- this.transferStatsTable.get(hash_id);
 						Integer emit_throughput = totalEmitOutput
 								- this.emitStatsTable.get(hash_id);
-						Integer execute_throughput = totalExecuted-this.executeStatsTable.get(hash_id);
+						Integer execute_throughput = 0;
+						if(this.executeStatsTable.containsKey(hash_id) == true) {
+							 execute_throughput = totalExecuted-this.executeStatsTable.get(hash_id);
+						}
 
 						LOG.info((host + ':' + port + ':' + componentId + ":"
 								+ topo.get_id() + ":" + taskId + ","
