@@ -3,8 +3,10 @@ package backtype.storm.scheduler.Elasticity;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -18,6 +20,7 @@ import backtype.storm.generated.ClusterSummary;
 import backtype.storm.generated.ExecutorSpecificStats;
 import backtype.storm.generated.ExecutorStats;
 import backtype.storm.generated.ExecutorSummary;
+import backtype.storm.generated.GlobalStreamId;
 import backtype.storm.generated.Nimbus;
 import backtype.storm.generated.StormTopology;
 import backtype.storm.generated.TopologyInfo;
@@ -53,12 +56,14 @@ public class GetStats {
 		public String componentId;
 		public Integer total_emit_throughput;
 		public Integer total_transfer_throughput;
+		public Integer total_execute_throughput;
 		public Integer parallelism_hint;
 
 		public ComponentStats(String id) {
 			this.componentId = id;
 			this.total_emit_throughput = 0;
 			this.total_transfer_throughput = 0;
+			this.total_execute_throughput = 0;
 		}
 
 	}
@@ -101,7 +106,10 @@ public class GetStats {
 	 * Topology_id->(Component_Id->List of previous throughputs)
 	 */
 	public HashMap<String, HashMap<String, List<Integer>>> emitThroughputHistory;
-
+	/**
+	 * Topology_id->(Component_Id->List of previous throughputs)
+	 */
+	public HashMap<String, HashMap<String, List<Integer>>> executeThroughputHistory;
 	/**
 	 * File output
 	 */
@@ -121,6 +129,7 @@ public class GetStats {
 		this.executeStatsTable = new HashMap<String, Integer>();
 		this.emitThroughputHistory = new HashMap<String, HashMap<String, List<Integer>>>();
 		this.transferThroughputHistory = new HashMap<String, HashMap<String, List<Integer>>>();
+		this.executeThroughputHistory = new HashMap<String, HashMap<String, List<Integer>>>();
 		this.startTimes = new HashMap<String, Long>();
 		this.nodeStats = new HashMap<String, NodeStats>();
 		this.componentStats = new HashMap<String, HashMap<String, ComponentStats>>();
@@ -210,22 +219,21 @@ public class GetStats {
 					}
 					//get specific stats
 					ExecutorSpecificStats execSpecStats = executorStats.get_specific();
+					//get number of time executed
+					BoltStats boltStats = execSpecStats.get_bolt();
+							
 					// get transfer info
 					Map<String, Map<String, Long>> transfer = executorStats
 							.get_transferred();
 					// get emit info
 					Map<String, Map<String, Long>> emit = executorStats
 							.get_emitted();
-					//if it's a bolt, getting executed
-					if(execSpecStats.is_set_bolt()){
-						BoltStats boltStats = execSpecStats.get_bolt();
-						//Integer executed_count=boltStats.get_executed();
-						
-						LOG.info("Executor {}: GLOBAL STREAM ID: {}",taskId, boltStats.get_executed());
-					}
+					
+					
 					// LOG.info("Transfer: {}", transfer);
 					if (transfer.get(":all-time").get("default") != null
-							&& emit.get(":all-time").get("default") != null) {
+							&& emit.get(":all-time").get("default") != null
+							&& boltStats.get_executed().get(":all-time").size() > 0) {
 						// getting task hash
 						String hash_id = this.getTaskHashId(host, port,
 								componentId, topo, taskId);
@@ -234,7 +242,17 @@ public class GetStats {
 								.get("default").intValue();
 						Integer totalEmitOutput = emit.get(":all-time")
 								.get("default").intValue();
-
+						Integer totalExecuted = getBoltStatLongValueFromMap(boltStats.get_executed(), ":all-time").intValue();
+						//if it's a bolt, getting executed
+						if(execSpecStats.is_set_bolt()){
+							//Integer executed_count=boltStats.get_executed();
+							if(this.executeStatsTable.containsKey(hash_id)==false){
+								
+								this.executeStatsTable.put(hash_id, totalExecuted);
+							}
+							//LOG.info("Executor {}: GLOBAL STREAM ID: {}",taskId, boltStats.get_executed());
+						}
+						
 						if (this.transferStatsTable.containsKey(hash_id) == false) {
 							this.transferStatsTable.put(hash_id,
 									totalTransferOutput);
@@ -248,6 +266,7 @@ public class GetStats {
 								- this.transferStatsTable.get(hash_id);
 						Integer emit_throughput = totalEmitOutput
 								- this.emitStatsTable.get(hash_id);
+						Integer execute_throughput = totalExecuted-this.executeStatsTable.get(hash_id);
 
 						LOG.info((host + ':' + port + ':' + componentId + ":"
 								+ topo.get_id() + ":" + taskId + ","
@@ -255,7 +274,9 @@ public class GetStats {
 								+ "," + this.transferStatsTable.get(hash_id)
 								+ "," + transfer_throughput + ","
 								+ emit.get(":all-time").get("default") + ","
-								+ this.emitStatsTable.get(hash_id) + "," + emit_throughput));
+								+ this.emitStatsTable.get(hash_id) + "," + emit_throughput
+								+ totalExecuted + ","
+								+ this.executeStatsTable.get(hash_id) + "," + execute_throughput));
 						// LOG.info("-->transfered: {}\n -->emmitted: {}",
 						// executorStats.get_transferred(),
 						// executorStats.get_emitted());
@@ -263,6 +284,7 @@ public class GetStats {
 						this.transferStatsTable.put(hash_id,
 								totalTransferOutput);
 						this.emitStatsTable.put(hash_id, totalEmitOutput);
+						this.executeStatsTable.put(hash_id, totalExecuted);
 
 						// get node stats
 
@@ -297,7 +319,8 @@ public class GetStats {
 
 						this.componentStats.get(topo.get_id()).get(componentId).total_transfer_throughput += transfer_throughput;
 						this.componentStats.get(topo.get_id()).get(componentId).total_emit_throughput += emit_throughput;
-
+						this.componentStats.get(topo.get_id()).get(componentId).total_execute_throughput += execute_throughput;
+						
 						// write to file
 						long unixTime = (System.currentTimeMillis() / 1000)
 								- this.startTimes.get(topo.get_id());
@@ -336,6 +359,8 @@ public class GetStats {
 				.get(topo.get_id());
 		HashMap<String, List<Integer>> compEmitHistory = this.emitThroughputHistory
 				.get(topo.get_id());
+		HashMap<String, List<Integer>> compExecuteHistory = this.executeThroughputHistory
+				.get(topo.get_id());
 		//LOG.info("compTransferHistory: {}", compTransferHistory);
 		//LOG.info("componentStats: {}", this.componentStats);
 		for (Map.Entry<String, ComponentStats> entry : this.componentStats.get(
@@ -346,11 +371,16 @@ public class GetStats {
 			if (compEmitHistory.get(entry.getKey()).size() >= MOVING_AVG_WINDOW) {
 				compEmitHistory.get(entry.getKey()).remove(0);
 			}
+			if (compExecuteHistory.get(entry.getKey()).size() >= MOVING_AVG_WINDOW) {
+				compExecuteHistory.get(entry.getKey()).remove(0);
+			}
 
 			compTransferHistory.get(entry.getKey()).add(
 					entry.getValue().total_transfer_throughput);
 			compEmitHistory.get(entry.getKey()).add(
 					entry.getValue().total_emit_throughput);
+			compExecuteHistory.get(entry.getKey()).add(
+					entry.getValue().total_execute_throughput);
 		}
 	}
 
@@ -402,6 +432,8 @@ public class GetStats {
 					/ cs.getValue().parallelism_hint;
 			int avg_emit_throughput = cs.getValue().total_emit_throughput
 					/ cs.getValue().parallelism_hint;
+			int avg_execute_throughpt = cs.getValue().total_execute_throughput
+					/ cs.getValue().parallelism_hint;
 			if (cs.getKey().matches(".*_output_.*")) {
 				LOG.info(
 						"Component: {}(output) total throughput (transfer): {} (emit): {} avg throughput (transfer): {} (emit): {}",
@@ -414,11 +446,12 @@ public class GetStats {
 				output_bolts += cs.getKey() + ",";
 			} else {
 				LOG.info(
-						"Component: {} total throughput (transfer): {} (emit): {} avg throughput (transfer): {} (emit): {}",
+						"Component: {} total throughput (transfer): {} (emit): {} (execute): {} avg throughput (transfer): {} (emit): {} (execute): {}",
 						new Object[] { cs.getKey(),
 								cs.getValue().total_transfer_throughput,
 								cs.getValue().total_emit_throughput,
-								avg_transfer_throughput, avg_emit_throughput });
+								cs.getValue().total_execute_throughput,
+								avg_transfer_throughput, avg_emit_throughput, avg_emit_throughput });
 			}
 		}
 		if (num_output_bolt > 0) {
@@ -456,6 +489,19 @@ public class GetStats {
 		return retVal;
 	}
 	
+	public String printExecuteThroughputHistory(){
+		String retVal="";
+		for( Map.Entry<String, HashMap<String, List<Integer>>> i : this.executeThroughputHistory.entrySet()) {
+			retVal+="Topology: "+i.getKey()+"\n";
+			for(Map.Entry<String, List<Integer>> k : i.getValue().entrySet()) {
+				retVal+="Component: "+k.getKey()+"\n";
+				retVal+="Execute History: "+k.getValue().toString()+"\n";
+				retVal+="MvgAvg: "+HelperFuncs.computeMovAvg(k.getValue())+"\n";
+			}
+		}
+		return retVal;
+	}
+	
 	public void initDataStructs(String componentId, String host, ExecutorSummary executorSummary, StormTopology stormTopo, TopologySummary topo) {
 		if (this.transferThroughputHistory.containsKey(topo.get_id()) == false) {
 			this.transferThroughputHistory.put(topo.get_id(),
@@ -463,6 +509,10 @@ public class GetStats {
 		}
 		if (this.emitThroughputHistory.containsKey(topo.get_id()) == false) {
 			this.emitThroughputHistory.put(topo.get_id(),
+					new HashMap<String, List<Integer>>());
+		}
+		if (this.executeThroughputHistory.containsKey(topo.get_id()) == false) {
+			this.executeThroughputHistory.put(topo.get_id(),
 					new HashMap<String, List<Integer>>());
 		}
 		if(this.componentStats.containsKey(topo.get_id())==false) {
@@ -484,6 +534,9 @@ public class GetStats {
 			}
 			if(this.emitThroughputHistory.get(topo.get_id()).containsKey(componentId) == false) {
 				this.emitThroughputHistory.get(topo.get_id()).put(componentId, new ArrayList<Integer>());
+			}
+			if(this.executeThroughputHistory.get(topo.get_id()).containsKey(componentId) == false) {
+				this.executeThroughputHistory.get(topo.get_id()).put(componentId, new ArrayList<Integer>());
 			}
 			// getting component info
 			if (stormTopo.get_bolts().containsKey(componentId) == true) {
@@ -513,4 +566,15 @@ public class GetStats {
 		}
 	}
 
+	public static Long getBoltStatLongValueFromMap(
+			Map<String, Map<GlobalStreamId, Long>> map, String statName) {
+		Long statValue = null;
+		Map<GlobalStreamId, Long> intermediateMap = map.get(statName);
+		Set<GlobalStreamId> key = intermediateMap.keySet();
+		if (key.size() > 0) {
+			Iterator<GlobalStreamId> itr = key.iterator();
+			statValue = intermediateMap.get(itr.next());
+		}
+		return statValue;
+	}
 }
