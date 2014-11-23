@@ -287,7 +287,7 @@ public class GetStats {
 								+ "," + this.transferStatsTable.get(hash_id)
 								+ "," + transfer_throughput + ","
 								+ emit.get(":all-time").get("default") + ","
-								+ this.emitStatsTable.get(hash_id) + "," + emit_throughput
+								+ this.emitStatsTable.get(hash_id) + "," + emit_throughput +","
 								+ totalExecuted + ","
 								+ this.executeStatsTable.get(hash_id) + "," + execute_throughput));
 						// LOG.info("-->transfered: {}\n -->emmitted: {}",
