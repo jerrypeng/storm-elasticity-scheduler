@@ -594,12 +594,11 @@ public class GetStats {
 
 	public static Long getBoltStatLongValueFromMap(
 			Map<String, Map<GlobalStreamId, Long>> map, String statName) {
-		Long statValue = null;
+		Long statValue = Long.valueOf(0);
 		Map<GlobalStreamId, Long> intermediateMap = map.get(statName);
-		Set<GlobalStreamId> key = intermediateMap.keySet();
-		if (key.size() > 0) {
-			Iterator<GlobalStreamId> itr = key.iterator();
-			statValue = intermediateMap.get(itr.next());
+		
+		for(Long val : intermediateMap.values()) {
+			statValue+=val;
 		}
 		return statValue;
 	}
