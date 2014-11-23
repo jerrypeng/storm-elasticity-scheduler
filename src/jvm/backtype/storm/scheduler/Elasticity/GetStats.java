@@ -502,6 +502,19 @@ public class GetStats {
 		return retVal;
 	}
 	
+	public String printEmitThroughputHistory(){
+		String retVal="";
+		for( Map.Entry<String, HashMap<String, List<Integer>>> i : this.emitThroughputHistory.entrySet()) {
+			retVal+="Topology: "+i.getKey()+"\n";
+			for(Map.Entry<String, List<Integer>> k : i.getValue().entrySet()) {
+				retVal+="Component: "+k.getKey()+"\n";
+				retVal+="Emit History: "+k.getValue().toString()+"\n";
+				retVal+="MvgAvg: "+HelperFuncs.computeMovAvg(k.getValue())+"\n";
+			}
+		}
+		return retVal;
+	}
+	
 	public String printExecuteThroughputHistory(){
 		String retVal="";
 		for( Map.Entry<String, HashMap<String, List<Integer>>> i : this.executeThroughputHistory.entrySet()) {
