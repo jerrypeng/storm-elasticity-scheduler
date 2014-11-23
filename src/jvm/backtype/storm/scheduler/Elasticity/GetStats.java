@@ -258,8 +258,8 @@ public class GetStats {
 									this.executeStatsTable.put(hash_id,
 											totalExecuted);
 								}
-								// LOG.info("Executor {}: GLOBAL STREAM ID: {}",taskId,
-								// boltStats.get_executed());
+								 LOG.info("Executor {}: GLOBAL STREAM ID: {}",taskId,
+								 boltStats.get_executed());
 							}
 						}
 						
