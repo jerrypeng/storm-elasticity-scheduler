@@ -220,7 +220,10 @@ public class GetStats {
 					//get specific stats
 					ExecutorSpecificStats execSpecStats = executorStats.get_specific();
 					//get number of time executed
-					BoltStats boltStats = execSpecStats.get_bolt();
+					BoltStats boltStats = null;
+					if(execSpecStats.is_set_bolt() == true){
+						boltStats = execSpecStats.get_bolt();
+					}
 							
 					// get transfer info
 					Map<String, Map<String, Long>> transfer = executorStats
@@ -232,8 +235,7 @@ public class GetStats {
 					
 					// LOG.info("Transfer: {}", transfer);
 					if (transfer.get(":all-time").get("default") != null
-							&& emit.get(":all-time").get("default") != null
-							&& boltStats.get_executed().get(":all-time").size() > 0) {
+							&& emit.get(":all-time").get("default") != null) {
 						// getting task hash
 						String hash_id = this.getTaskHashId(host, port,
 								componentId, topo, taskId);
@@ -242,15 +244,23 @@ public class GetStats {
 								.get("default").intValue();
 						Integer totalEmitOutput = emit.get(":all-time")
 								.get("default").intValue();
-						Integer totalExecuted = getBoltStatLongValueFromMap(boltStats.get_executed(), ":all-time").intValue();
-						//if it's a bolt, getting executed
-						if(execSpecStats.is_set_bolt()){
-							//Integer executed_count=boltStats.get_executed();
-							if(this.executeStatsTable.containsKey(hash_id)==false){
-								
-								this.executeStatsTable.put(hash_id, totalExecuted);
+						Integer totalExecuted = 0;
+						if (boltStats != null) {
+							totalExecuted = getBoltStatLongValueFromMap(
+									boltStats.get_executed(), ":all-time")
+									.intValue();
+							// if it's a bolt, getting executed
+							if (execSpecStats.is_set_bolt() == true) {
+								// Integer
+								// executed_count=boltStats.get_executed();
+								if (this.executeStatsTable.containsKey(hash_id) == false) {
+
+									this.executeStatsTable.put(hash_id,
+											totalExecuted);
+								}
+								// LOG.info("Executor {}: GLOBAL STREAM ID: {}",taskId,
+								// boltStats.get_executed());
 							}
-							//LOG.info("Executor {}: GLOBAL STREAM ID: {}",taskId, boltStats.get_executed());
 						}
 						
 						if (this.transferStatsTable.containsKey(hash_id) == false) {
