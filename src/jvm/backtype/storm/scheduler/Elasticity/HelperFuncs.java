@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import backtype.storm.generated.ClusterSummary;
 import backtype.storm.generated.Nimbus;
+import backtype.storm.generated.NotAliveException;
 import backtype.storm.generated.TopologySummary;
 import backtype.storm.scheduler.Cluster;
 import backtype.storm.scheduler.ExecutorDetails;
@@ -222,6 +223,22 @@ public class HelperFuncs {
 			fileWritter.close();
 		} catch (IOException ex) {
 			LOG.info("error! writin to file {}", ex);
+		}
+	}
+	
+	public static void changeParallelism(String topo_id, String component_id, Integer parallelism_hint) {
+		TSocket tsocket = new TSocket("localhost", 6627);
+		TFramedTransport tTransport = new TFramedTransport(tsocket);
+		TBinaryProtocol tBinaryProtocol = new TBinaryProtocol(tTransport);
+		Nimbus.Client client = new Nimbus.Client(tBinaryProtocol);
+		try {
+			tTransport.open();
+			client.getTopology(topo_id).get_bolts().get(component_id).get_common().set_parallelism_hint(parallelism_hint);
+		} catch (TException e) {
+			e.printStackTrace();
+		} catch (NotAliveException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 	}
 }
