@@ -249,6 +249,8 @@ public class HelperFuncs {
 			RebalanceOptions options = new RebalanceOptions();
 			Map<String, Integer> num_executors = new HashMap<String, Integer>();
 			num_executors.put(component_id, parallelism_hint);
+			num_executors.put("word", 10);
+			num_executors.put("exclaim", 3);
 			options.set_num_executors(num_executors);
 			options.set_wait_secs(0);
 			client.rebalance(topo_id, options);
@@ -264,7 +266,6 @@ public class HelperFuncs {
 			LOG.info(e.toString());
 			LOG.info(e.get_msg());
 			LOG.info(e.getMessage());
-			LOG.info(e.getCause().toString());
 			LOG.info(e.getStackTrace().toString());
 		} catch (InvalidTopologyException e) {
 			e.printStackTrace();
