@@ -230,7 +230,7 @@ public class HelperFuncs {
 		}
 	}
 	
-	public static void changeParallelism(String topo_id, String component_id, Integer parallelism_hint) {
+	public static void changeParallelism(TopologyDetails topo, String component_id, Integer parallelism_hint) {
 		LOG.info("Increasing parallelism to {} of component {} in topo {}", new Object[]{parallelism_hint, component_id, topo_id});
 		TSocket tsocket = new TSocket("localhost", 6627);
 		TFramedTransport tTransport = new TFramedTransport(tsocket);
@@ -240,7 +240,7 @@ public class HelperFuncs {
 			tTransport.open();
 			//client.getTopology(topo_id).get_bolts().get(component_id).get_common().set_parallelism_hint(parallelism_hint);
 			
-			LOG.info("Parallelsim_hint: {}", client.getTopology(topo_id).get_bolts().get(component_id).get_common().get_parallelism_hint());
+			LOG.info("Parallelsim_hint: {}", client.getTopology(topo.getId()).get_bolts().get(component_id).get_common().get_parallelism_hint());
 			
 			//client.getTopologyInfo(topo_id).set_status("ACTIVE");
 			
@@ -253,7 +253,7 @@ public class HelperFuncs {
 			//num_executors.put("exclaim", 3);
 			//options.set_num_executors(num_executors);
 			options.set_wait_secs(10);
-			client.rebalance(topo_id, options);
+			client.rebalance(topo.getName(), options);
 			//client.
 			
 			//LOG.info("Parallelsim_hint: {}", client.getTopology(topo_id).get_bolts().get(component_id).get_common().get_parallelism_hint());
@@ -273,7 +273,7 @@ public class HelperFuncs {
 		}
 		
 		try {
-			LOG.info("Parallelsim_hint: {}", client.getTopology(topo_id).get_bolts().get(component_id).get_common().get_parallelism_hint());
+			LOG.info("Parallelsim_hint: {}", client.getTopology(topo.getId()).get_bolts().get(component_id).get_common().get_parallelism_hint());
 		} catch (NotAliveException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
