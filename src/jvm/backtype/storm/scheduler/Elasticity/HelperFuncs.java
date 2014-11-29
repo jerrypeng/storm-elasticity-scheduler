@@ -19,6 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import backtype.storm.generated.ClusterSummary;
+import backtype.storm.generated.ExecutorInfo;
+import backtype.storm.generated.ExecutorSummary;
 import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.generated.Nimbus;
 import backtype.storm.generated.NotAliveException;
@@ -241,12 +243,16 @@ public class HelperFuncs {
 			LOG.info("Parallelsim_hint: {}", client.getTopology(topo_id).get_bolts().get(component_id).get_common().get_parallelism_hint());
 			
 			client.getTopologyInfo(topo_id).set_status("ACTIVE");
+			
+		
+			client.getTopologyInfo(topo_id).set_executors(executors);
 			RebalanceOptions options = new RebalanceOptions();
 			Map<String, Integer> num_executors = new HashMap<String, Integer>();
 			num_executors.put(component_id, parallelism_hint);
 			options.set_num_executors(num_executors);
 			options.set_wait_secs(0);
 			client.rebalance(topo_id, options);
+			client.
 			
 			//LOG.info("Parallelsim_hint: {}", client.getTopology(topo_id).get_bolts().get(component_id).get_common().get_parallelism_hint());
 			
