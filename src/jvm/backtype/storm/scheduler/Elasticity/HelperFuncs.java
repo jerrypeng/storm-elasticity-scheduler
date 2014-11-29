@@ -248,11 +248,11 @@ public class HelperFuncs {
 			//client.getTopologyInfo(topo_id).set_executors(executors);
 			RebalanceOptions options = new RebalanceOptions();
 			Map<String, Integer> num_executors = new HashMap<String, Integer>();
-			num_executors.put(component_id, parallelism_hint);
-			num_executors.put("word", 10);
-			num_executors.put("exclaim", 3);
-			options.set_num_executors(num_executors);
-			options.set_wait_secs(0);
+			//num_executors.put(component_id, parallelism_hint);
+			//num_executors.put("word", 10);
+			//num_executors.put("exclaim", 3);
+			//options.set_num_executors(num_executors);
+			options.set_wait_secs(10);
 			client.rebalance(topo_id, options);
 			//client.
 			
