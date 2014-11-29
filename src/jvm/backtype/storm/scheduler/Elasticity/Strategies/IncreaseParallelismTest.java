@@ -26,24 +26,26 @@ public class IncreaseParallelismTest extends TopologyHeuristicStrategy{
 
 	public Map<WorkerSlot, List<ExecutorDetails>> getNewScheduling() {
 		HelperFuncs.changeParallelism(this._topo.getId(), "exclaim2", 4);
-		Map<WorkerSlot, List<ExecutorDetails>> schedMap = new HashMap<WorkerSlot, List<ExecutorDetails>>();
-		for(Map.Entry<WorkerSlot, List<ExecutorDetails>> entry : this._globalState.schedState.get(this._topo.getId()).entrySet()) {
-			schedMap.put(entry.getKey(), new ArrayList<ExecutorDetails>());
-			for(ExecutorDetails exec : entry.getValue()) {
-				if(exec.getStartTask() != exec.getEndTask()) {
-					LOG.info("Exec: {} split into:");
-					for(int i=exec.getStartTask(); i<exec.getEndTask()+1; i++) {
-						ExecutorDetails newExec = new ExecutorDetails(i, i);
-						LOG.info("{} -> {}", i, newExec);
-						schedMap.get(entry.getKey()).add(newExec);
-					}
-				} else {
-					schedMap.get(entry.getKey()).add(exec);
-				}
-				
-			}
-		}
-		LOG.info("schedMap: {}", schedMap);
+		
+//		Map<WorkerSlot, List<ExecutorDetails>> schedMap = new HashMap<WorkerSlot, List<ExecutorDetails>>();
+//		for(Map.Entry<WorkerSlot, List<ExecutorDetails>> entry : this._globalState.schedState.get(this._topo.getId()).entrySet()) {
+//			schedMap.put(entry.getKey(), new ArrayList<ExecutorDetails>());
+//			for(ExecutorDetails exec : entry.getValue()) {
+//				if(exec.getStartTask() != exec.getEndTask()) {
+//					LOG.info("Exec: {} split into:");
+//					for(int i=exec.getStartTask(); i<exec.getEndTask()+1; i++) {
+//						ExecutorDetails newExec = new ExecutorDetails(i, i);
+//						LOG.info("{} -> {}", i, newExec);
+//						schedMap.get(entry.getKey()).add(newExec);
+//					}
+//				} else {
+//					schedMap.get(entry.getKey()).add(exec);
+//				}
+//				
+//			}
+//		}
+//		LOG.info("schedMap: {}", schedMap);
+		Map<WorkerSlot, List<ExecutorDetails>> schedMap = this._globalState.schedState.get(this._topo.getId());
 		return schedMap;
 	}
 

@@ -19,8 +19,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import backtype.storm.generated.ClusterSummary;
+import backtype.storm.generated.InvalidTopologyException;
 import backtype.storm.generated.Nimbus;
 import backtype.storm.generated.NotAliveException;
+import backtype.storm.generated.RebalanceOptions;
 import backtype.storm.generated.TopologySummary;
 import backtype.storm.scheduler.Cluster;
 import backtype.storm.scheduler.ExecutorDetails;
@@ -235,11 +237,28 @@ public class HelperFuncs {
 		try {
 			tTransport.open();
 			client.getTopology(topo_id).get_bolts().get(component_id).get_common().set_parallelism_hint(parallelism_hint);
+			
+			LOG.info("Parallelsim_hint: {}", client.getTopology(topo_id).get_bolts().get(component_id).get_common().get_parallelism_hint());
+			
+			RebalanceOptions options = new RebalanceOptions();
+			Map<String, Integer> num_executors = new HashMap<String, Integer>();
+			num_executors.put(component_id, parallelism_hint);
+			options.set_num_executors(num_executors);
+			options.set_wait_secs(0);
+			client.rebalance(topo_id, options);
+			
+			LOG.info("Parallelsim_hint: {}", client.getTopology(topo_id).get_bolts().get(component_id).get_common().get_parallelism_hint());
+
+			
 		} catch (TException e) {
 			e.printStackTrace();
+			LOG.info(e.toString());
 		} catch (NotAliveException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			LOG.info(e.toString());
+		} catch (InvalidTopologyException e) {
+			e.printStackTrace();
+			LOG.info(e.toString());
 		}
 	}
 }
