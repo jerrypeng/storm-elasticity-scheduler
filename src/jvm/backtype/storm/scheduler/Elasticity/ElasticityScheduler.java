@@ -96,7 +96,7 @@ public class ElasticityScheduler implements IScheduler {
 				} 
 			} else {
 				if(globalState.balancingState==1) {
-					HelperFuncs.changeParallelism(topo, "exclaim2", 4);
+					HelperFuncs.changeParallelism2(topo, "exclaim2", 4);
 					globalState.balancingState=2;
 				} else {
 

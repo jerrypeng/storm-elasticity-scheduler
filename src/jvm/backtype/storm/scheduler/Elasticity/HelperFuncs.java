@@ -1,9 +1,11 @@
 package backtype.storm.scheduler.Elasticity;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -230,6 +232,32 @@ public class HelperFuncs {
 		}
 	}
 	
+	public static void changeParallelism2(TopologyDetails topo,
+			String component_id, Integer parallelism_hint) {
+		LOG.info("Increasing parallelism to {} of component {} in topo {}", new Object[]{parallelism_hint, component_id, topo.getName()});
+
+		StringBuffer output = new StringBuffer();
+
+		Process p;
+		try {
+			String cmd = "/var/storm/storm_0/bin/storm rebalance -e "+component_id+"="+parallelism_hint;
+			LOG.info("cmd: {}", cmd);
+			p = Runtime.getRuntime().exec("/var/storm/storm_0/bin/storm rebalance -e "+component_id+"="+parallelism_hint);
+			p.waitFor();
+			BufferedReader reader = new BufferedReader(new InputStreamReader(
+					p.getInputStream()));
+
+			String line = "";
+			while ((line = reader.readLine()) != null) {
+				output.append(line + "\n");
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		LOG.info(output.toString());
+	}
 	public static void changeParallelism(TopologyDetails topo, String component_id, Integer parallelism_hint) {
 		LOG.info("Increasing parallelism to {} of component {} in topo {}", new Object[]{parallelism_hint, component_id, topo.getName()});
 		TSocket tsocket = new TSocket("localhost", 6627);
@@ -247,12 +275,12 @@ public class HelperFuncs {
 		
 			//client.getTopologyInfo(topo_id).set_executors(executors);
 			RebalanceOptions options = new RebalanceOptions();
-			//Map<String, Integer> num_executors = new HashMap<String, Integer>();
+			Map<String, Integer> num_executors = new HashMap<String, Integer>();
 			//num_executors.put(component_id, parallelism_hint);
 			//num_executors.put("word", 10);
 			//num_executors.put("exclaim", 3);
 			//options.set_num_executors(num_executors);
-			//options.set_wait_secs(10);
+			options.set_wait_secs(10);
 			client.rebalance(topo.getName(), options);
 			//client.
 			
