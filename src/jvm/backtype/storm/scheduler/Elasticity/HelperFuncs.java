@@ -245,14 +245,14 @@ public class HelperFuncs {
 			client.getTopologyInfo(topo_id).set_status("ACTIVE");
 			
 		
-			client.getTopologyInfo(topo_id).set_executors(executors);
+			//client.getTopologyInfo(topo_id).set_executors(executors);
 			RebalanceOptions options = new RebalanceOptions();
 			Map<String, Integer> num_executors = new HashMap<String, Integer>();
 			num_executors.put(component_id, parallelism_hint);
 			options.set_num_executors(num_executors);
 			options.set_wait_secs(0);
 			client.rebalance(topo_id, options);
-			client.
+			//client.
 			
 			//LOG.info("Parallelsim_hint: {}", client.getTopology(topo_id).get_bolts().get(component_id).get_common().get_parallelism_hint());
 			
