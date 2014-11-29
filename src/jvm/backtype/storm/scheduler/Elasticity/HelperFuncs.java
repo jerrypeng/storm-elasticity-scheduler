@@ -238,11 +238,11 @@ public class HelperFuncs {
 		Nimbus.Client client = new Nimbus.Client(tBinaryProtocol);
 		try {
 			tTransport.open();
-			client.getTopology(topo_id).get_bolts().get(component_id).get_common().set_parallelism_hint(parallelism_hint);
+			//client.getTopology(topo_id).get_bolts().get(component_id).get_common().set_parallelism_hint(parallelism_hint);
 			
 			LOG.info("Parallelsim_hint: {}", client.getTopology(topo_id).get_bolts().get(component_id).get_common().get_parallelism_hint());
 			
-			client.getTopologyInfo(topo_id).set_status("ACTIVE");
+			//client.getTopologyInfo(topo_id).set_status("ACTIVE");
 			
 		
 			//client.getTopologyInfo(topo_id).set_executors(executors);
