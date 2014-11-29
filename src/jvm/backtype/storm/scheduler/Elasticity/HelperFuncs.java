@@ -227,6 +227,7 @@ public class HelperFuncs {
 	}
 	
 	public static void changeParallelism(String topo_id, String component_id, Integer parallelism_hint) {
+		LOG.info("Increasing parallelism to {} of component {} in topo {}", new Object[]{parallelism_hint, component_id, topo_id});
 		TSocket tsocket = new TSocket("localhost", 6627);
 		TFramedTransport tTransport = new TFramedTransport(tsocket);
 		TBinaryProtocol tBinaryProtocol = new TBinaryProtocol(tTransport);
