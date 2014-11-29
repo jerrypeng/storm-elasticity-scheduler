@@ -240,7 +240,7 @@ public class HelperFuncs {
 
 		Process p;
 		try {
-			String cmd = "/var/storm/storm_0/bin/storm rebalance -e "+component_id+"="+parallelism_hint;
+			String cmd = "/var/storm/storm_0/bin/storm rebalance "+topo.getName()+"-e "+component_id+"="+parallelism_hint;
 			LOG.info("cmd: {}", cmd);
 			p = Runtime.getRuntime().exec("/var/storm/storm_0/bin/storm rebalance -e "+component_id+"="+parallelism_hint);
 			p.waitFor();
