@@ -240,6 +240,7 @@ public class HelperFuncs {
 			
 			LOG.info("Parallelsim_hint: {}", client.getTopology(topo_id).get_bolts().get(component_id).get_common().get_parallelism_hint());
 			
+			client.getTopologyInfo(topo_id).set_status("ACTIVE");
 			RebalanceOptions options = new RebalanceOptions();
 			Map<String, Integer> num_executors = new HashMap<String, Integer>();
 			num_executors.put(component_id, parallelism_hint);
@@ -247,8 +248,7 @@ public class HelperFuncs {
 			options.set_wait_secs(0);
 			client.rebalance(topo_id, options);
 			
-			LOG.info("Parallelsim_hint: {}", client.getTopology(topo_id).get_bolts().get(component_id).get_common().get_parallelism_hint());
-
+			//LOG.info("Parallelsim_hint: {}", client.getTopology(topo_id).get_bolts().get(component_id).get_common().get_parallelism_hint());
 			
 		} catch (TException e) {
 			e.printStackTrace();
@@ -260,5 +260,16 @@ public class HelperFuncs {
 			e.printStackTrace();
 			LOG.info(e.toString());
 		}
+		
+		try {
+			LOG.info("Parallelsim_hint: {}", client.getTopology(topo_id).get_bolts().get(component_id).get_common().get_parallelism_hint());
+		} catch (NotAliveException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 }
