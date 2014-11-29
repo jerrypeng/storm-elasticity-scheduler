@@ -97,6 +97,7 @@ public class ElasticityScheduler implements IScheduler {
 			} else {
 				if(globalState.balancingState==1) {
 					HelperFuncs.changeParallelism(topo.getId(), "exclaim2", 4);
+					globalState.balancingState=2;
 				} else {
 
 					LOG.info("ID: {} NAME: {}", topo.getId(), topo.getName());
