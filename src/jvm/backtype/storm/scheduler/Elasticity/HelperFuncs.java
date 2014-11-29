@@ -262,6 +262,10 @@ public class HelperFuncs {
 		} catch (NotAliveException e) {
 			e.printStackTrace();
 			LOG.info(e.toString());
+			LOG.info(e.get_msg());
+			LOG.info(e.getMessage());
+			LOG.info(e.getCause().toString());
+			LOG.info(e.getStackTrace().toString());
 		} catch (InvalidTopologyException e) {
 			e.printStackTrace();
 			LOG.info(e.toString());
