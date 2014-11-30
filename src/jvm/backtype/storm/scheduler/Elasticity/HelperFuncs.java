@@ -269,7 +269,7 @@ public class HelperFuncs {
 			tTransport.open();
 			LOG.info("Activating: {}", topo.getId());
 			//client.activate(topo.getId());
-			client.activate(topo.getName());
+			//client.activate(topo.getName());
 		    ///Utils.sleep(30000);
 
 			//client.getTopology(topo_id).get_bolts().get(component_id).get_common().set_parallelism_hint(parallelism_hint);

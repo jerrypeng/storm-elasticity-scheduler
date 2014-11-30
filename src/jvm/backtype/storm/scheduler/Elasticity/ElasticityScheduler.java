@@ -60,66 +60,73 @@ public class ElasticityScheduler implements IScheduler {
 		 * Start Scheduling
 		 */
 		for (TopologyDetails topo : topologies.getTopologies()) {
-			globalState.logTopologyInfo(topo);
-			String status = HelperFuncs.getStatus(topo.getId());
-			LOG.info("status: {}", status);
-			if (status.equals("REBALANCING")) {
-				if (globalState.balancingState == 0) {
-					LOG.info("Rebalancing...{}=={}", cluster
-							.getUnassignedExecutors(topo).size(), topo
-							.getExecutors().size());
-					if (cluster.getUnassignedExecutors(topo).size() == topo
-							.getExecutors().size()) {
-						if (globalState.stateEmpty() == false) {
-							LOG.info("Making migration assignments...");
-							
-							IncreaseParallelismTest strategy = new IncreaseParallelismTest(
-									globalState, stats, topo, cluster,
-									topologies);
-							Map<WorkerSlot, List<ExecutorDetails>> schedMap = strategy
-									.getNewScheduling();
-							if(schedMap != null) {
-								for (Map.Entry<WorkerSlot, List<ExecutorDetails>> sched : schedMap
-										.entrySet()) {
-									HelperFuncs.assignTasks(sched.getKey(),
-											topo.getId(), sched.getValue(),
-											cluster, topologies);
-									LOG.info("Assigning {}=>{}", sched.getKey(),
-											sched.getValue());
-								}
-							}
-							
-						}
-						
-						globalState.balancingState = 1;
-					}
-				} 
-			} else {
-				if(globalState.balancingState==1) {
-					HelperFuncs.changeParallelism(topo, "exclaim2", 4);
-					globalState.balancingState=2;
-				} else {
-
-					LOG.info("ID: {} NAME: {}", topo.getId(), topo.getName());
-					LOG.info("Unassigned Executors for {}: ", topo.getName());
-	
-					for (Map.Entry<ExecutorDetails, String> k : cluster
-							.getNeedsSchedulingExecutorToComponents(topo)
-							.entrySet()) {
-						LOG.info("{} -> {}", k.getKey(), k.getValue());
-					}
-	
-					LOG.info("running EvenScheduler now...");
-					new backtype.storm.scheduler.EvenScheduler().schedule(
-							topologies, cluster);
-	
-					globalState.storeState(cluster, topologies);
-					globalState.isBalanced = false;
-				}
+			
+			long unixTime = (System.currentTimeMillis() / 1000)
+					- stats.startTimes.get(topo.getId());
+			LOG.info("Time: {}", unixTime);
+			if(unixTime > 120) {
+				HelperFuncs.changeParallelism(topo, "exclaim2", 4);
 			}
-
-			LOG.info("Current Assignment: {}",
-					HelperFuncs.nodeToTask(cluster, topo.getId()));
+//			globalState.logTopologyInfo(topo);
+//			String status = HelperFuncs.getStatus(topo.getId());
+//			LOG.info("status: {}", status);
+//			if (status.equals("REBALANCING")) {
+//				if (globalState.balancingState == 0) {
+//					LOG.info("Rebalancing...{}=={}", cluster
+//							.getUnassignedExecutors(topo).size(), topo
+//							.getExecutors().size());
+//					if (cluster.getUnassignedExecutors(topo).size() == topo
+//							.getExecutors().size()) {
+//						if (globalState.stateEmpty() == false) {
+//							LOG.info("Making migration assignments...");
+//							
+//							IncreaseParallelismTest strategy = new IncreaseParallelismTest(
+//									globalState, stats, topo, cluster,
+//									topologies);
+//							Map<WorkerSlot, List<ExecutorDetails>> schedMap = strategy
+//									.getNewScheduling();
+//							if(schedMap != null) {
+//								for (Map.Entry<WorkerSlot, List<ExecutorDetails>> sched : schedMap
+//										.entrySet()) {
+//									HelperFuncs.assignTasks(sched.getKey(),
+//											topo.getId(), sched.getValue(),
+//											cluster, topologies);
+//									LOG.info("Assigning {}=>{}", sched.getKey(),
+//											sched.getValue());
+//								}
+//							}
+//							
+//						}
+//						
+//						globalState.balancingState = 1;
+//					}
+//				} 
+//			} else {
+//				if(globalState.balancingState==1) {
+//					HelperFuncs.changeParallelism(topo, "exclaim2", 4);
+//					globalState.balancingState=2;
+//				} else {
+//
+//					LOG.info("ID: {} NAME: {}", topo.getId(), topo.getName());
+//					LOG.info("Unassigned Executors for {}: ", topo.getName());
+//	
+//					for (Map.Entry<ExecutorDetails, String> k : cluster
+//							.getNeedsSchedulingExecutorToComponents(topo)
+//							.entrySet()) {
+//						LOG.info("{} -> {}", k.getKey(), k.getValue());
+//					}
+//	
+//					LOG.info("running EvenScheduler now...");
+//					new backtype.storm.scheduler.EvenScheduler().schedule(
+//							topologies, cluster);
+//	
+//					globalState.storeState(cluster, topologies);
+//					globalState.isBalanced = false;
+//				}
+//			}
+//
+//			LOG.info("Current Assignment: {}",
+//					HelperFuncs.nodeToTask(cluster, topo.getId()));
 		}
 		if (topologies.getTopologies().size() == 0) {
 			globalState.clearStoreState();
