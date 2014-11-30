@@ -65,7 +65,7 @@ public class ElasticityScheduler implements IScheduler {
 					- stats.startTimes.get(topo.getId());
 			LOG.info("Time: {}", unixTime);
 			if(unixTime > 120 && globalState.isBalanced==false) {
-				HelperFuncs.changeParallelism(topo, "exclaim2", 4);
+				HelperFuncs.changeParallelism2(topo, "exclaim2", 4);
 				globalState.isBalanced=true;
 			}
 			
