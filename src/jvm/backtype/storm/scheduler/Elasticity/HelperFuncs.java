@@ -289,6 +289,7 @@ public class HelperFuncs {
 			options.put_to_num_executors(component_id, parallelism_hint);
 			options.set_wait_secs(0);
 			client.rebalance(topo.getName(), options);
+			LOG.info("rebalance done!");
 			//client.
 			
 			//LOG.info("Parallelsim_hint: {}", client.getTopology(topo_id).get_bolts().get(component_id).get_common().get_parallelism_hint());

@@ -64,9 +64,12 @@ public class ElasticityScheduler implements IScheduler {
 			long unixTime = (System.currentTimeMillis() / 1000)
 					- stats.startTimes.get(topo.getId());
 			LOG.info("Time: {}", unixTime);
-			if(unixTime > 120) {
+			if(unixTime > 120 && globalState.isBalanced==false) {
 				HelperFuncs.changeParallelism(topo, "exclaim2", 4);
+				globalState.isBalanced=true;
 			}
+			
+			
 //			globalState.logTopologyInfo(topo);
 //			String status = HelperFuncs.getStatus(topo.getId());
 //			LOG.info("status: {}", status);
@@ -128,6 +131,9 @@ public class ElasticityScheduler implements IScheduler {
 //			LOG.info("Current Assignment: {}",
 //					HelperFuncs.nodeToTask(cluster, topo.getId()));
 		}
+		LOG.info("running EvenScheduler now...");
+		new backtype.storm.scheduler.EvenScheduler().schedule(
+				topologies, cluster);
 		if (topologies.getTopologies().size() == 0) {
 			globalState.clearStoreState();
 		}
