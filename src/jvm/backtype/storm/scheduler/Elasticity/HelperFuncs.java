@@ -266,6 +266,7 @@ public class HelperFuncs {
 		Nimbus.Client client = new Nimbus.Client(tBinaryProtocol);
 		try {
 			tTransport.open();
+			client.activate(topo.getId());
 			//client.getTopology(topo_id).get_bolts().get(component_id).get_common().set_parallelism_hint(parallelism_hint);
 			
 			LOG.info("Parallelsim_hint: {}", client.getTopology(topo.getId()).get_bolts().get(component_id).get_common().get_parallelism_hint());
@@ -280,7 +281,8 @@ public class HelperFuncs {
 			//num_executors.put("word", 10);
 			//num_executors.put("exclaim", 3);
 			//options.set_num_executors(num_executors);
-			options.set_wait_secs(10);
+			options.put_to_num_executors(component_id, parallelism_hint);
+			options.set_wait_secs(0);
 			client.rebalance(topo.getName(), options);
 			//client.
 			
