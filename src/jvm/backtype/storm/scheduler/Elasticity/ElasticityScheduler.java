@@ -48,9 +48,9 @@ public class ElasticityScheduler implements IScheduler {
 		 */
 		GetStats stats = GetStats.getInstance("ElasticityScheduler");
 		stats.getStatistics();
-		LOG.info(stats.printTransferThroughputHistory());
-		LOG.info(stats.printEmitThroughputHistory());
-		LOG.info(stats.printExecuteThroughputHistory());
+		//LOG.info(stats.printTransferThroughputHistory());
+		//LOG.info(stats.printEmitThroughputHistory());
+		//LOG.info(stats.printExecuteThroughputHistory());
 		/**
 		 * Start hardware monitoring server
 		 */
