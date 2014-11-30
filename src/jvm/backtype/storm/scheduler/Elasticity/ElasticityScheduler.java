@@ -62,13 +62,13 @@ public class ElasticityScheduler implements IScheduler {
 		for (TopologyDetails topo : topologies.getTopologies()) {
 			String status = HelperFuncs.getStatus(topo.getId());
 			LOG.info("status: {}", status);
-			long unixTime = (System.currentTimeMillis() / 1000)
-					- stats.startTimes.get(topo.getId());
-			LOG.info("Time: {}", unixTime);
-			if(unixTime > 120 && globalState.isBalanced==false) {
-				HelperFuncs.changeParallelism2(topo, "exclaim2", 4);
-				globalState.isBalanced=true;
-			}
+//			long unixTime = (System.currentTimeMillis() / 1000)
+//					- stats.startTimes.get(topo.getId());
+//			LOG.info("Time: {}", unixTime);
+//			if(unixTime > 120 && globalState.isBalanced==false) {
+//				HelperFuncs.changeParallelism2(topo, "exclaim2", 4);
+//				globalState.isBalanced=true;
+//			}
 			
 			
 //			globalState.logTopologyInfo(topo);
