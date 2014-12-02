@@ -244,7 +244,7 @@ public class HelperFuncs {
 			String cmd = "/var/storm/storm_0/bin/storm rebalance "+topo.getName()+" -e "+component_id+"="+parallelism_hint;
 			LOG.info("cmd: {}", cmd);
 			p = Runtime.getRuntime().exec(cmd);
-			p.waitFor();
+			//p.waitFor();
 			BufferedReader reader = new BufferedReader(new InputStreamReader(
 					p.getInputStream()));
 
