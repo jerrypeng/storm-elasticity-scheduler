@@ -73,7 +73,7 @@ public class ElasticityScheduler implements IScheduler {
 			if (msgServer.isRebalance() == true) {
 				if (globalState.stateEmpty() == false) {
 					LOG.info("Increasing parallelism...");
-					HelperFuncs.changeParallelism2(topo, "exclaim", 4);
+					HelperFuncs.changeParallelism2(topo, "exclaim2", 4);
 
 				}
 			} else if (status.equals("REBALANCING")) {
