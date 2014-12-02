@@ -4,16 +4,22 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import backtype.storm.scheduler.Elasticity.ElasticityScheduler;
+
 public class MsgServer {
 	
 	Server server;
 	Integer port;
 	static MsgServer _instance = null;
 	public Queue<String> msgQueue = new ConcurrentLinkedQueue<String>();
-	
+	private static final Logger LOG = LoggerFactory
+			.getLogger(MsgServer.class);
 	private MsgServer(Integer port) {
 		this.port = port;
-		System.out.println("Starting Server on port "+this.port);
+		LOG.info("Starting Server on port "+this.port);
 		this.server = new Server(this.port, this.msgQueue);
 		new Thread(server).start();
 	}

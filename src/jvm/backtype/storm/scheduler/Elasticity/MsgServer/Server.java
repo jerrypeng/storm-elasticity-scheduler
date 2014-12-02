@@ -4,6 +4,11 @@ import java.net.Socket;
 import java.util.Queue;
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import backtype.storm.scheduler.Elasticity.ElasticityScheduler;
+
 public class Server implements Runnable{
 
     protected int          serverPort   = 8080;
@@ -11,6 +16,8 @@ public class Server implements Runnable{
     protected boolean      isStopped    = false;
     protected Thread       runningThread= null;
     protected Queue<String> serverMsgQueue = null;
+    private static final Logger LOG = LoggerFactory
+			.getLogger(Server.class);
 
     public Server(int port, Queue<String> msgQueue){
         this.serverPort = port;
@@ -26,10 +33,10 @@ public class Server implements Runnable{
             Socket clientSocket = null;
             try {
                 clientSocket = this.serverSocket.accept();
-                System.out.println("Connect to "+clientSocket.getInetAddress()+":"+clientSocket.getPort());
+                LOG.info("Connect to "+clientSocket.getInetAddress()+":"+clientSocket.getPort());
             } catch (IOException e) {
                 if(isStopped()) {
-                    System.out.println("Server Stopped.") ;
+                    LOG.info("Server Stopped.") ;
                     return;
                 }
                 throw new RuntimeException(
@@ -40,7 +47,7 @@ public class Server implements Runnable{
                     clientSocket, this.serverMsgQueue)
             ).start();
         }
-        System.out.println("Server Stopped.") ;
+       LOG.info("Server Stopped.") ;
     }
 
 
