@@ -116,6 +116,7 @@ public class GetStats {
 	private File complete_log;
 	private File avg_log;
 	private File output_bolt_log;
+	private File component_log;
 	private String sched_type;
 	
 
@@ -139,11 +140,13 @@ public class GetStats {
 			complete_log = new File(Config.LOG_PATH + filename + "_complete");
 			avg_log = new File(Config.LOG_PATH + filename + "_complete");
 			output_bolt_log = new File(Config.LOG_PATH + filename + "output_bolt");
+			component_log = new File(Config.LOG_PATH + filename + "components");
 			sched_type = filename;
 
 			complete_log.delete();
 			avg_log.delete();
 			output_bolt_log.delete();
+			component_log.delete();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -439,6 +442,8 @@ public class GetStats {
 		int num_output_bolt = 0;
 		int total_output_bolt_emit = 0;
 		String output_bolts = "";
+		long unixTime = (System.currentTimeMillis() / 1000)
+				- this.startTimes.get(topo.get_id());
 		for (Map.Entry<String, ComponentStats> cs : this.componentStats.get(
 				topo.get_id()).entrySet()) {
 			int avg_transfer_throughput = cs.getValue().total_transfer_throughput
@@ -457,6 +462,7 @@ public class GetStats {
 				num_output_bolt++;
 				total_output_bolt_emit += cs.getValue().total_emit_throughput;
 				output_bolts += cs.getKey() + ",";
+				
 			} else {
 				LOG.info(
 						"Component: {} total throughput (transfer): {} (emit): {} (execute): {} avg throughput (transfer): {} (emit): {} (execute): {}",
@@ -466,12 +472,16 @@ public class GetStats {
 								cs.getValue().total_execute_throughput,
 								avg_transfer_throughput, avg_emit_throughput, avg_emit_throughput });
 			}
+			
+			String data = String.valueOf(unixTime) + ':' + ":"+this.sched_type + ":"+ cs.getValue().componentId
+					+ ":" + cs.getValue().parallelism_hint + ":" + topo.get_id() + ":"
+					+ avg_transfer_throughput + "\n";
+			
+			HelperFuncs.writeToFile(this.component_log, data);
 		}
 		if (num_output_bolt > 0) {
 			LOG.info("Output Bolts stats: ");
 
-			long unixTime = (System.currentTimeMillis() / 1000)
-					- this.startTimes.get(topo.get_id());
 			String data = String.valueOf(unixTime) + ':' + this.sched_type
 					+ ":" + output_bolts + ":" + topo.get_id() + ":"
 					+ total_output_bolt_emit / num_output_bolt + "\n";
