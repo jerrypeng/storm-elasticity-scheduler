@@ -452,6 +452,7 @@ public class GetStats {
 					/ cs.getValue().parallelism_hint;
 			int avg_execute_throughpt = cs.getValue().total_execute_throughput
 					/ cs.getValue().parallelism_hint;
+			String data = "";
 			if (cs.getKey().matches(".*_output_.*")) {
 				LOG.info(
 						"Component: {}(output) total throughput (transfer): {} (emit): {} avg throughput (transfer): {} (emit): {}",
@@ -463,6 +464,9 @@ public class GetStats {
 				total_output_bolt_emit += cs.getValue().total_emit_throughput;
 				output_bolts += cs.getKey() + ",";
 				
+				data = String.valueOf(unixTime) + ':' + ":"+this.sched_type + ":"+ cs.getValue().componentId
+						+ ":" + cs.getValue().parallelism_hint + ":" + topo.get_id() + ":"
+						+ avg_emit_throughput + "\n";
 			} else {
 				LOG.info(
 						"Component: {} total throughput (transfer): {} (emit): {} (execute): {} avg throughput (transfer): {} (emit): {} (execute): {}",
@@ -471,11 +475,11 @@ public class GetStats {
 								cs.getValue().total_emit_throughput,
 								cs.getValue().total_execute_throughput,
 								avg_transfer_throughput, avg_emit_throughput, avg_emit_throughput });
+				data = String.valueOf(unixTime) + ':' + ":"+this.sched_type + ":"+ cs.getValue().componentId
+						+ ":" + cs.getValue().parallelism_hint + ":" + topo.get_id() + ":"
+						+ avg_transfer_throughput + "\n";
 			}
 			
-			String data = String.valueOf(unixTime) + ':' + ":"+this.sched_type + ":"+ cs.getValue().componentId
-					+ ":" + cs.getValue().parallelism_hint + ":" + topo.get_id() + ":"
-					+ avg_transfer_throughput + "\n";
 			
 			HelperFuncs.writeToFile(this.component_log, data);
 		}
