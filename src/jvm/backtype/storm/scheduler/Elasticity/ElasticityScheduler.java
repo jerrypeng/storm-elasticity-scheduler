@@ -77,16 +77,11 @@ public class ElasticityScheduler implements IScheduler {
 					if (newNodes.size() > 0) {
 
 						LOG.info("Increasing parallelism...");
-						HelperFuncs.changeParallelism2(topo, "exclaim2", 4);
+						StellaStrategy strategy = new StellaStrategy(globalState, stats, topo, cluster, topologies);
+						HashMap<Component, Integer> compMap = strategy.StellaStrategy();
+						
+						HelperFuncs.changeParallelism2(compMap, topo);
 
-						Map<Component, Integer> compParallelism = new HashMap<Component, Integer>();
-						for (Map.Entry<Component, Integer> entry : compParallelism
-								.entrySet()) {
-							// entry.getKey().execs.size();
-							Map<String, Integer> taskRange = HelperFuncs
-									.taskRange(entry.getKey().execs);
-
-						}
 					}
 
 				}
