@@ -74,6 +74,14 @@ public class ElasticityScheduler implements IScheduler {
 				if (globalState.stateEmpty() == false) {
 					LOG.info("Increasing parallelism...");
 					HelperFuncs.changeParallelism2(topo, "exclaim2", 4);
+					
+					Map<Component, Integer> compParallelism = new HashMap<Component, Integer>();
+					for(Map.Entry<Component,Integer> entry : compParallelism.entrySet()) {
+						//entry.getKey().execs.size();
+						Map<String, Integer> taskRange = HelperFuncs.taskRange(entry.getKey().execs);
+						
+						
+					}
 
 				}
 			} else if (status.equals("REBALANCING")) {
@@ -86,12 +94,14 @@ public class ElasticityScheduler implements IScheduler {
 						if (globalState.stateEmpty() == false) {
 							LOG.info("Unassigned executors: {}", cluster.getUnassignedExecutors(topo));
 							LOG.info("Making migration assignments...");
+							globalState.schedState.get(topo.getId());
 
-							IncreaseParallelismTest strategy = new IncreaseParallelismTest(
+							IncreaseParallelism strategy = new IncreaseParallelism(
 									globalState, stats, topo, cluster,
 									topologies);
 							Map<WorkerSlot, List<ExecutorDetails>> schedMap = strategy
 									.getNewScheduling();
+							LOG.info("SchedMap: {}", schedMap);
 							if (schedMap != null) {
 								for (Map.Entry<WorkerSlot, List<ExecutorDetails>> sched : schedMap
 										.entrySet()) {

@@ -241,7 +241,7 @@ public class HelperFuncs {
 
 		Process p;
 		try {
-			String cmd = "/var/storm/storm_0/bin/storm rebalance "+topo.getName()+" -e "+component_id+"="+parallelism_hint;
+			String cmd = "/var/storm/storm_0/bin/storm rebalance -w 0 "+topo.getName()+" -e "+component_id+"="+parallelism_hint;
 			LOG.info("cmd: {}", cmd);
 			p = Runtime.getRuntime().exec(cmd);
 			//p.waitFor();
@@ -318,5 +318,27 @@ public class HelperFuncs {
 			e.printStackTrace();
 		}
 
+	}
+	
+	public static Map<String, Integer> taskRange(List<ExecutorDetails> execs) {
+		Map<String, Integer> retMap = new HashMap<String, Integer>();
+		retMap.put("start", null);
+		retMap.put("end", null);
+		for (ExecutorDetails exec : execs) {
+			if(retMap.get("start") == null) {
+				retMap.put("start", exec.getStartTask());
+			}
+			if(retMap.get("end") == null) {
+				retMap.put("end", exec.getEndTask());
+			}
+			
+			if(retMap.get("start") > exec.getStartTask()) {
+				retMap.put("start", exec.getStartTask());
+			}
+			if(retMap.get("end") < exec.getEndTask()) {
+				retMap.put("end", exec.getEndTask());
+			}
+		}
+		return retMap;
 	}
 }
