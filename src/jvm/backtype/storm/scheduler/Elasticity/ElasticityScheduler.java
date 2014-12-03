@@ -111,9 +111,8 @@ public class ElasticityScheduler implements IScheduler {
 							if (schedMap != null) {
 								for (Map.Entry<WorkerSlot, List<ExecutorDetails>> sched : schedMap
 										.entrySet()) {
-									HelperFuncs.assignTasks(sched.getKey(),
-											topo.getId(), sched.getValue(),
-											cluster, topologies);
+									cluster.assign(sched.getKey(),
+											topo.getId(), sched.getValue());
 									LOG.info("Assigning {}=>{}",
 											sched.getKey(), sched.getValue());
 								}

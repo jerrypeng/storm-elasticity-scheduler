@@ -73,8 +73,12 @@ public class IncreaseParallelism extends TopologyHeuristicStrategy{
 		}
 		
 		for(ExecutorDetails exec : execs1) {
-			this._globalState.migrateTask(exec, target_ws, this._topo);
+			if(schedMap.containsKey(target_ws)==false) {
+				schedMap.put(target_ws, new ArrayList<ExecutorDetails>());
+			}
+			schedMap.get(target_ws).add(exec);
 		}
+		
 		LOG.info("!-------Exit IncreaseParallelism----------! ");
 		return schedMap;
 	}
