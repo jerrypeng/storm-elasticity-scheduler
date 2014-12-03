@@ -60,9 +60,9 @@ public class IncreaseParallelism extends TopologyHeuristicStrategy{
 			ExecutorDetails exec = iterator.next();
 			for (Iterator<ExecutorDetails> iterator2 = execs1.iterator(); iterator2.hasNext();) {
 				ExecutorDetails TopoExec = iterator2.next();
-				if((TopoExec.getEndTask()==exec.getEndTask() && TopoExec.getStartTask() != exec.getEndTask())
+				if((TopoExec.getEndTask()==exec.getEndTask() && TopoExec.getStartTask() != exec.getStartTask())
 						||
-						(TopoExec.getEndTask()!=exec.getEndTask() && TopoExec.getStartTask() == exec.getEndTask())) {
+						(TopoExec.getEndTask()!=exec.getEndTask() && TopoExec.getStartTask() == exec.getStartTask())) {
 					WorkerSlot ws = ExecutorToSlot.get(exec);
 					schedMap.get(ws).remove(exec);
 					schedMap.get(ws).add(TopoExec);
