@@ -55,6 +55,9 @@ public class IncreaseParallelism extends TopologyHeuristicStrategy{
 		List<ExecutorDetails> execs2 = this.diff(topoExecutors, unassigned);
 		LOG.info("execs1: {}", execs1);
 		LOG.info("execs2: {}", execs2);
+		//execs1: [[7, 7], [10, 10], [8, 8], [9, 9]]
+		//execs2: [[7, 8], [9, 10]]
+
 		
 		for (Iterator<ExecutorDetails> iterator = execs2.iterator(); iterator.hasNext();) {
 			ExecutorDetails exec = iterator.next();
@@ -68,9 +71,13 @@ public class IncreaseParallelism extends TopologyHeuristicStrategy{
 					schedMap.get(ws).add(TopoExec);
 					iterator.remove();
 					iterator2.remove();
+					break;
 				}
 			}
 		}
+		
+		LOG.info("After execs1: {}", execs1);
+		LOG.info("After execs2: {}", execs2);
 		
 		for(ExecutorDetails exec : execs1) {
 			if(schedMap.containsKey(target_ws)==false) {
