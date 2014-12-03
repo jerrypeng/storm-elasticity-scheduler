@@ -72,15 +72,21 @@ public class ElasticityScheduler implements IScheduler {
 			LOG.info("status: {}", status);
 			if (msgServer.isRebalance() == true) {
 				if (globalState.stateEmpty() == false) {
-					LOG.info("Increasing parallelism...");
-					HelperFuncs.changeParallelism2(topo, "exclaim2", 4);
+					List<Node> newNodes = globalState.getNewNode();
 					
-					Map<Component, Integer> compParallelism = new HashMap<Component, Integer>();
-					for(Map.Entry<Component,Integer> entry : compParallelism.entrySet()) {
-						//entry.getKey().execs.size();
-						Map<String, Integer> taskRange = HelperFuncs.taskRange(entry.getKey().execs);
-						
-						
+					if (newNodes.size() > 0) {
+
+						LOG.info("Increasing parallelism...");
+						HelperFuncs.changeParallelism2(topo, "exclaim2", 4);
+
+						Map<Component, Integer> compParallelism = new HashMap<Component, Integer>();
+						for (Map.Entry<Component, Integer> entry : compParallelism
+								.entrySet()) {
+							// entry.getKey().execs.size();
+							Map<String, Integer> taskRange = HelperFuncs
+									.taskRange(entry.getKey().execs);
+
+						}
 					}
 
 				}
