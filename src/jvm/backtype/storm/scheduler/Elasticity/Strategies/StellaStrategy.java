@@ -30,7 +30,7 @@ public class StellaStrategy extends TopologyHeuristicStrategy {
 	ArrayList<Component> sourceList=new ArrayList<Component>();
 	int sourceCount;
 	
-	int count=4;
+	int count=3;
 	
 	public StellaStrategy(GlobalState globalState, GetStats getStats,
 			TopologyDetails topo, Cluster cluster, Topologies topologies) {
