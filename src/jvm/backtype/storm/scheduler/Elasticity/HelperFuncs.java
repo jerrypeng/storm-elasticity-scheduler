@@ -237,7 +237,7 @@ public class HelperFuncs {
 			String component_id, Integer parallelism_hint) {
 		LOG.info("Increasing parallelism to {} of component {} in topo {}", new Object[]{parallelism_hint, component_id, topo.getName()});
 
-		StringBuffer output = new StringBuffer();
+		//StringBuffer output = new StringBuffer();
 
 		Process p;
 		try {
@@ -245,19 +245,19 @@ public class HelperFuncs {
 			LOG.info("cmd: {}", cmd);
 			p = Runtime.getRuntime().exec(cmd);
 			//p.waitFor();
-			BufferedReader reader = new BufferedReader(new InputStreamReader(
-					p.getInputStream()));
+			//BufferedReader reader = new BufferedReader(new InputStreamReader(
+			//		p.getInputStream()));
 
-			String line = "";
-			while ((line = reader.readLine()) != null) {
-				output.append(line + "\n");
-			}
+			//String line = "";
+//			while ((line = reader.readLine()) != null) {
+//				output.append(line + "\n");
+//			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		LOG.info(output.toString());
+		//LOG.info(output.toString());
 	}
 	public static void changeParallelism(TopologyDetails topo, String component_id, Integer parallelism_hint) {
 		LOG.info("Increasing parallelism to {} of component {} in topo {}", new Object[]{parallelism_hint, component_id, topo.getName()});
