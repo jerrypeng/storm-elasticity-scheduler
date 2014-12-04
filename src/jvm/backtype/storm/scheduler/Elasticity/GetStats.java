@@ -464,7 +464,7 @@ public class GetStats {
 				total_output_bolt_emit += cs.getValue().total_emit_throughput;
 				output_bolts += cs.getKey() + ",";
 				
-				data = String.valueOf(unixTime) + ':' + ":"+this.sched_type + ":"+ cs.getValue().componentId
+				data = String.valueOf(unixTime) + ":"+this.sched_type + ":"+ cs.getValue().componentId
 						+ ":" + cs.getValue().parallelism_hint + ":" + topo.get_id() + ":"
 						+ avg_emit_throughput + "\n";
 			} else {
