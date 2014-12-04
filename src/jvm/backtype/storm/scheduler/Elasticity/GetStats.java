@@ -475,7 +475,7 @@ public class GetStats {
 								cs.getValue().total_emit_throughput,
 								cs.getValue().total_execute_throughput,
 								avg_transfer_throughput, avg_emit_throughput, avg_emit_throughput });
-				data = String.valueOf(unixTime) + ':' + ":"+this.sched_type + ":"+ cs.getValue().componentId
+				data = String.valueOf(unixTime) + ":"+this.sched_type + ":"+ cs.getValue().componentId
 						+ ":" + cs.getValue().parallelism_hint + ":" + topo.get_id() + ":"
 						+ avg_transfer_throughput + "\n";
 			}
