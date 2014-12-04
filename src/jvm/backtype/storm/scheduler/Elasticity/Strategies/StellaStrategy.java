@@ -30,30 +30,43 @@ public class StellaStrategy extends TopologyHeuristicStrategy {
 	ArrayList<Component> sourceList=new ArrayList<Component>();
 	int sourceCount;
 	
-	int count=3;
+	int count;
 	
 	public StellaStrategy(GlobalState globalState, GetStats getStats,
 			TopologyDetails topo, Cluster cluster, Topologies topologies) {
 		super(globalState, getStats, topo, cluster, topologies);
+		count=3;
+		LOG.info("NUMBER OF EXECUTORS WE'RE GOING TO ADD: {}", count);
 	}
 
 	@Override
 	public TreeMap<Component, Integer> Strategy(Map<String, Component> map) {
-		return null;
+		
+		init(map);
+		HashMap<Component, Integer> arr=new HashMap<Component, Integer>();
+		arr=StellaStrategy(map);
+		HashMap<Component, Integer> rankMap = new HashMap<Component, Integer>();
+		ComponentComparator bvc =  new ComponentComparator(rankMap);
+		TreeMap<Component, Integer> IORankMap = new TreeMap<Component, Integer>(bvc);
+		for(Map.Entry<Component,Integer> e:arr.entrySet() ){
+			rankMap.put(e.getKey(), 1);
+		}
+		IORankMap.putAll(rankMap);
+		return IORankMap;
 	}
 
 	
 	
-	private void init() {
+	private void init(Map<String, Component> map) {
 		// TODO Auto-generated method stub
 		this.EmitRateMap = new HashMap<String, Double>();
 		
 		for( Map.Entry<String, HashMap<String, List<Integer>>> i : this._getStats.emitThroughputHistory.entrySet()) {
 			LOG.info("Topology: {}", i.getKey());
 			for(Map.Entry<String, List<Integer>> k : i.getValue().entrySet()) {
-				LOG.info("Component: {}", k.getKey());
+				/*LOG.info("Component: {}", k.getKey());
 				LOG.info("Emit History: ", k.getValue());
-				LOG.info("MvgAvg: {}", HelperFuncs.computeMovAvg(k.getValue()));
+				LOG.info("MvgAvg: {}", HelperFuncs.computeMovAvg(k.getValue()));*/
 				this.EmitRateMap.put(k.getKey(), HelperFuncs.computeMovAvg(k.getValue()));
 
 			}
@@ -66,9 +79,9 @@ public class StellaStrategy extends TopologyHeuristicStrategy {
 		for( Map.Entry<String, HashMap<String, List<Integer>>> i : this._getStats.executeThroughputHistory.entrySet()) {
 			LOG.info("Topology: {}", i.getKey());
 			for(Map.Entry<String, List<Integer>> k : i.getValue().entrySet()) {
-				LOG.info("Component: {}", k.getKey());
+				/*LOG.info("Component: {}", k.getKey());
 				LOG.info("Execute History: ", k.getValue());
-				LOG.info("MvgAvg: {}", HelperFuncs.computeMovAvg(k.getValue()));
+				LOG.info("MvgAvg: {}", HelperFuncs.computeMovAvg(k.getValue()));*/
 				this.ExecuteRateMap.put(k.getKey(), HelperFuncs.computeMovAvg(k.getValue()));
 			}
 		}
@@ -136,13 +149,13 @@ public class StellaStrategy extends TopologyHeuristicStrategy {
 	}
 
 	
-	public HashMap<Component, Integer> StellaStrategy() {
+	public HashMap<Component, Integer> StellaStrategy(Map<String, Component> map) {
 		// TODO Auto-generated method stub
 		//construct a map for emit throughput for each component
-		init();
+		init(map);
 		HashMap<Component, Integer> ret=new HashMap<Component, Integer>();
 		
-		for(int j=0;j<4;j++){
+		for(int j=0;j<count;j++){
 			LOG.info("ROUND {}", j);
 			//construct a map for in-out throughput for each component
 			HashMap<String, Double> IOMap = new HashMap<String, Double>();
@@ -198,10 +211,12 @@ public class StellaStrategy extends TopologyHeuristicStrategy {
 				rankMap.put(self, score.intValue());
 					
 			}
-		
+			//find component with max EETP
 			Double max=0.0;
 			Component top=null;
 			for(Map.Entry<Component, Integer> e: rankMap.entrySet()){
+				if(this.ParallelismMap.get(e.getKey().id)>=findTaskSize(e.getKey()))//cant exceed the threshold
+					continue;
 				Integer outpercentage=e.getValue();
 				Double improve_potential=outpercentage/(double)this.ParallelismMap.get(e.getKey().id);
 				if(improve_potential>=max){
@@ -232,11 +247,20 @@ public class StellaStrategy extends TopologyHeuristicStrategy {
 					ret.put(current_source, 1);
 				}
 				else{
-					ret.put(current_source, ret.get(top)+1);
+					ret.put(current_source, ret.get(current_source)+1);
 				}
 			}
 		}
 		LOG.info("List of components that need to be parallelized:{}",ret);
 		return ret;
+	}
+
+	private Integer findTaskSize(Component key) {
+		// TODO Auto-generated method stub
+		Integer ret=0;
+		for(int i=0; i<key.execs.size();i++){
+			ret=ret + key.execs.get(i).getEndTask() - key.execs.get(i).getStartTask()+1;
+		}
+		return null;
 	}
 }

@@ -78,7 +78,7 @@ public class ElasticityScheduler implements IScheduler {
 
 						LOG.info("Increasing parallelism...");
 						StellaStrategy strategy = new StellaStrategy(globalState, stats, topo, cluster, topologies);
-						HashMap<Component, Integer> compMap = strategy.StellaStrategy();
+						HashMap<Component, Integer> compMap = strategy.StellaStrategy(new HashMap<String, Component>());
 						
 						HelperFuncs.changeParallelism2(compMap, topo);
 
