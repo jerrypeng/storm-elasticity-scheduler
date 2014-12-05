@@ -466,7 +466,7 @@ public class GetStats {
 				
 				data = String.valueOf(unixTime) + ":"+this.sched_type + ":"+ cs.getValue().componentId
 						+ ":" + cs.getValue().parallelism_hint + ":" + topo.get_id() + ":"
-						+ avg_emit_throughput + "\n";
+						+ cs.getValue().total_emit_throughput + "\n";
 			} else {
 				LOG.info(
 						"Component: {} total throughput (transfer): {} (emit): {} (execute): {} avg throughput (transfer): {} (emit): {} (execute): {}",
@@ -477,7 +477,7 @@ public class GetStats {
 								avg_transfer_throughput, avg_emit_throughput, avg_emit_throughput });
 				data = String.valueOf(unixTime) + ":"+this.sched_type + ":"+ cs.getValue().componentId
 						+ ":" + cs.getValue().parallelism_hint + ":" + topo.get_id() + ":"
-						+ avg_transfer_throughput + "\n";
+						+ cs.getValue().total_transfer_throughput + "\n";
 			}
 			
 			
