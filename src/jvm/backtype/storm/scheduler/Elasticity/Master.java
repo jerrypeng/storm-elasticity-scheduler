@@ -1,6 +1,9 @@
 package backtype.storm.scheduler.Elasticity;
 
 
+import Profile;
+import ServerThread;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -27,6 +30,12 @@ public class Master {
 			
 		}
 	}
+	/*public static void main(String[] args) throws IOException{
+		//public static void start() throws IOException{
+			profile_map = new HashMap<String, Profile>();
+			Thread t=new Thread(new ServerThread());
+			t.start();
+		}*/
 	
 	public static Master getInstance() {
 		if(instance==null) {

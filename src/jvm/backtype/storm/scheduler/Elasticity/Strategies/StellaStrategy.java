@@ -261,6 +261,6 @@ public class StellaStrategy extends TopologyHeuristicStrategy {
 		for(int i=0; i<key.execs.size();i++){
 			ret=ret + key.execs.get(i).getEndTask() - key.execs.get(i).getStartTask()+1;
 		}
-		return null;
+		return ret;
 	}
 }
