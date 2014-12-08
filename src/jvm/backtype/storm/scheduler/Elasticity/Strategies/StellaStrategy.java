@@ -35,7 +35,7 @@ public class StellaStrategy extends TopologyHeuristicStrategy {
 	public StellaStrategy(GlobalState globalState, GetStats getStats,
 			TopologyDetails topo, Cluster cluster, Topologies topologies) {
 		super(globalState, getStats, topo, cluster, topologies);
-		count=3;
+		count=topo.getExecutors().size()/this._cluster.getSupervisors().size();
 		LOG.info("NUMBER OF EXECUTORS WE'RE GOING TO ADD: {}", count);
 	}
 
