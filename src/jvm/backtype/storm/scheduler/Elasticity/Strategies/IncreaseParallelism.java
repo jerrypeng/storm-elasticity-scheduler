@@ -41,8 +41,7 @@ public class IncreaseParallelism extends TopologyHeuristicStrategy{
 		}
 		
 		Node targetNode = newNodes.get(0);
-		WorkerSlot target_ws = targetNode.slots.get(0);
-		LOG.info("target location: {}:{}", targetNode.hostname, target_ws.getPort());
+		
 		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : schedMap.entrySet()) {
 			for(ExecutorDetails exec : entry.getValue()) {
 				topoExecutors.add(exec);
@@ -78,12 +77,19 @@ public class IncreaseParallelism extends TopologyHeuristicStrategy{
 		
 		LOG.info("After execs1: {}", execs1);
 		LOG.info("After execs2: {}", execs2);
-		
+
+		Integer i=0;
 		for(ExecutorDetails exec : execs1) {
+			if(i>=targetNode.slots.size()) {
+				i=0;
+			}
+			WorkerSlot target_ws = targetNode.slots.get(i);
+			LOG.info("target location: {}:{}", targetNode.hostname, target_ws.getPort());
 			if(schedMap.containsKey(target_ws)==false) {
 				schedMap.put(target_ws, new ArrayList<ExecutorDetails>());
 			}
 			schedMap.get(target_ws).add(exec);
+			i++;
 		}
 		
 		LOG.info("!-------Exit IncreaseParallelism----------! ");
