@@ -11,6 +11,10 @@ import backtype.storm.scheduler.Elasticity.ElasticityScheduler;
 
 public class MsgServer {
 	
+	public enum Signal{
+		ScaleOut, ScaleIn
+	}
+	
 	Server server;
 	Integer port;
 	static MsgServer _instance = null;
@@ -39,5 +43,18 @@ public class MsgServer {
 			}
 		}
 		return false;
+	}
+	
+	
+	public Signal getMessage(){
+		if(this.msgQueue.isEmpty()!=true) {
+			String msg = this.msgQueue.remove();
+			if(msg.equals("REBALANCE") == true) {
+				return Signal.ScaleOut;
+			} else if(msg.equals("SCALEIN")) {
+				return Signal.ScaleIn;
+			}
+		}
+		return null;
 	}
 }

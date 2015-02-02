@@ -70,55 +70,15 @@ public class ElasticityScheduler implements IScheduler {
 			globalState.logTopologyInfo(topo);
 			String status = HelperFuncs.getStatus(topo.getId());
 			LOG.info("status: {}", status);
-			if (msgServer.isRebalance() == true) {
-				if (globalState.stateEmpty() == false) {
-					List<Node> newNodes = globalState.getNewNode();
-					
-					if (newNodes.size() > 0) {
-
-						LOG.info("Increasing parallelism...");
-						StellaStrategy strategy = new StellaStrategy(globalState, stats, topo, cluster, topologies);
-						HashMap<Component, Integer> compMap = strategy.StellaStrategy(new HashMap<String, Component>());
-						
-						HelperFuncs.changeParallelism2(compMap, topo);
-
-					}
-
-				}
-			} else if (status.equals("REBALANCING")) {
-				if (globalState.isBalanced == false) {
-					LOG.info("Rebalancing...{}=={}", cluster
-							.getUnassignedExecutors(topo).size(), topo
-							.getExecutors().size());
-					if (cluster.getUnassignedExecutors(topo).size() == topo
-							.getExecutors().size()) {
-						if (globalState.stateEmpty() == false) {
-							LOG.info("Unassigned executors: {}", cluster.getUnassignedExecutors(topo));
-							LOG.info("Making migration assignments...");
-							globalState.schedState.get(topo.getId());
-
-							IncreaseParallelism strategy = new IncreaseParallelism(
-									globalState, stats, topo, cluster,
-									topologies);
-							Map<WorkerSlot, List<ExecutorDetails>> schedMap = strategy
-									.getNewScheduling();
-							LOG.info("SchedMap: {}", schedMap);
-							if (schedMap != null) {
-								for (Map.Entry<WorkerSlot, List<ExecutorDetails>> sched : schedMap
-										.entrySet()) {
-									cluster.assign(sched.getKey(),
-											topo.getId(), sched.getValue());
-									LOG.info("Assigning {}=>{}",
-											sched.getKey(), sched.getValue());
-								}
-							}
-
-						}
-
-						globalState.isBalanced = true;
-					}
-				}
-
+			MsgServer.Signal signal = msgServer.getMessage();
+			if(signal == MsgServer.Signal.ScaleOut || globalState.rebalancingState == MsgServer.Signal.ScaleOut){
+				this.scaleOut(msgServer, topo, topologies, globalState, stats, cluster);
+				globalState.rebalancingState = MsgServer.Signal.ScaleOut;
+			} else if (signal == MsgServer.Signal.ScaleIn) {
+				LOG.info("/*** Scaling In ***/");
+				ScaleInTestStrategy strategy = new ScaleInTestStrategy(globalState, stats, topo, cluster, topologies);
+				
+				globalState.rebalancingState = MsgServer.Signal.ScaleIn;
 			} else {
 				LOG.info("ID: {} NAME: {}", topo.getId(), topo.getName());
 				LOG.info("Unassigned Executors for {}: ", topo.getName());
@@ -144,5 +104,59 @@ public class ElasticityScheduler implements IScheduler {
 			globalState.clearStoreState();
 		}
 
+	}
+	
+	public void scaleOut(MsgServer msgServer, TopologyDetails topo, Topologies topologies, GlobalState globalState, GetStats stats, Cluster cluster) {
+		String status = HelperFuncs.getStatus(topo.getId());
+		if (msgServer.isRebalance() == true) {
+			if (globalState.stateEmpty() == false) {
+				List<Node> newNodes = globalState.getNewNode();
+				
+				if (newNodes.size() > 0) {
+
+					LOG.info("Increasing parallelism...");
+					StellaStrategy strategy = new StellaStrategy(globalState, stats, topo, cluster, topologies);
+					HashMap<Component, Integer> compMap = strategy.StellaStrategy(new HashMap<String, Component>());
+					
+					HelperFuncs.changeParallelism2(compMap, topo);
+
+				}
+
+			}
+		} else if (status.equals("REBALANCING")) {
+			if (globalState.isBalanced == false) {
+				LOG.info("Rebalancing...{}=={}", cluster
+						.getUnassignedExecutors(topo).size(), topo
+						.getExecutors().size());
+				if (cluster.getUnassignedExecutors(topo).size() == topo
+						.getExecutors().size()) {
+					if (globalState.stateEmpty() == false) {
+						LOG.info("Unassigned executors: {}", cluster.getUnassignedExecutors(topo));
+						LOG.info("Making migration assignments...");
+						globalState.schedState.get(topo.getId());
+
+						IncreaseParallelism strategy = new IncreaseParallelism(
+								globalState, stats, topo, cluster,
+								topologies);
+						Map<WorkerSlot, List<ExecutorDetails>> schedMap = strategy
+								.getNewScheduling();
+						LOG.info("SchedMap: {}", schedMap);
+						if (schedMap != null) {
+							for (Map.Entry<WorkerSlot, List<ExecutorDetails>> sched : schedMap
+									.entrySet()) {
+								cluster.assign(sched.getKey(),
+										topo.getId(), sched.getValue());
+								LOG.info("Assigning {}=>{}",
+										sched.getKey(), sched.getValue());
+							}
+						}
+
+					}
+
+					globalState.isBalanced = true;
+				}
+			}
+		
+		}
 	}
 }

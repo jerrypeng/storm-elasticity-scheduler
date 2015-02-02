@@ -17,6 +17,7 @@ import backtype.storm.scheduler.SupervisorDetails;
 import backtype.storm.scheduler.Topologies;
 import backtype.storm.scheduler.TopologyDetails;
 import backtype.storm.scheduler.WorkerSlot;
+import backtype.storm.scheduler.Elasticity.MsgServer.MsgServer.Signal;
 
 public class GlobalState {
 
@@ -51,8 +52,8 @@ public class GlobalState {
 	private File scheduling_log;
 	
 	public boolean isBalanced = false;
-	
-	public Integer balancingState = 0;
+		
+	public Signal rebalancingState = null;
 	
 	private GlobalState(String filename) {
 		this.schedState = new HashMap<String, Map<WorkerSlot, List<ExecutorDetails>>>();
