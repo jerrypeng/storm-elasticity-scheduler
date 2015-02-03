@@ -68,8 +68,8 @@ public class TestScheduler implements IScheduler{
 			if (signal == MsgServer.Signal.ScaleIn) {
 				LOG.info("/*** Scaling In ***/");
 				Map<Component, Integer> compMap = new HashMap<Component, Integer>();
-				compMap.put(globalState.components.get(topo.getId()).get("word"), 8);
-				HelperFuncs.changeParallelism2(compMap, topo);
+				compMap.put(globalState.components.get(topo.getId()).get("word"), 2);
+				HelperFuncs.decreaseParallelism(compMap, topo);
 				
 				globalState.rebalancingState = MsgServer.Signal.ScaleIn;
 			} else {
