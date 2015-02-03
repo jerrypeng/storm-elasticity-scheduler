@@ -28,7 +28,7 @@ public class TestScheduler implements IScheduler{
 	@Override
 	public void schedule(Topologies topologies, Cluster cluster) {
 		
-		LOG.info("\n\n\nRerunning ElasticityScheduler...");
+		LOG.info("\n\n\nRerunning TestScheduler...");
 
 		/**
 		 * Starting msg server
