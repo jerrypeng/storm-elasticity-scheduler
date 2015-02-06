@@ -77,6 +77,19 @@ public class ElasticityScheduler implements IScheduler {
 			} else if (signal == MsgServer.Signal.ScaleIn) {
 				LOG.info("/*** Scaling In ***/");
 				ScaleInTestStrategy strategy = new ScaleInTestStrategy(globalState, stats, topo, cluster, topologies);
+				strategy.removeNodeByHostname("pc345.emulab.net");
+				Map<WorkerSlot, List<ExecutorDetails>> schedMap = strategy
+						.getNewScheduling();
+				LOG.info("SchedMap: {}", schedMap);
+				if (schedMap != null) {
+					for (Map.Entry<WorkerSlot, List<ExecutorDetails>> sched : schedMap
+							.entrySet()) {
+						cluster.assign(sched.getKey(),
+								topo.getId(), sched.getValue());
+						LOG.info("Assigning {}=>{}",
+								sched.getKey(), sched.getValue());
+					}
+				}
 				
 				globalState.rebalancingState = MsgServer.Signal.ScaleIn;
 			} else {

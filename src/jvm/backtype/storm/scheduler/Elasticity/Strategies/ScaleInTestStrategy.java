@@ -1,5 +1,6 @@
 package backtype.storm.scheduler.Elasticity.Strategies;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,6 +18,7 @@ import backtype.storm.scheduler.Elasticity.GetStats;
 import backtype.storm.scheduler.Elasticity.GlobalState;
 import backtype.storm.scheduler.Elasticity.HelperFuncs;
 import backtype.storm.scheduler.Elasticity.Node;
+import bsh.This;
 
 public class ScaleInTestStrategy {
 	protected Logger LOG = null;
@@ -38,45 +40,54 @@ public class ScaleInTestStrategy {
 		
 	}
 	
-	public void getNewScheduling()
+	public Map<WorkerSlot, List<ExecutorDetails>> getNewScheduling()
 	{
-		
+		return this._globalState.schedState.get(this._topo.getId());
 	}
 	
-	public void removeNode(String supervisorId) {
-		Node node = this._globalState.nodes.get(supervisorId);
-		
-		
-		for(ExecutorDetails exec : node.execs) {
-			String c = this._topo.getExecutorToComponent().get(exec);
-			Component comp = this._globalState.components.get(this._topo.getId()).get(c);
-			if(comp.execs.size()==1) {
-				//migrate to another node
-				WorkerSlot target =this.findTarget(supervisorId);
-			
-				this._globalState.migrateTask(exec, target, this._topo);
-				
-			} else {
-				
-				comp.execs.remove(exec);
-				//decrease parallelism
+	public void removeNodeByHostname(String hostname) {
+		for(Node n : this._globalState.nodes.values()) {
+			if(n.hostname == hostname) {
+				this.removeNodeBySupervisorId(n.supervisor_id);
 			}
-			
-			
 		}
 	}
 	
-	public WorkerSlot findTarget(String supervisorId) {
+	public void removeNodeBySupervisorId(String supervisorId) {
+		Node node = this._globalState.nodes.get(supervisorId);
+		
+		ArrayList<Node> elgibleNodes = new ArrayList<Node>();
+		for (Node n: this._globalState.nodes.values()) {
+			if(n.supervisor_id!=supervisorId) {
+				elgibleNodes.add(n);
+			}
+		}
+		int i = 0;
+		int j = 0;
+		while(true) {
+			if(i>=node.execs.size()){
+				break;
+			} else if(j>=elgibleNodes.size()) {
+				j=0;
+			}
+			ExecutorDetails exec = node.execs.get(i);
+			
+			WorkerSlot target = this.findBestSlot(elgibleNodes.get(j));
+			
+			this._globalState.migrateTask(exec, target, this._topo);
+			
+			i++;
+			j++;
+		}
+	}
+	
+	public WorkerSlot findBestSlot(Node node) {
 		WorkerSlot target =null;
-		for (Node entry : this._globalState.nodes.values()) {
-			if(entry.supervisor_id!=supervisorId) {
-				Integer least = Integer.MAX_VALUE;
-				for (Entry<WorkerSlot, List<ExecutorDetails>> w : entry.slot_to_exec.entrySet()) {
-					if(least > w.getValue().size()) {
-						least = w.getValue().size();
-						target = w.getKey();
-					}
-				}
+		int least = Integer.MAX_VALUE;
+		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : node.slot_to_exec.entrySet()) {
+			if(entry.getValue().size()<least) {
+				target = entry.getKey();
+				least = entry.getValue().size();
 			}
 		}
 		return target;
