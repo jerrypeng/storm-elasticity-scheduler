@@ -54,7 +54,7 @@ public class ElasticityScheduler implements IScheduler {
 		 * Get stats
 		 */
 		GetStats stats = GetStats.getInstance("ElasticityScheduler");
-		//stats.getStatistics();
+		stats.getStatistics();
 		//LOG.info(stats.printTransferThroughputHistory());
 		//LOG.info(stats.printEmitThroughputHistory());
 		//LOG.info(stats.printExecuteThroughputHistory());
@@ -82,6 +82,7 @@ public class ElasticityScheduler implements IScheduler {
 						.getNewScheduling();
 				LOG.info("SchedMap: {}", schedMap);
 				if (schedMap != null) {
+					cluster.freeSlots(schedMap.keySet());
 					for (Map.Entry<WorkerSlot, List<ExecutorDetails>> sched : schedMap
 							.entrySet()) {
 						cluster.assign(sched.getKey(),
