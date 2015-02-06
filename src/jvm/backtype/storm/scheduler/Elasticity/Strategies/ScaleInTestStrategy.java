@@ -18,7 +18,6 @@ import backtype.storm.scheduler.Elasticity.GetStats;
 import backtype.storm.scheduler.Elasticity.GlobalState;
 import backtype.storm.scheduler.Elasticity.HelperFuncs;
 import backtype.storm.scheduler.Elasticity.Node;
-import bsh.This;
 
 public class ScaleInTestStrategy {
 	protected Logger LOG = null;
