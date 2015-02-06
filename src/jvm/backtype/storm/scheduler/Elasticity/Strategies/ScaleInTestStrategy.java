@@ -46,7 +46,8 @@ public class ScaleInTestStrategy {
 	
 	public void removeNodeByHostname(String hostname) {
 		for(Node n : this._globalState.nodes.values()) {
-			if(n.hostname == hostname) {
+			if(n.hostname.equals(hostname)==true) {
+				LOG.info("Found Hostname: {} with sup id: {}", hostname, n.supervisor_id);
 				this.removeNodeBySupervisorId(n.supervisor_id);
 			}
 		}
@@ -56,8 +57,10 @@ public class ScaleInTestStrategy {
 		Node node = this._globalState.nodes.get(supervisorId);
 		
 		ArrayList<Node> elgibleNodes = new ArrayList<Node>();
+		LOG.info("nodes elgible:");
 		for (Node n: this._globalState.nodes.values()) {
-			if(n.supervisor_id!=supervisorId) {
+			if(n.supervisor_id.equals(supervisorId)==false) {
+				LOG.info("-->{}", n.hostname);
 				elgibleNodes.add(n);
 			}
 		}
@@ -74,6 +77,8 @@ public class ScaleInTestStrategy {
 			WorkerSlot target = this.findBestSlot(elgibleNodes.get(j));
 			
 			this._globalState.migrateTask(exec, target, this._topo);
+			
+			LOG.info("migrating {} to ws {} on node {} .... i: {} j: {}", new Object[]{exec, elgibleNodes.get(j).hostname, target.getPort(), i ,j});
 			
 			i++;
 			j++;
