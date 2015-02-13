@@ -40,9 +40,7 @@ public class StellaInStrategy extends TopologyHeuristicStrategy {
 	public StellaInStrategy(GlobalState globalState, GetStats getStats,
 			TopologyDetails topo, Cluster cluster, Topologies topologies) {
 		super(globalState, getStats, topo, cluster, topologies);
-		//count=topo.getExecutors().size()/this._cluster.getSupervisors().size();
-		//LOG.info("NUMBER OF EXECUTORS WE'RE GOING TO ADD: {}", count);
-		//topo.getExecutorToComponent()
+		
 	}
 
 	
@@ -65,26 +63,26 @@ public class StellaInStrategy extends TopologyHeuristicStrategy {
 	
 	
 	private void init() {
-		// TODO Auto-generated method stub
+
 		this.EmitRateMap = new HashMap<String, Double>();
 		
+		//construct a executors map for all supervisors
+		
+		for(Node n:this._globalState.nodes.values()){
+			this.NodeExecutorMap.put(n, n.execs);
+		}
+		
+		//emit map
 		for( Map.Entry<String, HashMap<String, List<Integer>>> i : this._getStats.emitThroughputHistory.entrySet()) {
 			LOG.info("Topology: {}", i.getKey());
 			for(Map.Entry<String, List<Integer>> k : i.getValue().entrySet()) {
-				/*LOG.info("Component: {}", k.getKey());
-				LOG.info("Emit History: ", k.getValue());
-				LOG.info("MvgAvg: {}", HelperFuncs.computeMovAvg(k.getValue()));*/
 				this.EmitRateMap.put(k.getKey(), HelperFuncs.computeMovAvg(k.getValue()));
 
 			}
 		}
 		LOG.info("Emit Rate: {}", EmitRateMap);
 		this.ExpectedEmitRateMap.putAll(EmitRateMap);
-		//construct a executors map for all supervisors
 		
-		for(Node n:this._globalState.nodes.values()){
-			this.NodeExecutorMap.put(n, n.execs);
-		}
 		
 		
 		//construct a map for emit throughput for each component
@@ -101,17 +99,7 @@ public class StellaInStrategy extends TopologyHeuristicStrategy {
 		LOG.info("Execute Rate: {}", ExecuteRateMap);
 		this.ExpectedExecuteRateMap.putAll(ExecuteRateMap);
 		
-		//parallelism map
-		this.ParallelismMap = new HashMap<String, Integer>();
-		for( Map.Entry<String, HashMap<String, List<Integer>>> i : this._getStats.emitThroughputHistory.entrySet()) {
-			LOG.info("Topology: {}", i.getKey());
-			for(Map.Entry<String, List<Integer>> k : i.getValue().entrySet()) {
-				Component self=this._globalState.components.get(this._topo.getId()).get(k.getKey());
-				LOG.info("Component: {}", self.id);
-				LOG.info("parallelism level: {}", self.execs.size());
-				this.ParallelismMap.put(self.id, self.execs.size());
-			}
-		}
+		
 		
 		//source list, in case we need to speed up the entire thing
 		this.sourceList=new ArrayList<Component>();
@@ -190,7 +178,9 @@ public class StellaInStrategy extends TopologyHeuristicStrategy {
 			}	
 		}
 		IORankMap.putAll(IOMap);
-		LOG.info("overload map", IOMap);	
+		LOG.info("overload map", IOMap);
+		
+		
 		//find all output bolts and their throughput
 		HashMap<String, Double> SinkMap = new HashMap<String, Double>();
 		Double total_throughput=0.0;
@@ -228,6 +218,7 @@ public class StellaInStrategy extends TopologyHeuristicStrategy {
 		//adding content to ret2
 		for(Node node:this._globalState.nodes.values()){
 			if(!ret.containsKey(node)){
+				LOG.info("starting computing node {}", node.hostname);
 				ret.put(node,0);
 			}
 			else{
@@ -237,6 +228,7 @@ public class StellaInStrategy extends TopologyHeuristicStrategy {
 					Component self=this._globalState.components.get(this._topo.getId()).get(c_name);
 					ret.put(node, org+rankMap.get(self).intValue());
 				}
+			LOG.info("node {} has score", ret.get(node));
 			}
 		}
 	
