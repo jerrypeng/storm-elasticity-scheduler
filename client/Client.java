@@ -26,7 +26,7 @@ public class Client {
         BufferedOutputStream bos = new BufferedOutputStream(s.
                 getOutputStream());
         OutputStreamWriter osw = new OutputStreamWriter(bos, "US-ASCII");
-        osw.write("rebalance");
+        osw.write("SCALEIN");
         osw.flush();
     }
 }
