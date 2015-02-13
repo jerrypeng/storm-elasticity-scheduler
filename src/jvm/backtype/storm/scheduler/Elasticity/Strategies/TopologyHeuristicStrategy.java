@@ -126,4 +126,21 @@ public abstract class TopologyHeuristicStrategy implements IStrategy{
 	    }
 	}
 	
+	public class NodeComparator implements Comparator<Node> {
+
+		HashMap<Node, Integer> base;
+	    public NodeComparator(HashMap<Node, Integer> base) {
+	        this.base = base;
+	    }
+
+	    // Note: this comparator imposes orderings that are inconsistent with equals.    
+	    public int compare(Node o1, Node o2) {
+			if (base.get(o1) >= base.get(o2)) {
+	            return 1;
+	        } else {
+	            return -1;//pick the lowest ETP
+	        } // returning 0 would merge keys
+		}
+	}
+	
 }
