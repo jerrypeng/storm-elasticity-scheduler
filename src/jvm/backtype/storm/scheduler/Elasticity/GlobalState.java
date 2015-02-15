@@ -145,13 +145,13 @@ public class GlobalState {
 			data += "->hostname: " + this.nodes.get(i.getKey()).hostname
 					+ " Supervisor Id: " + i.getKey() + "\n";
 			data += "->WorkerToExec: \n";
-			HashMap<String, Integer> componentOnNodeCount = new HashMap<String, Integer>();
+			TreeMap<String, Integer> componentOnNodeCount = new TreeMap<String, Integer>();
 			for (Map.Entry<WorkerSlot, List<ExecutorDetails>> entry : i
 					.getValue().entrySet()) {
 				data += "-->" + entry.getKey().getPort() + " => "
 						+ entry.getValue().toString() + "\n";
 
-				HashMap<String, Integer> count = new HashMap<String, Integer>();
+				TreeMap<String, Integer> count = new TreeMap<String, Integer>();
 				for (ExecutorDetails ex : entry.getValue()) {
 					String comp = topo.getExecutorToComponent().get(ex);
 					// Per Node component count
