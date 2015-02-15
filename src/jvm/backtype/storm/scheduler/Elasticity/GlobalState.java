@@ -99,14 +99,20 @@ public class GlobalState {
 			}
 			
 		}
-		if(sched_state.hashCode()!=this.schedState.hashCode()) {
-			this.logSchedChange(sched_state);
+		for(Map.Entry<String, Map<WorkerSlot, List<ExecutorDetails>>> i : sched_state.entrySet()) {
+			if(i.getValue().hashCode() != this.schedState.get(i.getKey()).hashCode()) {
+				this.logSchedChange(i.getValue(), topologies.getById(i.getKey()));
+			}
 		}
+//		if(sched_state.hashCode()!=this.schedState.hashCode()) {
+//			
+//			
+//		}
 		this.schedState = new HashMap<String, Map<WorkerSlot, List<ExecutorDetails>>>();
 		this.schedState.putAll(sched_state);
 	}
 	
-	public void logSchedChange(Map<String, Map<WorkerSlot, List<ExecutorDetails>>>sched_state) {
+	public void logSchedChange( Map<WorkerSlot, List<ExecutorDetails>>sched_state, TopologyDetails topo) {
 		Map<String, Map<WorkerSlot, List<ExecutorDetails>>> node_to_worker =new HashMap<String, Map<WorkerSlot, List<ExecutorDetails>>>();
 		for(Node n : this.nodes.values()) {
 			node_to_worker.put(n.supervisor_id, new HashMap<WorkerSlot, List<ExecutorDetails>>());
@@ -115,18 +121,37 @@ public class GlobalState {
 			}
 		}
 		
-		for(Map.Entry<String, Map<WorkerSlot, List<ExecutorDetails>>> i : sched_state.entrySet()) {
-			for(Map.Entry<WorkerSlot, List<ExecutorDetails>> k : i.getValue().entrySet()) {
-				node_to_worker.get(k.getKey().getNodeId()).get(k.getKey()).addAll(k.getValue());
-			}
+		
+		for(Map.Entry<WorkerSlot, List<ExecutorDetails>> k : sched_state.entrySet()) {
+			node_to_worker.get(k.getKey().getNodeId()).get(k.getKey()).addAll(k.getValue());
 		}
+		
 		String data = "\n\n<!---Scheduling Change---!>\n";
 		for(Map.Entry<String, Map<WorkerSlot, List<ExecutorDetails>>> i : node_to_worker.entrySet()) {
 			data+="->hostname: "+this.nodes.get(i.getKey()).hostname+" Supervisor Id: "+i.getKey()+"\n";
 			data+="->WorkerToExec: \n";
+			HashMap<String,Integer> componentOnNodeCount = new HashMap<String,Integer>();
 			for(Map.Entry<WorkerSlot, List<ExecutorDetails>> entry : i.getValue().entrySet()) {
 				data+="-->"+entry.getKey().getPort()+ " => "+entry.getValue().toString()+"\n";
+				
+				HashMap<String,Integer> count = new HashMap<String,Integer>();
+				for (ExecutorDetails ex : entry.getValue()) {
+					String comp = topo.getExecutorToComponent().get(ex);
+					//Per Node component count
+					if(componentOnNodeCount.containsKey(comp) == false) {
+						componentOnNodeCount.put(comp, 0);
+					}
+					componentOnNodeCount.put(comp, count.get(comp)+1);
+					//Per Slot component count
+					if(count.containsKey(comp) == false) {
+						count.put(comp, 0);
+					}
+					count.put(comp, count.get(comp)+1);
+				}
+				data +="       =>"+count.toString()+"\n";
+				
 			}
+			data+="->Overall Component Count:"+componentOnNodeCount.toString()+"\n";
 			
 		}
 		

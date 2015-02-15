@@ -58,6 +58,9 @@ public class StellaInStrategy extends TopologyHeuristicStrategy {
 			NodeMap.put(e.getKey(), e.getValue());
 		}
 		RankedNodeMap.putAll(NodeMap);
+		LOG.info("!--------!");
+		LOG.info("RankedNodeMap: {}", RankedNodeMap);
+		LOG.info("!--------!");
 		
 		return RankedNodeMap.firstKey();
 	}
