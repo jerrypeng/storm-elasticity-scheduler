@@ -141,7 +141,7 @@ public class GlobalState {
 					if(componentOnNodeCount.containsKey(comp) == false) {
 						componentOnNodeCount.put(comp, 0);
 					}
-					componentOnNodeCount.put(comp, count.get(comp)+1);
+					componentOnNodeCount.put(comp, componentOnNodeCount.get(comp)+1);
 					//Per Slot component count
 					if(count.containsKey(comp) == false) {
 						count.put(comp, 0);
