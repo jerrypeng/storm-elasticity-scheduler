@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import backtype.storm.scheduler.Cluster;
@@ -59,7 +60,10 @@ public class StellaInStrategy extends TopologyHeuristicStrategy {
 		}
 		RankedNodeMap.putAll(NodeMap);
 		LOG.info("!--------!");
-		LOG.info("RankedNodeMap: {}", RankedNodeMap);
+		//LOG.info("RankedNodeMap: {}", RankedNodeMap);
+		for(Entry<Node, Integer> entry: RankedNodeMap.entrySet()) {
+			LOG.info(entry.getKey().hostname+"-->"+entry.getValue().toString());
+		}
 		LOG.info("!--------!");
 		
 		return RankedNodeMap.firstKey();
