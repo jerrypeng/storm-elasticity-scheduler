@@ -100,7 +100,7 @@ public class GlobalState {
 			
 		}
 		for(Map.Entry<String, Map<WorkerSlot, List<ExecutorDetails>>> i : sched_state.entrySet()) {
-			if(i.getValue().hashCode() != this.schedState.get(i.getKey()).hashCode()) {
+			if(this.schedState.containsKey(i.getKey()) == false || i.getValue().hashCode() != this.schedState.get(i.getKey()).hashCode()) {
 				this.logSchedChange(i.getValue(), topologies.getById(i.getKey()));
 			}
 		}
