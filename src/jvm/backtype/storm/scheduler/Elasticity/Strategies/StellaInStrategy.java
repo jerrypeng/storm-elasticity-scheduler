@@ -10,8 +10,6 @@ import java.util.TreeMap;
 
 import backtype.storm.scheduler.Cluster;
 import backtype.storm.scheduler.ExecutorDetails;
-import backtype.storm.scheduler.SchedulerAssignment;
-import backtype.storm.scheduler.SupervisorDetails;
 import backtype.storm.scheduler.Topologies;
 import backtype.storm.scheduler.TopologyDetails;
 import backtype.storm.scheduler.Elasticity.Component;
@@ -19,7 +17,6 @@ import backtype.storm.scheduler.Elasticity.GetStats;
 import backtype.storm.scheduler.Elasticity.GlobalState;
 import backtype.storm.scheduler.Elasticity.HelperFuncs;
 import backtype.storm.scheduler.Elasticity.Node;
-import backtype.storm.scheduler.Elasticity.Strategies.TopologyHeuristicStrategy.ComponentComparator;
 
 /***
  * rank percentage of effect of each node
@@ -51,7 +48,7 @@ public class StellaInStrategy extends TopologyHeuristicStrategy {
 		
 		init();
 		HashMap<Node, Integer> ret=new HashMap<Node, Integer>();
-		StellaAlg(ret);
+		ret=StellaAlg();
 		HashMap<Node, Integer> NodeMap = new HashMap<Node, Integer>();
 		NodeComparator bvc =  new NodeComparator(NodeMap);
 		TreeMap<Node, Integer> RankedNodeMap = new TreeMap<Node, Integer>(bvc);
@@ -88,9 +85,11 @@ public class StellaInStrategy extends TopologyHeuristicStrategy {
 		LOG.info("Emit Rate: {}", EmitRateMap);
 		this.ExpectedEmitRateMap.putAll(EmitRateMap);
 		//construct a executors map for all supervisors
+		this.NodeExecutorMap = new HashMap<Node, List<ExecutorDetails>>();
 		
 		for(Node n:this._globalState.nodes.values()){
 			this.NodeExecutorMap.put(n, n.execs);
+			LOG.info("adding node {} with execs {}",n,n.execs); 
 		}
 		
 		
@@ -99,9 +98,6 @@ public class StellaInStrategy extends TopologyHeuristicStrategy {
 		for( Map.Entry<String, HashMap<String, List<Integer>>> i : this._getStats.executeThroughputHistory.entrySet()) {
 			LOG.info("Topology: {}", i.getKey());
 			for(Map.Entry<String, List<Integer>> k : i.getValue().entrySet()) {
-				/*LOG.info("Component: {}", k.getKey());
-				LOG.info("Execute History: ", k.getValue());
-				LOG.info("MvgAvg: {}", HelperFuncs.computeMovAvg(k.getValue()));*/
 				this.ExecuteRateMap.put(k.getKey(), HelperFuncs.computeMovAvg(k.getValue()));
 			}
 		}
@@ -169,7 +165,7 @@ public class StellaInStrategy extends TopologyHeuristicStrategy {
 	}
 
 	
-	public void StellaAlg(HashMap<Node, Integer> ret) {
+	public HashMap<Node, Integer> StellaAlg() {
 		// TODO Auto-generated method stub
 		//construct a map for emit throughput for each component
 		
@@ -212,7 +208,7 @@ public class StellaInStrategy extends TopologyHeuristicStrategy {
 		if(total_throughput==0.0){
 			LOG.info("No throughput!");
 			//no analysis
-			return;
+			return null;
 		}
 		for( Map.Entry<String, Double> i : ExpectedEmitRateMap.entrySet()) {
 			Component self=this._globalState.components.get(this._topo.getId()).get(i.getKey());
@@ -227,38 +223,33 @@ public class StellaInStrategy extends TopologyHeuristicStrategy {
 		for (Map.Entry<String, Double> entry : ExpectedEmitRateMap.entrySet()) {
 			Component self=this._globalState.components.get(this._topo.getId()).get(entry.getKey());
 			Double score=RecursiveFind(self,SinkMap,IOMap)*100;
-			LOG.info("sink: {} effective throughput percentage: {}", self.id, score);
+			LOG.info("sink: {} effective throughput percentage: {}", self.id, score.intValue());
 			rankMap.put(self, score.intValue());
 				
 		}
-		
+		HashMap<Node, Integer> ret= new HashMap<Node, Integer>();
 		//adding content to ret2
 		for(Node node:this._globalState.nodes.values()){
 			if(!ret.containsKey(node)){
 				ret.put(node,0);
 			}
-			else{
-				for(ExecutorDetails e:this.NodeExecutorMap.get(node)){
-					int org=ret.get(node);
-					String c_name=this._topo.getExecutorToComponent().get(e);
-					Component self=this._globalState.components.get(this._topo.getId()).get(c_name);
-					ret.put(node, org+rankMap.get(self).intValue());
-				}
+		
+			for(ExecutorDetails e:this.NodeExecutorMap.get(node)){
+				int org=ret.get(node);
+				String c_name=this._topo.getExecutorToComponent().get(e);
+				LOG.info("*****executor: {} maps to component: {}",e,c_name);
+				Component self=this._globalState.components.get(this._topo.getId()).get(c_name);
+				LOG.info("*****component: {} has score: {}", self.id, rankMap.get(self).intValue());
+				ret.put(node, org+rankMap.get(self).intValue());
+			
 			}
+			LOG.info("*****node: {} has final score: {}", node.hostname, ret.get(node));
 		}
 	
 		LOG.info("List of components that need to be parallelized:{}",ret);
-		return;
-	}
-
-	private Integer findTaskSize(Component key) {
-		// TODO Auto-generated method stub
-		Integer ret=0;
-		for(int i=0; i<key.execs.size();i++){
-			ret=ret + key.execs.get(i).getEndTask() - key.execs.get(i).getStartTask()+1;
-		}
 		return ret;
 	}
+
 
 
 	@Override
