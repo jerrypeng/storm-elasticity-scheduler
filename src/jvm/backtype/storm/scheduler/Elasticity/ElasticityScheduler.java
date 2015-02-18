@@ -81,7 +81,7 @@ public class ElasticityScheduler implements IScheduler {
 				Node n = si.StrategyScaleIn();
 				
 				ScaleInTestStrategy strategy = new ScaleInTestStrategy(globalState, stats, topo, cluster, topologies);
-				//strategy.removeNodeByHostname("pc310.emulab.net");
+				//strategy.removeNodeByHostname("pc345.emulab.net");
 				strategy.removeNodeBySupervisorId(n.supervisor_id);
 				Map<WorkerSlot, List<ExecutorDetails>> schedMap = strategy
 						.getNewScheduling();
