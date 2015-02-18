@@ -85,9 +85,11 @@ public class StellaInStrategy extends TopologyHeuristicStrategy {
 		LOG.info("Emit Rate: {}", EmitRateMap);
 		this.ExpectedEmitRateMap.putAll(EmitRateMap);
 		//construct a executors map for all supervisors
+		this.NodeExecutorMap = new HashMap<Node, List<ExecutorDetails>>();
 		
 		for(Node n:this._globalState.nodes.values()){
 			this.NodeExecutorMap.put(n, n.execs);
+			LOG.info("adding node {} with execs {}",n,n.execs); 
 		}
 		
 		
@@ -235,6 +237,7 @@ public class StellaInStrategy extends TopologyHeuristicStrategy {
 				for(ExecutorDetails e:this.NodeExecutorMap.get(node)){
 					int org=ret.get(node);
 					String c_name=this._topo.getExecutorToComponent().get(e);
+					LOG.info("*****executor: {} maps to component: {}",e,c_name);
 					Component self=this._globalState.components.get(this._topo.getId()).get(c_name);
 					LOG.info("*****component: {} has score: {}", self.id, rankMap.get(self).intValue());
 					ret.put(node, org+rankMap.get(self).intValue());
