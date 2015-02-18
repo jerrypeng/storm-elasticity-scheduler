@@ -88,7 +88,7 @@ public class HelperFuncs {
 
 	}
 
-	static void unassignTask(ExecutorDetails exec,
+	public static void unassignTask(ExecutorDetails exec,
 			Map<ExecutorDetails, WorkerSlot> execToSlot) {
 		if (execToSlot.containsKey(exec) == true) {
 			execToSlot.remove(exec);
@@ -96,14 +96,14 @@ public class HelperFuncs {
 
 	}
 
-	static void unassignTasks(List<ExecutorDetails> execs,
+	public static void unassignTasks(List<ExecutorDetails> execs,
 			Map<ExecutorDetails, WorkerSlot> execToSlot) {
 		for (ExecutorDetails exec : execs) {
 			unassignTask(exec, execToSlot);
 		}
 	}
 
-	static List<ExecutorDetails> compToExecs(TopologyDetails topo, String comp) {
+	public static List<ExecutorDetails> compToExecs(TopologyDetails topo, String comp) {
 		List<ExecutorDetails> execs = new ArrayList<ExecutorDetails>();
 		for (Map.Entry<ExecutorDetails, String> entry : topo
 				.getExecutorToComponent().entrySet()) {
@@ -114,7 +114,7 @@ public class HelperFuncs {
 		return execs;
 	}
 
-	static HashMap<String, ArrayList<ExecutorDetails>> nodeToTask(
+	public static HashMap<String, ArrayList<ExecutorDetails>> nodeToTask(
 			Cluster cluster, String topoId) {
 		HashMap<String, ArrayList<ExecutorDetails>> retMap = new HashMap<String, ArrayList<ExecutorDetails>>();
 		if (cluster.getAssignmentById(topoId) != null
@@ -134,7 +134,7 @@ public class HelperFuncs {
 
 	}
 
-	static String getStatus(String topo_id) {
+	public static String getStatus(String topo_id) {
 		TSocket tsocket = new TSocket("localhost", 6627);
 		TFramedTransport tTransport = new TFramedTransport(tsocket);
 		TBinaryProtocol tBinaryProtocol = new TBinaryProtocol(tTransport);
@@ -156,7 +156,7 @@ public class HelperFuncs {
 		return null;
 	}
 
-	static void migrate(TreeMap<ExecutorDetails, Integer> priorityQueue,
+	public static void migrate(TreeMap<ExecutorDetails, Integer> priorityQueue,
 			TopologyDetails topo, Integer THRESHOLD, GlobalState globalState,
 			WorkerSlot target_ws, Cluster cluster, Topologies topologies) {
 		
@@ -232,6 +232,25 @@ public class HelperFuncs {
 		} catch (IOException ex) {
 			LOG.info("error! writin to file {}", ex);
 		}
+	}
+	
+	public static void decreaseParallelism(Map<Component, Integer> compMap, TopologyDetails topo) {
+		String cmd = "/var/storm/storm_0/bin/storm rebalance -w 0 "+topo.getName();
+		for(Entry<Component, Integer> entry : compMap.entrySet()) {
+			Integer parallelism_hint = entry.getKey().execs.size() - entry.getValue();
+			String component_id = entry.getKey().id;
+			LOG.info("Increasing parallelism to {} of component {} in topo {}", new Object[]{parallelism_hint, component_id, topo.getName()});
+			cmd+=" -e "+component_id+"="+parallelism_hint;
+		}
+
+		Process p;
+		try {
+			LOG.info("cmd: {}", cmd);
+			p = Runtime.getRuntime().exec(cmd);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 	}
 	
 	public static void changeParallelism2(Map<Component, Integer> compMap, TopologyDetails topo) {
