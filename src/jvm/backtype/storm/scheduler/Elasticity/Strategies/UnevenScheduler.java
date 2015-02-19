@@ -49,7 +49,7 @@ public class UnevenScheduler {
 				continue;
 			}
 			Integer distribution = unassigned.size()
-					/ this._globalState.nodes.size();
+					/ this._globalState.nodes.size() + 1;
 			ArrayList<Node> nodes = new ArrayList<Node>(
 					this._globalState.nodes.values());
 			Map<WorkerSlot, ArrayList<ExecutorDetails>> schedMap = new HashMap<WorkerSlot, ArrayList<ExecutorDetails>>();
