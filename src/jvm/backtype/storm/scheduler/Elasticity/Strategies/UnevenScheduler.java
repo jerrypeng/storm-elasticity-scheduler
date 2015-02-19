@@ -45,14 +45,24 @@ public class UnevenScheduler {
 					.get(topo.getId());
 			ArrayList<ExecutorDetails> unassigned = new ArrayList<ExecutorDetails>(
 					this._cluster.getUnassignedExecutors(topo));
+			
 			if (unassigned.size() == 0) {
 				continue;
 			}
+			
 			Integer distribution = (int)Math.ceil((double) unassigned.size()
 					/ (double) this._globalState.nodes.size());
 			//distribution = Math.ceil(distribution);
 			ArrayList<Node> nodes = new ArrayList<Node>(
 					this._globalState.nodes.values());
+			ArrayList<WorkerSlot> slots = new ArrayList<WorkerSlot>();
+			for(Node n : nodes) {
+				WorkerSlot ws = this.findEmptySlot(n);
+				if(ws != null){
+					slots.add(ws);
+				}
+			}
+			
 			Map<WorkerSlot, ArrayList<ExecutorDetails>> schedMap = new HashMap<WorkerSlot, ArrayList<ExecutorDetails>>();
 			int i = 0;
 			int j = 0;
@@ -60,11 +70,12 @@ public class UnevenScheduler {
 				if (j >= unassigned.size()) {
 					break;
 				}
-				if (i >= nodes.size()) {
+				if (i >= slots.size()) {
 					i = 0;
 				}
 
-				WorkerSlot ws = this.findBestSlot2(nodes.get(i));
+				//WorkerSlot ws = this.findBestSlot2(nodes.get(i));
+				WorkerSlot ws = slots.get(i);
 				if (schedMap.containsKey(ws) == false) {
 					schedMap.put(ws, new ArrayList<ExecutorDetails>());
 				}
@@ -79,6 +90,10 @@ public class UnevenScheduler {
 				//this._cluster.freeSlots(schedMap.keySet());
 				for (Entry<WorkerSlot, ArrayList<ExecutorDetails>> sched : schedMap
 						.entrySet()) {
+					
+					if(this._cluster.isSlotOccupied(sched.getKey())==true){
+						
+					}
 				
 					this._cluster.assign(sched.getKey(),
 							topo.getId(), sched.getValue());
@@ -88,6 +103,15 @@ public class UnevenScheduler {
 			}
 
 		}
+	}
+	
+	public WorkerSlot findEmptySlot(Node node) {
+		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : node.slot_to_exec.entrySet()) {
+			if(entry.getValue().size() == 0) {
+				return entry.getKey();
+			}
+		}
+		return null;
 	}
 
 	public WorkerSlot findBestSlot2(Node node) {
