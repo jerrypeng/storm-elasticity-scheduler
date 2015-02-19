@@ -70,7 +70,7 @@ public class UnevenScheduler {
 				schedMap.get(ws).add(unassigned.get(j));
 				j++;
 				if (j % distribution == 0) {
-					j++;
+					i++;
 				}
 			}
 			LOG.info("SchedMap: {}", schedMap);
