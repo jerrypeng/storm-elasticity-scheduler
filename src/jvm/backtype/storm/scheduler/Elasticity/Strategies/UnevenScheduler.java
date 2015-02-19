@@ -26,6 +26,7 @@ public class UnevenScheduler {
 	protected GetStats _getStats;
 	protected Cluster _cluster;
 	protected Topologies _topologies;
+	
 
 	public UnevenScheduler(GlobalState globalState, GetStats getStats,
 			Cluster cluster, Topologies topologies) {
@@ -52,6 +53,7 @@ public class UnevenScheduler {
 			
 			Integer distribution = (int)Math.ceil((double) unassigned.size()
 					/ (double) this._globalState.nodes.size());
+			LOG.info("distribution: {}", distribution);
 			//distribution = Math.ceil(distribution);
 			ArrayList<Node> nodes = new ArrayList<Node>(
 					this._globalState.nodes.values());
@@ -62,29 +64,35 @@ public class UnevenScheduler {
 					slots.add(ws);
 				}
 			}
+			Map<String, ArrayList<ExecutorDetails>> compToExec = new HashMap<String, ArrayList<ExecutorDetails>>();
+			for(ExecutorDetails exec: unassigned) {
+				String comp = topo.getExecutorToComponent().get(exec);
+				if(compToExec.containsKey(comp) == false) {
+					compToExec.put(comp, new ArrayList<ExecutorDetails>());
+				}
+				compToExec.get(comp).add(exec);
+			}
 			
 			Map<WorkerSlot, ArrayList<ExecutorDetails>> schedMap = new HashMap<WorkerSlot, ArrayList<ExecutorDetails>>();
 			int i = 0;
-			int j = 0;
-			while (true) {
-				if (j >= unassigned.size()) {
-					break;
-				}
-				if (i >= slots.size()) {
-					i = 0;
-				}
+			for(Entry<String, ArrayList<ExecutorDetails>> entry : compToExec.entrySet()) {
+				for(ExecutorDetails exec : entry.getValue()) {
+					if (i >= slots.size()) {
+						i = 0;
+					}
 
-				//WorkerSlot ws = this.findBestSlot2(nodes.get(i));
-				WorkerSlot ws = slots.get(i);
-				if (schedMap.containsKey(ws) == false) {
-					schedMap.put(ws, new ArrayList<ExecutorDetails>());
-				}
-				schedMap.get(ws).add(unassigned.get(j));
-				j++;
-				if (j % distribution == 0) {
-					i++;
+					//WorkerSlot ws = this.findBestSlot2(nodes.get(i));
+					WorkerSlot ws = slots.get(i);
+					if (schedMap.containsKey(ws) == false) {
+						schedMap.put(ws, new ArrayList<ExecutorDetails>());
+					}
+					schedMap.get(ws).add(exec);
+					if (schedMap.get(ws).size() >= distribution) {
+						i++;
+					}
 				}
 			}
+		
 			LOG.info("SchedMap: {}", schedMap);
 			if (schedMap != null) {
 				//this._cluster.freeSlots(schedMap.keySet());

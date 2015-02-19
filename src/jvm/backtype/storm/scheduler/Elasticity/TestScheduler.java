@@ -52,7 +52,7 @@ public class TestScheduler implements IScheduler{
 		 * Get stats
 		 */
 		GetStats stats = GetStats.getInstance("ElasticityScheduler");
-		//stats.getStatistics();
+		stats.getStatistics();
 		//LOG.info(stats.printTransferThroughputHistory());
 		//LOG.info(stats.printEmitThroughputHistory());
 		//LOG.info(stats.printExecuteThroughputHistory());
