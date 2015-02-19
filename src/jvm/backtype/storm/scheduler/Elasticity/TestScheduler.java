@@ -1,6 +1,7 @@
 package backtype.storm.scheduler.Elasticity;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -11,8 +12,11 @@ import backtype.storm.scheduler.ExecutorDetails;
 import backtype.storm.scheduler.IScheduler;
 import backtype.storm.scheduler.Topologies;
 import backtype.storm.scheduler.TopologyDetails;
+import backtype.storm.scheduler.WorkerSlot;
 import backtype.storm.scheduler.Elasticity.MsgServer.MsgServer;
 import backtype.storm.scheduler.Elasticity.Strategies.ScaleInTestStrategy;
+import backtype.storm.scheduler.Elasticity.Strategies.StellaInStrategy;
+import backtype.storm.scheduler.Elasticity.Strategies.UnevenScheduler;
 
 public class TestScheduler implements IScheduler{
 	private static final Logger LOG = LoggerFactory
@@ -67,9 +71,25 @@ public class TestScheduler implements IScheduler{
 			MsgServer.Signal signal = msgServer.getMessage();
 			if (signal == MsgServer.Signal.ScaleIn) {
 				LOG.info("/*** Scaling In ***/");
-				Map<Component, Integer> compMap = new HashMap<Component, Integer>();
-				compMap.put(globalState.components.get(topo.getId()).get("word"), 2);
-				HelperFuncs.decreaseParallelism(compMap, topo);
+				StellaInStrategy si = new StellaInStrategy(globalState, stats, topo, cluster, topologies);
+				Node n = si.StrategyScaleIn();
+				
+				ScaleInTestStrategy strategy = new ScaleInTestStrategy(globalState, stats, topo, cluster, topologies);
+				//strategy.removeNodeByHostname("pc345.emulab.net");
+				strategy.removeNodeBySupervisorId(n.supervisor_id);
+				Map<WorkerSlot, List<ExecutorDetails>> schedMap = strategy
+						.getNewScheduling();
+				LOG.info("SchedMap: {}", schedMap);
+				if (schedMap != null) {
+					cluster.freeSlots(schedMap.keySet());
+					for (Map.Entry<WorkerSlot, List<ExecutorDetails>> sched : schedMap
+							.entrySet()) {
+						cluster.assign(sched.getKey(),
+								topo.getId(), sched.getValue());
+						LOG.info("Assigning {}=>{}",
+								sched.getKey(), sched.getValue());
+					}
+				}
 				
 				globalState.rebalancingState = MsgServer.Signal.ScaleIn;
 			} else {
@@ -82,9 +102,11 @@ public class TestScheduler implements IScheduler{
 					LOG.info("{} -> {}", k.getKey(), k.getValue());
 				}
 
-				LOG.info("running EvenScheduler now...");
-				new backtype.storm.scheduler.EvenScheduler().schedule(
-						topologies, cluster);
+				LOG.info("running UnEvenScheduler now...");
+				//new backtype.storm.scheduler.EvenScheduler().schedule(
+				//		topologies, cluster);
+				UnevenScheduler ns = new UnevenScheduler(globalState, stats, cluster, topologies);
+				ns.schedule();
 
 				globalState.storeState(cluster, topologies);
 				globalState.isBalanced = false;
