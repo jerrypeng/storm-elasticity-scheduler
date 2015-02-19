@@ -48,8 +48,9 @@ public class UnevenScheduler {
 			if (unassigned.size() == 0) {
 				continue;
 			}
-			Integer distribution = unassigned.size()
-					/ this._globalState.nodes.size() + 1;
+			Integer distribution = (int)Math.ceil((double) unassigned.size()
+					/ (double) this._globalState.nodes.size());
+			//distribution = Math.ceil(distribution);
 			ArrayList<Node> nodes = new ArrayList<Node>(
 					this._globalState.nodes.values());
 			Map<WorkerSlot, ArrayList<ExecutorDetails>> schedMap = new HashMap<WorkerSlot, ArrayList<ExecutorDetails>>();
@@ -75,9 +76,10 @@ public class UnevenScheduler {
 			}
 			LOG.info("SchedMap: {}", schedMap);
 			if (schedMap != null) {
-				this._cluster.freeSlots(schedMap.keySet());
+				//this._cluster.freeSlots(schedMap.keySet());
 				for (Entry<WorkerSlot, ArrayList<ExecutorDetails>> sched : schedMap
 						.entrySet()) {
+				
 					this._cluster.assign(sched.getKey(),
 							topo.getId(), sched.getValue());
 					LOG.info("Assigning {}=>{}",
