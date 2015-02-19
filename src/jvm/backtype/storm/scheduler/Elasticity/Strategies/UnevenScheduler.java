@@ -75,6 +75,7 @@ public class UnevenScheduler {
 			}
 			LOG.info("SchedMap: {}", schedMap);
 			if (schedMap != null) {
+				this._cluster.freeSlots(schedMap.keySet());
 				for (Entry<WorkerSlot, ArrayList<ExecutorDetails>> sched : schedMap
 						.entrySet()) {
 					this._cluster.assign(sched.getKey(),
