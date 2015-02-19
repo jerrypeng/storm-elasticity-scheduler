@@ -20,7 +20,7 @@ import backtype.storm.scheduler.Elasticity.Strategies.UnevenScheduler;
 
 public class TestScheduler implements IScheduler{
 	private static final Logger LOG = LoggerFactory
-			.getLogger(ElasticityScheduler.class);
+			.getLogger(TestScheduler.class);
 	@SuppressWarnings("rawtypes")
 	private Map _conf;
 
