@@ -54,9 +54,23 @@ public class UnevenScheduler {
 			Integer distribution = (int)Math.ceil((double) unassigned.size()
 					/ (double) this._globalState.nodes.size());
 			LOG.info("distribution: {}", distribution);
+			Map<String, Integer>countMap = new HashMap<String, Integer> ();
+			
+			
 			//distribution = Math.ceil(distribution);
 			ArrayList<Node> nodes = new ArrayList<Node>(
 					this._globalState.nodes.values());
+			int x = 0;
+			for(int i=0; i< unassigned.size(); i++) {
+				if(x>=nodes.size()) {
+					x=0;
+				}
+				if(countMap.containsKey(nodes.get(x).supervisor_id)==false) {
+					countMap.put(nodes.get(x).supervisor_id, 0);
+				}
+				countMap.put(nodes.get(x).supervisor_id, countMap.get(nodes.get(x).supervisor_id) + 1);
+				x++;
+			}
 			ArrayList<WorkerSlot> slots = new ArrayList<WorkerSlot>();
 			for(Node n : nodes) {
 				WorkerSlot ws = this.findEmptySlot(n);
@@ -87,7 +101,7 @@ public class UnevenScheduler {
 						schedMap.put(ws, new ArrayList<ExecutorDetails>());
 					}
 					schedMap.get(ws).add(exec);
-					if (schedMap.get(ws).size() >= distribution) {
+					if (schedMap.get(ws).size() >= countMap.get(ws.getNodeId())) {
 						i++;
 					}
 				}
