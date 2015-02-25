@@ -77,6 +77,8 @@ public class UnevenScheduler {
 				x++;
 			}
 			
+			LOG.info("nodeCountMap: {}", nodeCountMap);
+			
 			x = 0;
 			for(int i=0; i< numWorkers.intValue(); i++) {
 				if(x>=nodes.size()) {
@@ -90,7 +92,7 @@ public class UnevenScheduler {
 			}
 			
 			ArrayList<WorkerSlot> slots = new ArrayList<WorkerSlot>();
-			
+			LOG.info("nodeWorkerCount: {}", nodeWorkerCount);
 			for(Entry<String, Integer> entry : nodeWorkerCount.entrySet()) {
 				ArrayList<WorkerSlot> ws = this.findEmptySlots(this._globalState.nodes.get(entry.getValue()), entry.getValue());
 				if (ws != null) {
@@ -117,6 +119,8 @@ public class UnevenScheduler {
 				workerCountMap.put(slots.get(x).hashCode(), workerCountMap.get(slots.get(x).hashCode()) + 1);
 				x++;
 			}
+			
+			LOG.info("workerCountMap: {}", workerCountMap);
 			
 			Map<String, ArrayList<ExecutorDetails>> compToExec = new HashMap<String, ArrayList<ExecutorDetails>>();
 			for(ExecutorDetails exec: unassigned) {
