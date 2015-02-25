@@ -114,7 +114,7 @@ public class UnevenScheduler {
 					x=0;
 				}
 				LOG.info("x: {} -- {}", x, slots.get(x));
-				if(workerCountMap.containsKey(slots.get(x).hashCode())==false) {
+				if(workerCountMap.containsKey(slots.get(x))==false) {
 					workerCountMap.put(slots.get(x), 0);
 				}
 				workerCountMap.put(slots.get(x), workerCountMap.get(slots.get(x)) + 1);
