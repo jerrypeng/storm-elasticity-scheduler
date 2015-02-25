@@ -58,7 +58,7 @@ public class UnevenScheduler {
 			Integer distribution = (int)Math.ceil((double) unassigned.size()
 					/ (double) numWorkers.intValue());
 			LOG.info("distribution: {}", distribution);
-			Map<Integer, Integer>workerCountMap = new HashMap<Integer, Integer> ();
+			Map<WorkerSlot, Integer>workerCountMap = new HashMap<WorkerSlot, Integer> ();
 			Map<String, Integer>nodeCountMap = new HashMap<String, Integer> ();
 			Map<String, Integer>nodeWorkerCount = new HashMap<String, Integer>();
 			
@@ -114,9 +114,9 @@ public class UnevenScheduler {
 					x=0;
 				}
 				if(workerCountMap.containsKey(slots.get(x).hashCode())==false) {
-					workerCountMap.put(slots.get(x).hashCode(), 0);
+					workerCountMap.put(slots.get(x), 0);
 				}
-				workerCountMap.put(slots.get(x).hashCode(), workerCountMap.get(slots.get(x).hashCode()) + 1);
+				workerCountMap.put(slots.get(x), workerCountMap.get(slots.get(x)) + 1);
 				x++;
 			}
 			
@@ -145,7 +145,7 @@ public class UnevenScheduler {
 						schedMap.put(ws, new ArrayList<ExecutorDetails>());
 					}
 					schedMap.get(ws).add(exec);
-					if (schedMap.get(ws).size() >= workerCountMap.get(ws.hashCode())) {
+					if (schedMap.get(ws).size() >= workerCountMap.get(ws)) {
 						i++;
 					}
 				}
