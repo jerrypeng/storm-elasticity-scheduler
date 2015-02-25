@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import backtype.storm.Config;
 import backtype.storm.scheduler.Cluster;
 import backtype.storm.scheduler.ExecutorDetails;
 import backtype.storm.scheduler.Topologies;
@@ -51,33 +52,51 @@ public class UnevenScheduler {
 				continue;
 			}
 			
+			Number numWorkers = (Number)topo.getConf().get(Config.TOPOLOGY_WORKERS);
+			LOG.info("Number of workers: {}", numWorkers);
+			
 			Integer distribution = (int)Math.ceil((double) unassigned.size()
-					/ (double) this._globalState.nodes.size());
+					/ (double) numWorkers.intValue());
 			LOG.info("distribution: {}", distribution);
-			Map<String, Integer>countMap = new HashMap<String, Integer> ();
+			Map<Integer, Integer>countMap = new HashMap<Integer, Integer> ();
 			
 			
 			//distribution = Math.ceil(distribution);
 			ArrayList<Node> nodes = new ArrayList<Node>(
 					this._globalState.nodes.values());
+//			int x = 0;
+//			for(int i=0; i< unassigned.size(); i++) {
+//				if(x>=nodes.size()) {
+//					x=0;
+//				}
+//				if(countMap.containsKey(nodes.get(x).supervisor_id)==false) {
+//					countMap.put(nodes.get(x).supervisor_id, 0);
+//				}
+//				countMap.put(nodes.get(x).supervisor_id, countMap.get(nodes.get(x).supervisor_id) + 1);
+//				x++;
+//			}
+			ArrayList<WorkerSlot> slots = new ArrayList<WorkerSlot>();
+			
+			for(Node n : nodes) {
+				for (int i = 0; i < numWorkers.intValue(); i++) {
+					WorkerSlot ws = this.findEmptySlot(n);
+					if (ws != null) {
+						slots.add(ws);
+					}
+				}
+			}
 			int x = 0;
 			for(int i=0; i< unassigned.size(); i++) {
-				if(x>=nodes.size()) {
+				if(x>=slots.size()) {
 					x=0;
 				}
-				if(countMap.containsKey(nodes.get(x).supervisor_id)==false) {
-					countMap.put(nodes.get(x).supervisor_id, 0);
+				if(countMap.containsKey(slots.get(x).hashCode())==false) {
+					countMap.put(slots.get(x).hashCode(), 0);
 				}
-				countMap.put(nodes.get(x).supervisor_id, countMap.get(nodes.get(x).supervisor_id) + 1);
+				countMap.put(slots.get(x).hashCode(), countMap.get(slots.get(x).hashCode()) + 1);
 				x++;
 			}
-			ArrayList<WorkerSlot> slots = new ArrayList<WorkerSlot>();
-			for(Node n : nodes) {
-				WorkerSlot ws = this.findEmptySlot(n);
-				if(ws != null){
-					slots.add(ws);
-				}
-			}
+			
 			Map<String, ArrayList<ExecutorDetails>> compToExec = new HashMap<String, ArrayList<ExecutorDetails>>();
 			for(ExecutorDetails exec: unassigned) {
 				String comp = topo.getExecutorToComponent().get(exec);
@@ -101,7 +120,7 @@ public class UnevenScheduler {
 						schedMap.put(ws, new ArrayList<ExecutorDetails>());
 					}
 					schedMap.get(ws).add(exec);
-					if (schedMap.get(ws).size() >= countMap.get(ws.getNodeId())) {
+					if (schedMap.get(ws).size() >= countMap.get(ws.hashCode())) {
 						i++;
 					}
 				}
