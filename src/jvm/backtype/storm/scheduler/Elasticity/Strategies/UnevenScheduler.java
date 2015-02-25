@@ -94,7 +94,7 @@ public class UnevenScheduler {
 			ArrayList<WorkerSlot> slots = new ArrayList<WorkerSlot>();
 			LOG.info("nodeWorkerCount: {}", nodeWorkerCount);
 			for(Entry<String, Integer> entry : nodeWorkerCount.entrySet()) {
-				ArrayList<WorkerSlot> ws = this.findEmptySlots(this._globalState.nodes.get(entry.getValue()), entry.getValue());
+				ArrayList<WorkerSlot> ws = this.findEmptySlots(this._globalState.nodes.get(entry.getKey()), entry.getValue());
 				if (ws != null) {
 					slots.addAll(ws);
 				}
