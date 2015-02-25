@@ -182,12 +182,16 @@ public class UnevenScheduler {
 	}
 	
 	public ArrayList<WorkerSlot> findEmptySlots(Node node, int num) {
-		List<WorkerSlot> slots = this._cluster.getAvailableSlots();
-		if(slots.size()<num) {
-			LOG.error("Error: not enough free slots!!!!");
-			return null;
+		ArrayList<WorkerSlot> slots = new ArrayList<WorkerSlot>();
+		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : node.slot_to_exec.entrySet()) {
+			if(entry.getValue().size() == 0) {
+				slots.add(entry.getKey());
+			}
+			if(slots.size()>-num) {
+				return slots;
+			}
 		}
-		return new ArrayList<WorkerSlot>(slots.subList(0, num));
+		return null;
 	}
 
 	public WorkerSlot findBestSlot2(Node node) {
