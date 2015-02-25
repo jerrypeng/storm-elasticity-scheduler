@@ -58,42 +58,63 @@ public class UnevenScheduler {
 			Integer distribution = (int)Math.ceil((double) unassigned.size()
 					/ (double) numWorkers.intValue());
 			LOG.info("distribution: {}", distribution);
-			Map<Integer, Integer>countMap = new HashMap<Integer, Integer> ();
-			
+			Map<Integer, Integer>workerCountMap = new HashMap<Integer, Integer> ();
+			Map<String, Integer>nodeCountMap = new HashMap<String, Integer> ();
+			Map<String, Integer>nodeWorkerCount = new HashMap<String, Integer>();
 			
 			//distribution = Math.ceil(distribution);
 			ArrayList<Node> nodes = new ArrayList<Node>(
 					this._globalState.nodes.values());
-//			int x = 0;
-//			for(int i=0; i< unassigned.size(); i++) {
-//				if(x>=nodes.size()) {
-//					x=0;
-//				}
-//				if(countMap.containsKey(nodes.get(x).supervisor_id)==false) {
-//					countMap.put(nodes.get(x).supervisor_id, 0);
-//				}
-//				countMap.put(nodes.get(x).supervisor_id, countMap.get(nodes.get(x).supervisor_id) + 1);
-//				x++;
-//			}
+			int x = 0;
+			for(int i=0; i< unassigned.size(); i++) {
+				if(x>=nodes.size()) {
+					x=0;
+				}
+				if(nodeCountMap.containsKey(nodes.get(x).supervisor_id)==false) {
+					nodeCountMap.put(nodes.get(x).supervisor_id, 0);
+				}
+				nodeCountMap.put(nodes.get(x).supervisor_id, nodeCountMap.get(nodes.get(x).supervisor_id) + 1);
+				x++;
+			}
+			
+			x = 0;
+			for(int i=0; i< numWorkers.intValue(); i++) {
+				if(x>=nodes.size()) {
+					x=0;
+				}
+				if(nodeWorkerCount.containsKey(nodes.get(x).supervisor_id)==false) {
+					nodeWorkerCount.put(nodes.get(x).supervisor_id, 0);
+				}
+				nodeWorkerCount.put(nodes.get(x).supervisor_id, nodeWorkerCount.get(nodes.get(x).supervisor_id) + 1);
+				x++;
+			}
+			
 			ArrayList<WorkerSlot> slots = new ArrayList<WorkerSlot>();
 			
-			for(Node n : nodes) {
-				for (int i = 0; i < numWorkers.intValue(); i++) {
-					WorkerSlot ws = this.findEmptySlot(n);
-					if (ws != null) {
-						slots.add(ws);
-					}
+			for(Entry<String, Integer> entry : nodeWorkerCount.entrySet()) {
+				ArrayList<WorkerSlot> ws = this.findEmptySlots(this._globalState.nodes.get(entry.getValue()), entry.getValue());
+				if (ws != null) {
+					slots.addAll(ws);
 				}
 			}
-			int x = 0;
+			
+//			for(Node n : nodes) {
+//				for (int i = 0; i < numWorkers.intValue(); i++) {
+//					WorkerSlot ws = this.findEmptySlot(n, );
+//					if (ws != null) {
+//						slots.add(ws);
+//					}
+//				}
+//			}
+			x = 0;
 			for(int i=0; i< unassigned.size(); i++) {
 				if(x>=slots.size()) {
 					x=0;
 				}
-				if(countMap.containsKey(slots.get(x).hashCode())==false) {
-					countMap.put(slots.get(x).hashCode(), 0);
+				if(workerCountMap.containsKey(slots.get(x).hashCode())==false) {
+					workerCountMap.put(slots.get(x).hashCode(), 0);
 				}
-				countMap.put(slots.get(x).hashCode(), countMap.get(slots.get(x).hashCode()) + 1);
+				workerCountMap.put(slots.get(x).hashCode(), workerCountMap.get(slots.get(x).hashCode()) + 1);
 				x++;
 			}
 			
@@ -120,7 +141,7 @@ public class UnevenScheduler {
 						schedMap.put(ws, new ArrayList<ExecutorDetails>());
 					}
 					schedMap.get(ws).add(exec);
-					if (schedMap.get(ws).size() >= countMap.get(ws.hashCode())) {
+					if (schedMap.get(ws).size() >= workerCountMap.get(ws.hashCode())) {
 						i++;
 					}
 				}
@@ -153,6 +174,15 @@ public class UnevenScheduler {
 			}
 		}
 		return null;
+	}
+	
+	public ArrayList<WorkerSlot> findEmptySlots(Node node, int num) {
+		List<WorkerSlot> slots = this._cluster.getAvailableSlots();
+		if(slots.size()<num) {
+			LOG.error("Error: not enough free slots!!!!");
+			return null;
+		}
+		return new ArrayList<WorkerSlot>(slots.subList(0, num));
 	}
 
 	public WorkerSlot findBestSlot2(Node node) {
