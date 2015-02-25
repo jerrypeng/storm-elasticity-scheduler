@@ -99,7 +99,7 @@ public class UnevenScheduler {
 					slots.addAll(ws);
 				}
 			}
-			
+			LOG.info("slots: {}",slots);
 //			for(Node n : nodes) {
 //				for (int i = 0; i < numWorkers.intValue(); i++) {
 //					WorkerSlot ws = this.findEmptySlot(n, );
