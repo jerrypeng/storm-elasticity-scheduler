@@ -187,7 +187,7 @@ public class UnevenScheduler {
 			if(entry.getValue().size() == 0) {
 				slots.add(entry.getKey());
 			}
-			if(slots.size()>-num) {
+			if(slots.size()>=num) {
 				return slots;
 			}
 		}
