@@ -277,8 +277,14 @@ public class GetStats {
 						// get throughput
 						Integer transfer_throughput = totalTransferOutput
 								- this.transferStatsTable.get(hash_id);
+						if(transfer_throughput < 0) {
+							transfer_throughput = 0;
+						}
 						Integer emit_throughput = totalEmitOutput
 								- this.emitStatsTable.get(hash_id);
+						if(emit_throughput < 0) {
+							emit_throughput = 0;
+						}
 						Integer execute_throughput = 0;
 						if(this.executeStatsTable.containsKey(hash_id) == true) {
 							 execute_throughput = totalExecuted-this.executeStatsTable.get(hash_id);
@@ -344,7 +350,7 @@ public class GetStats {
 						String data = String.valueOf(unixTime) + ':'
 								+ this.sched_type + ":" + host + ':' + port
 								+ ':' + componentId + ":" + topo.get_id() + ":"
-								+ taskId + "," + transfer_throughput + "\n";
+								+ taskId + ":" + transfer_throughput + ","+emit_throughput+","+execute_throughput+"\n";
 
 						// write log to file
 						HelperFuncs.writeToFile(this.complete_log, data);
