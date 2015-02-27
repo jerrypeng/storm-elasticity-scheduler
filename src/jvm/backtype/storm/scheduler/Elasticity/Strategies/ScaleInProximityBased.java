@@ -56,7 +56,7 @@ public class ScaleInProximityBased {
 	}	
 	public void removeNodeBySupervisorId(String supervisorId) {
 		ArrayList<Node> elgibleNodes = this.getElgibleNodes(supervisorId);
-		
+		LOG.info("ElgibleNodes: {}", elgibleNodes);
 		HashMap<String, ArrayList<ExecutorDetails>>compToExecs = this.getCompToExecs(this._globalState.nodes.get(supervisorId).execs);
 		
 		for(Entry<String, ArrayList<ExecutorDetails>> entry : compToExecs.entrySet()) {
@@ -65,6 +65,10 @@ public class ScaleInProximityBased {
 				Node n = this.getBestNode(comp, exec, elgibleNodes);
 				WorkerSlot target = this.getBestSlot(n);
 				this._globalState.migrateTask(exec, target, this._topo);
+				n.execs.add(exec);
+				n.slot_to_exec.get(target).add(exec);
+				LOG.info("migrating {} to ws {} on node {}", new Object[]{exec, target, n.hostname});
+
 
 			}
 		}
@@ -104,6 +108,7 @@ public class ScaleInProximityBased {
 		for(String comp : neighbors) {
 			Component component = this.getComponent(comp);
 			TreeMap<Node, Double>rankMap = this.getRank(src, component, elgibleNodes);
+			LOG.info("rankMap: {}", rankMap);
 			for(Entry<Node, Double> entry: rankMap.entrySet()) {
 				Node n = entry.getKey();
 				Double val = entry.getValue();
@@ -115,6 +120,7 @@ public class ScaleInProximityBased {
 		TreeMap <String, Double> sortedCompNodeRankMap = new TreeMap<String, Double>(comparator);
 		sortedCompNodeRankMap.putAll(CompNodeRankMap);
 		String supId = sortedCompNodeRankMap.firstKey().split(":")[0];
+		LOG.info("sortedCompNodeRankMap: {}",sortedCompNodeRankMap );
 		return this._globalState.nodes.get(supId);
 			
 		
@@ -125,8 +131,10 @@ public class ScaleInProximityBased {
 		for(Node n : elgibleNodes) {
 			Double srcInstances = this.numOfInstances(src, n).doubleValue();
 			Double destInstances = this.numOfInstances(dest, n).doubleValue();
-			Double ratio = srcInstances/destInstances;
-			results.put(n, ratio);
+			if(destInstances > 0) {
+				Double ratio = srcInstances/destInstances;
+				results.put(n, ratio);
+			}
 		}
 		RankValueComparator comparator = new RankValueComparator(results);
 		TreeMap<Node, Double> ret = new TreeMap<Node, Double>(comparator);
