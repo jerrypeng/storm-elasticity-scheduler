@@ -15,6 +15,7 @@ import backtype.storm.scheduler.Cluster;
 import backtype.storm.scheduler.ExecutorDetails;
 import backtype.storm.scheduler.Topologies;
 import backtype.storm.scheduler.TopologyDetails;
+import backtype.storm.scheduler.WorkerSlot;
 import backtype.storm.scheduler.Elasticity.Component;
 import backtype.storm.scheduler.Elasticity.GetStats;
 import backtype.storm.scheduler.Elasticity.GlobalState;
@@ -40,14 +41,32 @@ public class ScaleInProximityBased {
 				.getLogger(this.getClass());
 		
 	}
+	public Map<WorkerSlot, List<ExecutorDetails>> getNewScheduling()
+	{
+		return this._globalState.schedState.get(this._topo.getId());
+	}
 	
+	public void removeNodeByHostname(String hostname) {
+		for(Node n : this._globalState.nodes.values()) {
+			if(n.hostname.equals(hostname)==true) {
+				LOG.info("Found Hostname: {} with sup id: {}", hostname, n.supervisor_id);
+				this.removeNodeBySupervisorId(n.supervisor_id);
+			}
+		}
+	}	
 	public void removeNodeBySupervisorId(String supervisorId) {
 		ArrayList<Node> elgibleNodes = this.getElgibleNodes(supervisorId);
 		
 		HashMap<String, ArrayList<ExecutorDetails>>compToExecs = this.getCompToExecs(this._globalState.nodes.get(supervisorId).execs);
 		
 		for(Entry<String, ArrayList<ExecutorDetails>> entry : compToExecs.entrySet()) {
-			
+			Component comp = this.getComponent(entry.getKey());
+			for(ExecutorDetails exec : entry.getValue()) {
+				Node n = this.getBestNode(comp, exec, elgibleNodes);
+				WorkerSlot target = this.getBestSlot(n);
+				this._globalState.migrateTask(exec, target, this._topo);
+
+			}
 		}
 		
 		
@@ -56,15 +75,49 @@ public class ScaleInProximityBased {
 		
 		
 	}
+	WorkerSlot getBestSlot(Node n) {
+		
+		Integer leastUsed = Integer.MAX_VALUE;
+		WorkerSlot target = null;
+		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : n.slot_to_exec.entrySet()) {
+			if(entry.getValue().size()>0) {
+				if(target == null) {
+					target = entry.getKey();
+					leastUsed = entry.getValue().size();
+				}
+				if(entry.getValue().size()<leastUsed) {
+					target = entry.getKey();
+					leastUsed = entry.getValue().size();
+				}
+			}
+		}
+		return target;
+		
+	}
 	
 	Node getBestNode(Component src, ExecutorDetails exec, ArrayList<Node> elgibleNodes) {
 		ArrayList<String> neighbors = new ArrayList<String>();
-		HashMap<Component, HashMap<Node, Integer>> rankMap = new HashMap<Component, HashMap<Node, Integer>>();
+		//HashMap<Component, HashMap<Node, Integer>> rankMap = new HashMap<Component, HashMap<Node, Integer>>();
 		neighbors.addAll(src.children);
 		neighbors.addAll(src.parents);
+		HashMap<String, Double> CompNodeRankMap = new HashMap<String, Double>();
 		for(String comp : neighbors) {
 			Component component = this.getComponent(comp);
+			TreeMap<Node, Double>rankMap = this.getRank(src, component, elgibleNodes);
+			for(Entry<Node, Double> entry: rankMap.entrySet()) {
+				Node n = entry.getKey();
+				Double val = entry.getValue();
+				String key = n.supervisor_id+":"+comp;
+				CompNodeRankMap.put(key, val);
+			}
 		}
+		ValueComparator comparator = new ValueComparator(CompNodeRankMap);
+		TreeMap <String, Double> sortedCompNodeRankMap = new TreeMap<String, Double>(comparator);
+		sortedCompNodeRankMap.putAll(CompNodeRankMap);
+		String supId = sortedCompNodeRankMap.firstKey().split(":")[0];
+		return this._globalState.nodes.get(supId);
+			
+		
 	}
 	
 	TreeMap<Node, Double> getRank(Component src, Component dest, ArrayList<Node> elgibleNodes) {
@@ -125,6 +178,22 @@ public class ScaleInProximityBased {
 
 	    // Note: this comparator imposes orderings that are inconsistent with equals.    
 	    public int compare(Node a, Node b) {
+	        if (base.get(a) >= base.get(b)) {
+	            return -1;
+	        } else {
+	            return 1;
+	        } // returning 0 would merge keys
+	    }
+	}
+	class ValueComparator implements Comparator<String> {
+
+	    Map<String, Double> base;
+	    public ValueComparator(Map<String, Double> base) {
+	        this.base = base;
+	    }
+
+	    // Note: this comparator imposes orderings that are inconsistent with equals.    
+	    public int compare(String a, String b) {
 	        if (base.get(a) >= base.get(b)) {
 	            return -1;
 	        } else {
