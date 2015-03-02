@@ -33,7 +33,8 @@ public class Node {
 	
 	@Override
 	public String toString() {
-		return this.hostname+"\n"+"execs: "+this.execs.toString()+"\n"+"slot_to_exec: "+this.slot_to_exec+"\n"+"slots: "+this.slots+"\n";
+		//return this.hostname+"\n"+"execs: "+this.execs.toString()+"\n"+"slot_to_exec: "+this.slot_to_exec+"\n"+"slots: "+this.slots+"\n";
+		return this.hostname;
 	}
 	
 	
