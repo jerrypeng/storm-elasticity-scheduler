@@ -1,5 +1,6 @@
 package backtype.storm.scheduler.Elasticity;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,9 +76,11 @@ public class TestScheduler implements IScheduler{
 				StellaInStrategy si = new StellaInStrategy(globalState, stats, topo, cluster, topologies);
 				Node n = si.StrategyScaleIn();
 				
-				ScaleInProximityBased strategy = new ScaleInProximityBased(globalState, stats, topo, cluster, topologies);
-				//ScaleInTestStrategy strategy = new ScaleInTestStrategy(globalState, stats, topo, cluster, topologies);
-				strategy.removeNodeByHostname("pc494.emulab.net");
+				//ScaleInProximityBased strategy = new ScaleInProximityBased(globalState, stats, topo, cluster, topologies);
+				ScaleInTestStrategy strategy = new ScaleInTestStrategy(globalState, stats, topo, cluster, topologies);
+				ArrayList<String> hosts = new ArrayList<String>();
+				//hosts.add(e)
+				strategy.removeNodesByHostname(hosts);
 				//strategy.removeNodeBySupervisorId(n.supervisor_id);
 				Map<WorkerSlot, List<ExecutorDetails>> schedMap = strategy
 						.getNewScheduling();

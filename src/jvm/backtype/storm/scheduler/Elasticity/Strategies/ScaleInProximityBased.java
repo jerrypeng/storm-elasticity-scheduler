@@ -108,7 +108,7 @@ public class ScaleInProximityBased {
 		for(String comp : neighbors) {
 			Component component = this.getComponent(comp);
 			TreeMap<Node, Double>rankMap = this.getRank(src, component, elgibleNodes);
-			LOG.info("rankMap: {}", rankMap);
+			LOG.info("Comp: {} rankMap: {}", component.id, rankMap);
 			for(Entry<Node, Double> entry: rankMap.entrySet()) {
 				Node n = entry.getKey();
 				Double val = entry.getValue();

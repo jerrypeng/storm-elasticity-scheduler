@@ -53,6 +53,20 @@ public class ScaleInTestStrategy {
 		}
 	}
 	
+	public void removeNodesByHostname(ArrayList<String> hostname) {
+		ArrayList<String> sups = new ArrayList<String>();
+		for(String host : hostname) {
+			for(Node n : this._globalState.nodes.values()) {
+				if(n.hostname.equals(host)==true) {
+					LOG.info("Found Hostname: {} with sup id: {}", hostname, n.supervisor_id);
+					//this.removeNodeBySupervisorId(n.supervisor_id);
+					sups.add(n.supervisor_id);
+				}
+			}
+		}
+		this.removeNodesBySupervisorId(sups);
+	}
+	
 	public void removeNodesBySupervisorId(ArrayList<String> supervisorIds) {
 		
 		//Node node = this._globalState.nodes.get(supervisorId);
