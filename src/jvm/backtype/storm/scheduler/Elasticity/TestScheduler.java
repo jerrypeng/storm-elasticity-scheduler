@@ -76,12 +76,14 @@ public class TestScheduler implements IScheduler{
 				StellaInStrategy si = new StellaInStrategy(globalState, stats, topo, cluster, topologies);
 				Node n = si.StrategyScaleIn();
 				
-				//ScaleInProximityBased strategy = new ScaleInProximityBased(globalState, stats, topo, cluster, topologies);
-				ScaleInTestStrategy strategy = new ScaleInTestStrategy(globalState, stats, topo, cluster, topologies);
+				ScaleInProximityBased strategy = new ScaleInProximityBased(globalState, stats, topo, cluster, topologies);
+				//ScaleInTestStrategy strategy = new ScaleInTestStrategy(globalState, stats, topo, cluster, topologies);
 				ArrayList<String> hosts = new ArrayList<String>();
 				//hosts.add(e)
 				strategy.removeNodesByHostname(hosts);
 				//strategy.removeNodeBySupervisorId(n.supervisor_id);
+				hosts.add("pc437.emulab.net");
+                hosts.add("pc429.emulab.net");
 				Map<WorkerSlot, List<ExecutorDetails>> schedMap = strategy
 						.getNewScheduling();
 				LOG.info("SchedMap: {}", schedMap);

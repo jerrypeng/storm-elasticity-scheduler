@@ -45,6 +45,54 @@ public class ScaleInProximityBased {
 	{
 		return this._globalState.schedState.get(this._topo.getId());
 	}
+	public void removeNodesByHostname(ArrayList<String> hostname) {
+		ArrayList<String> sups = new ArrayList<String>();
+		for(String host : hostname) {
+			for(Node n : this._globalState.nodes.values()) {
+				if(n.hostname.equals(host)==true) {
+					LOG.info("Found Hostname: {} with sup id: {}", hostname, n.supervisor_id);
+					//this.removeNodeBySupervisorId(n.supervisor_id);
+					sups.add(n.supervisor_id);
+				}
+			}
+		}
+		this.removeNodesBySupervisorId(sups);
+	}
+	
+	public void removeNodesBySupervisorId(ArrayList<String> supervisorIds) {
+		ArrayList<Node> removeNodes = new ArrayList<Node>();
+		ArrayList<ExecutorDetails> moveExecutors = new ArrayList<ExecutorDetails>();
+		for(String sup : supervisorIds) {
+			removeNodes.add(this._globalState.nodes.get(sup));
+			moveExecutors.addAll(this._globalState.nodes.get(sup).execs);
+		}
+		
+		ArrayList<Node> elgibleNodes = new ArrayList<Node>();
+		LOG.info("nodes elgible:");
+		for (Node n: this._globalState.nodes.values()) {
+			if(removeNodes.contains(n)==false) {
+				LOG.info("-->{}", n.hostname);
+				elgibleNodes.add(n);
+			}
+		}
+		HashMap<String, ArrayList<ExecutorDetails>>compToExecs = this.getCompToExecs(moveExecutors);
+
+		for(Entry<String, ArrayList<ExecutorDetails>> entry : compToExecs.entrySet()) {
+			Component comp = this.getComponent(entry.getKey());
+			for(ExecutorDetails exec : entry.getValue()) {
+				Node n = this.getBestNode(comp, exec, elgibleNodes);
+				WorkerSlot target = this.getBestSlot(n);
+				this._globalState.migrateTask(exec, target, this._topo);
+				n.execs.add(exec);
+				n.slot_to_exec.get(target).add(exec);
+				LOG.info("migrating {} to ws {} on node {}", new Object[]{exec, target, n.hostname});
+
+
+			}
+		}
+		
+		
+	}
 	
 	public void removeNodeByHostname(String hostname) {
 		for(Node n : this._globalState.nodes.values()) {
