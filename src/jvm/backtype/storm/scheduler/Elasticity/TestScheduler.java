@@ -80,10 +80,11 @@ public class TestScheduler implements IScheduler{
 				//ScaleInTestStrategy strategy = new ScaleInTestStrategy(globalState, stats, topo, cluster, topologies);
 				ArrayList<String> hosts = new ArrayList<String>();
 				//hosts.add(e)
-				strategy.removeNodesByHostname(hosts);
-				//strategy.removeNodeBySupervisorId(n.supervisor_id);
 				hosts.add("pc437.emulab.net");
                 hosts.add("pc429.emulab.net");
+				strategy.removeNodesByHostname(hosts);
+				//strategy.removeNodeBySupervisorId(n.supervisor_id);
+				
 				Map<WorkerSlot, List<ExecutorDetails>> schedMap = strategy
 						.getNewScheduling();
 				LOG.info("SchedMap: {}", schedMap);
