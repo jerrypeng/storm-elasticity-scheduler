@@ -176,12 +176,12 @@ public class ScaleInProximityBased {
 	
 	TreeMap<Node, Double> getRank(Component src, Component dest, ArrayList<Node> elgibleNodes) {
 		HashMap<Node, Double> results = new HashMap<Node, Double>();
-		Integer totalNumOfExecs = this._topo.getExecutors().size();
+		Double totalNumOfExecs = (double) this._topo.getExecutors().size();
 		for(Node n : elgibleNodes) {
 			Double srcInstances = this.numOfInstances(src, n).doubleValue();
 			Double destInstances = this.numOfInstances(dest, n).doubleValue();
 			
-			Double ratio = srcInstances/(destInstances+1) *n.execs.size()/totalNumOfExecs;
+			Double ratio = srcInstances/(destInstances+1) *n.execs.size()/(totalNumOfExecs/elgibleNodes.size());
 			results.put(n, ratio);
 			
 		}
