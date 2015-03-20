@@ -246,7 +246,6 @@ public class StellaInStrategy extends TopologyHeuristicStrategy {
 			LOG.info("*****node: {} has final score: {}", node.hostname, ret.get(node));
 		}
 	
-		LOG.info("List of components that need to be parallelized:{}",ret);
 		return ret;
 	}
 

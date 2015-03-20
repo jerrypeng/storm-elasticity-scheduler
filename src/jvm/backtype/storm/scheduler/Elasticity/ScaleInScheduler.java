@@ -21,9 +21,9 @@ import backtype.storm.scheduler.Elasticity.Strategies.StellaInComplexStrategy.Pl
 import backtype.storm.scheduler.Elasticity.Strategies.StellaInStrategy;
 import backtype.storm.scheduler.Elasticity.Strategies.UnevenScheduler;
 
-public class TestScheduler implements IScheduler{
+public class ScaleInScheduler implements IScheduler{
 	private static final Logger LOG = LoggerFactory
-			.getLogger(TestScheduler.class);
+			.getLogger(ScaleInScheduler.class);
 	@SuppressWarnings("rawtypes")
 	private Map _conf;
 
