@@ -64,21 +64,6 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 		Plan p=new Plan();
 		p=StellaAlg();
 
-		/*HashMap<Node, Integer> NodeMap = new HashMap<Node, Integer>();
-		NodeComparator bvc =  new NodeComparator(NodeMap);
-		TreeMap<Node, Integer> RankedNodeMap = new TreeMap<Node, Integer>(bvc);
-		for(Map.Entry<Node,Integer> e:ret.entrySet() ){
-			NodeMap.put(e.getKey(), e.getValue());
-		}
-		RankedNodeMap.putAll(NodeMap);
-		LOG.info("!--------!");
-		//LOG.info("RankedNodeMap: {}", RankedNodeMap);
-		for(Entry<Node, Integer> entry: RankedNodeMap.entrySet()) {
-			LOG.info(entry.getKey().hostname+"-->"+entry.getValue().toString());
-		}
-		LOG.info("!--------!");
-		
-		return RankedNodeMap.firstKey();*/
 		LOG.info("!--------!");
 		LOG.info("FINAL MAP: {}", p.PlanDetail);
 		LOG.info("!--------!");
@@ -193,12 +178,14 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 		
 		//pick the node for kill off
 		//construct a map for in-out throughput for congested component
+		LOG.info("construct a map for in-out throughput for congested component");
 		ComponentComparatorDouble bvc1 = new ComponentComparatorDouble(this.IOMap);
 		TreeMap<String, Double> IORankMap = new TreeMap<String, Double>(bvc1);
 		for( Map.Entry<String, Double> i : ExpectedExecuteRateMap.entrySet()) {
 			Double out=i.getValue();
 			Double in=0.0;
 			Component self=this._globalState.components.get(this._topo.getId()).get(i.getKey());
+			LOG.info("for component {}:", self.id);
 			if(self.parents.size()!=0){
 				for(String parent: self.parents){
 					in+=ExpectedEmitRateMap.get(parent);
@@ -213,21 +200,7 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 		}
 		IORankMap.putAll(IOMap);
 		LOG.info("overload map", IOMap);	
-		//find all output bolts and their throughput
-		/*Double total_throughput=0.0;
-		for( Map.Entry<String, Double> i : ExpectedEmitRateMap.entrySet()) {
-			Component self=this._globalState.components.get(this._topo.getId()).get(i.getKey());
-			if(self.children.size()==0){
-				LOG.info("the sink {} has throughput {}", i.getKey(), i.getValue());
-				total_throughput+=i.getValue();	
-			}
-		}
-		LOG.info("total throughput: {} ", total_throughput);
-		if(total_throughput==0.0){
-			LOG.info("No throughput!");
-			//no analysis
-			return null;
-		}*/
+		
 		for( Map.Entry<String, Double> i : ExpectedEmitRateMap.entrySet()) {
 			Component self=this._globalState.components.get(this._topo.getId()).get(i.getKey());
 			if(self.children.size()==0){
@@ -244,6 +217,7 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 		Node topNode=null;
 		Double topThroughput=0.0;
 		for(Node node:this._globalState.nodes.values()){
+			LOG.info("for node : {} testing residual throughput", node.hostname);
 			Double throughput_remain=ResidualThroughput(node);
 			if(throughput_remain>topThroughput){
 				topThroughput=throughput_remain;
@@ -262,6 +236,7 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 
 	private Double ResidualThroughput(Node node) {
 		//PlanCollection
+		LOG.info("Starting for node : {} testing residual throughput", node.hostname);
 		HashMap<ExecutorDetails, Node> plan= new HashMap<ExecutorDetails, Node>();
 		Double throughput_remain=0.0;
 		
@@ -270,27 +245,33 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 		//initialize expected plan: node->executor
 		HashMap<Node, List<ExecutorDetails>> ExpectedNodeExecutorMap =new HashMap<Node, List<ExecutorDetails>>();
 		ExpectedNodeExecutorMap.putAll(NodeExecutorMap);
+		LOG.info("node to executor map : {} ", ExpectedNodeExecutorMap);
 		
 		//initialize component executor speed: component->speed
 		HashMap<String, Double> ExpectedExecuteRateMap =new HashMap<String, Double>();
 		ExpectedExecuteRateMap.putAll(ExecuteRateMap);
+		LOG.info("component->speed : {} ", ExpectedExecuteRateMap);
 		
 		//initialize congested component list, copy over the congested Component list
 		//ArrayList<String> ExpectedCongestedComp= new ArrayList<String>(this.CongestedComp);
 		HashMap<String, Double> ExpectedIOMap =new HashMap<String, Double>();
 		ExpectedIOMap.putAll(this.IOMap);
+		LOG.info("congested component->expected throughput : {} ", ExpectedIOMap);
 		
 		//initialize sinkmap
 		HashMap<String, Double> ExpectedSinkMap=new HashMap<String, Double>();
 		ExpectedSinkMap.putAll(this.SinkMap);
+		LOG.info("sink->throughput : {} ", ExpectedSinkMap);
 		
 		//initialize executor executing speed: executor->speed
+		LOG.info("initialize executor executing speed: executor->speed");
 		HashMap<ExecutorDetails, Double> ExecutorExecuteRateMap=new HashMap<ExecutorDetails, Double>();
 		for(ExecutorDetails e: this._topo.getExecutors()){
 			int start_id=e.getStartTask();
 			for(String hash_id:this._getStats.executeStatsTable.keySet()){
 				if(hash_id.split(":")[hash_id.split(":").length-1].equals(start_id)){
 					ExecutorExecuteRateMap.put(e,(double)this._getStats.executeStatsTable.get(hash_id));
+					LOG.info("executor:{} speed: {} ", e,(double)this._getStats.executeStatsTable.get(hash_id) );
 				}
 			}
 			//Double rate=this._getStats.executeStatsTable.
@@ -299,9 +280,11 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 		/****************initial reconstruction**************/
 		
 		//reconstruct execute speed map
+		LOG.info("reconstruct execute speed map");
 		for(ExecutorDetails e:this.NodeExecutorMap.get(node)){
 			Double orig=ExpectedExecuteRateMap.get(getCompByExec(e));
 			ExpectedExecuteRateMap.put(getCompByExec(e), orig-ExecutorExecuteRateMap.get(e));
+			LOG.info("comp:{} new speed: {} ", getCompByExec(e),orig-ExecutorExecuteRateMap.get(e) );
 		}
 		
 		//rewind executor expectedExecutrRateMap
@@ -320,7 +303,9 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 		//for each executor in the node
 		for(ExecutorDetails e:this.NodeExecutorMap.get(node)){
 			//assume moving this executor
+			LOG.info("+++for executor {}", e.getStartTask());
 			Node topNode=chkZeroETP(expectedETPMap,ExpectedNodeExecutorMap);
+			LOG.info("+++topNode {}", topNode.hostname);
 			//for each executor on that node, shrink the execution speed
 			for(ExecutorDetails f:this.NodeExecutorMap.get(topNode)){
 				Double cur=ExecutorExecuteRateMap.get(f);
@@ -333,6 +318,8 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 			Double cur=ExecutorExecuteRateMap.get(e);
 			Double delta=cur-cur*NodeExecutorMap.get(node).size()/(ExpectedNodeExecutorMap.get(topNode).size()+1);
 			Double orig=ExpectedExecuteRateMap.get(getCompByExec(e));
+			LOG.info("+++oldComp {} has speed {}, new speed {}", getCompByExec(e),orig);
+			LOG.info("+++newComp {} has speed {}, new speed {}", getCompByExec(e),orig-delta);
 			ExpectedExecuteRateMap.put(getCompByExec(e), orig-delta);
 			ExecutorExecuteRateMap.put(e, cur-delta);
 			
@@ -355,7 +342,9 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 			//rewind ETP value
 			RewindETP(expectedETPMap, ExpectedIOMap,ExpectedSinkMap, ExpectedExecuteRateMap);
 			
-			throughput_remain+=AllSinkThroughput(ExpectedSinkMap);
+			//throughput_remain+=AllSinkThroughput(ExpectedSinkMap);
+			LOG.info("throughput remain {}", throughput_remain);
+			throughput_remain=AllSinkThroughput(ExpectedSinkMap);
 			plan.put(e, topNode);
 		}
 		this.PlanCollection.put(throughput_remain, plan);
@@ -376,15 +365,18 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 	private void RewindSinkMap(HashMap<String, Double> expectedSinkMap,
 			HashMap<String, Double> expectedExecuteRateMap) {
 		// TODO Auto-generated method stub
+		LOG.info("==RewindSinkMap==" );
 		for(Map.Entry<String, Double> e : expectedSinkMap.entrySet()){
 			expectedSinkMap.put(e.getKey(), expectedExecuteRateMap.get(e.getKey()));
 		}
+		LOG.info("sink map", expectedSinkMap);
 	}
 
 
 	private void RewindIOMap(HashMap<String, Double> expectedIOMap,
 			HashMap<String, Double> expectedExecuteRateMap) {
 		// TODO Auto-generated method stub
+		LOG.info("==RewindIOMap==" );
 		expectedIOMap=new HashMap<String, Double>();
 		for( Map.Entry<String, Double> i : expectedExecuteRateMap.entrySet()) {
 			Double out=i.getValue();
@@ -399,7 +391,7 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 				Double io=in-out;
 				expectedIOMap.put(i.getKey(), io);
 				//this.CongestedComp.add(i.getKey());
-				LOG.info("component: {} IO overflow: {}", i.getKey(), io);
+				//LOG.info("component: {} IO overflow: {}", i.getKey(), io);
 			}	
 		}
 		//expectedIOMap.putAll(IOMap);
@@ -409,6 +401,7 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 
 	private void RewindETP( HashMap<String, Double> expectedETPMap,HashMap<String, Double> expectedExecuteRateMap, HashMap<String, Double> expectedIOMap, HashMap<String, Double> SinkMap) {
 		//compute sink total
+		LOG.info("==RewindETP==" );
 		Double sink_total=0.0;
 		for (Map.Entry<String, Double> entry : ExpectedEmitRateMap.entrySet()) {
 			if(SinkMap.get(entry.getKey())!=null){
@@ -421,11 +414,13 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 			LOG.info("sink: {} effective throughput percentage: {}", self.id, score.intValue());
 			expectedETPMap.put(self.id, score/sink_total);
 		}
+		LOG.info("expectedETP map: {}", expectedETPMap);
 	}
 
 
 	private void UpdateExecuteRate(HashMap<String, Double> expectedExecuteRateMap,List<String> sourceList) {
 		// for each source in the topology
+		LOG.info("==Update  expectedExecuteRateMap==" );
 		for(String source_id:sourceList){
 			//check whether there is an overflow
 			Component source=this._globalState.components.get(this._topo.getId()).get(source_id);
@@ -442,18 +437,19 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 			}
 			UpdateExecuteRate(expectedExecuteRateMap, source.children);
 		}
-		
+		LOG.info("Execute rate map: {}", expectedExecuteRateMap);
 	}
 
 
 	private Node chkZeroETP(HashMap<String, Double> ETPMap, HashMap<Node, List<ExecutorDetails>> expectedNodeExecutorMap) {
 		// TODO Auto-generated method stub
+		LOG.info("==check the number of ETP zero executors==" );
 		Node top=null;
 		int best_count=0;
 		Double least_score=0.0;
 
 		for(Node n:expectedNodeExecutorMap.keySet()){
-			
+			LOG.info("==checking node {}==", n.hostname );
 			Double node_ETP=0.0;
 			int zero_count=0;
 			for(ExecutorDetails e:expectedNodeExecutorMap.get(n)){
@@ -479,7 +475,9 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 					best_count=zero_count;
 				}
 			}
+			LOG.info("==node {} has zero count {}==", n.hostname, zero_count );
 		}
+		LOG.info("==best node {} with count {}==", top.hostname, best_count );
 		return top;
 	}
 
