@@ -14,6 +14,7 @@ import backtype.storm.scheduler.Topologies;
 import backtype.storm.scheduler.TopologyDetails;
 import backtype.storm.scheduler.WorkerSlot;
 import backtype.storm.scheduler.Elasticity.MsgServer.MsgServer;
+import backtype.storm.scheduler.Elasticity.Strategies.ScaleInComplex;
 import backtype.storm.scheduler.Elasticity.Strategies.ScaleInProximityBased;
 import backtype.storm.scheduler.Elasticity.Strategies.ScaleInTestStrategy;
 import backtype.storm.scheduler.Elasticity.Strategies.StellaInComplexStrategy;
@@ -78,12 +79,12 @@ public class TestScheduler implements IScheduler{
 				//Node n = si.StrategyScaleIn();
 				Plan p=si.StrategyScaleIn();
 				//ScaleInProximityBased strategy = new ScaleInProximityBased(globalState, stats, topo, cluster, topologies);
-				ScaleInTestStrategy strategy = new ScaleInTestStrategy(globalState, stats, topo, cluster, topologies);
+				ScaleInComplex strategy = new ScaleInComplex(globalState, stats, topo, cluster, topologies);
 				//strategy.removeNodeByHostname("pc494.emulab.net");
 				//remove
-				strategy.removeNodeBySupervisorId(p.target.supervisor_id);
-				Map<WorkerSlot, List<ExecutorDetails>> schedMap = strategy
-						.getNewScheduling();
+				strategy.removeNodeBySupervisorId(p.target.supervisor_id,p.PlanDetail);
+				Map<WorkerSlot, List<ExecutorDetails>> schedMap = strategy.getNewScheduling();
+				
 				LOG.info("SchedMap: {}", schedMap);
 				if (schedMap != null) {
 					cluster.freeSlots(schedMap.keySet());

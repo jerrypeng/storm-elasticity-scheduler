@@ -20,6 +20,7 @@ import backtype.storm.scheduler.WorkerSlot;
 import backtype.storm.scheduler.Elasticity.GetStats.ComponentStats;
 import backtype.storm.scheduler.Elasticity.MsgServer.MsgServer;
 import backtype.storm.scheduler.Elasticity.Strategies.*;
+import backtype.storm.scheduler.Elasticity.Strategies.StellaInComplexStrategy.Plan;
 
 public class ElasticityScheduler implements IScheduler {
 	private static final Logger LOG = LoggerFactory
@@ -77,12 +78,16 @@ public class ElasticityScheduler implements IScheduler {
 				globalState.rebalancingState = MsgServer.Signal.ScaleOut;
 			} else if (signal == MsgServer.Signal.ScaleIn) {
 				LOG.info("/*** Scaling In ***/");
-				StellaInStrategy si = new StellaInStrategy(globalState, stats, topo, cluster, topologies);
+				/*StellaInStrategy si = new StellaInStrategy(globalState, stats, topo, cluster, topologies);
 				Node n = si.StrategyScaleIn();
 				
 				ScaleInTestStrategy strategy = new ScaleInTestStrategy(globalState, stats, topo, cluster, topologies);
 				//strategy.removeNodeByHostname("pc345.emulab.net");
-				strategy.removeNodeBySupervisorId(n.supervisor_id);
+				strategy.removeNodeBySupervisorId(n.supervisor_id);*/
+				StellaInComplexStrategy si = new StellaInComplexStrategy(globalState, stats, topo, cluster, topologies);
+				Plan p=si.StrategyScaleIn();
+				ScaleInComplex strategy = new ScaleInComplex(globalState, stats, topo, cluster, topologies);
+				strategy.removeNodeBySupervisorId(p.target.supervisor_id,p.PlanDetail);
 				Map<WorkerSlot, List<ExecutorDetails>> schedMap = strategy
 						.getNewScheduling();
 				LOG.info("SchedMap: {}", schedMap);
