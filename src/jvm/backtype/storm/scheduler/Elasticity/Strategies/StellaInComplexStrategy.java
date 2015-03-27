@@ -278,13 +278,20 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 			Integer start_id=e.getStartTask();
 			String startid_str=start_id.toString();
 			LOG.info("start id : {}", start_id);
-			for(String hash_id:this._getStats.executeStatsTable.keySet()){
+			for(String hash_id:this._getStats.emitRatesTable.keySet()){
 				LOG.info("hash id: {}", hash_id);
 				String[] hashid_arr=hash_id.split(":");
 				LOG.info("last entry: {}", hashid_arr[hashid_arr.length-1]);
 				if(hashid_arr[hashid_arr.length-1].equals(startid_str)){
-					ExecutorExecuteRateMap.put(e,(double)this._getStats.executeStatsTable.get(hash_id));
-					LOG.info("executor:{} speed: {} ", e,(double)this._getStats.executeStatsTable.get(hash_id) );
+					if(this._getStats.executeRatesTable.containsKey(hash_id)==true){
+						ExecutorExecuteRateMap.put(e,(double)this._getStats.executeRatesTable.get(hash_id));
+						LOG.info("executor:{} speed: {} ", e,(double)this._getStats.executeRatesTable.get(hash_id) );
+					}
+					else{
+						ExecutorExecuteRateMap.put(e,(double)this._getStats.emitRatesTable.get(hash_id));
+						LOG.info("emit:{} speed: {} ", e,(double)this._getStats.emitRatesTable.get(hash_id) );
+					}
+					
 				}
 			}
 			//Double rate=this._getStats.executeStatsTable.
