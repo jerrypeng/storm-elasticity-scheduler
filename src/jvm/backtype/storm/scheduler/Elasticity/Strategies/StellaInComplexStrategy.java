@@ -279,8 +279,10 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 			LOG.info("start id : {}", start_id);
 			for(String hash_id:this._getStats.executeStatsTable.keySet()){
 				LOG.info("hash id: {}", hash_id);
-				LOG.info("hash id split: {}", hash_id.split(":"));
-				if(hash_id.split(":")[hash_id.split(":").length-1].equals(start_id)){
+				String[] hashid_arr=hash_id.split(":");
+				LOG.info("hash id split size: {}", hashid_arr.length);
+				LOG.info("last entry: {}", hashid_arr[hashid_arr.length-1]);
+				if(hashid_arr[hashid_arr.length-1].equals(start_id)){
 					ExecutorExecuteRateMap.put(e,(double)this._getStats.executeStatsTable.get(hash_id));
 					LOG.info("executor:{} speed: {} ", e,(double)this._getStats.executeStatsTable.get(hash_id) );
 				}
