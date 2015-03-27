@@ -283,7 +283,7 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 		LOG.info("reconstruct execute speed map");
 		LOG.info("NodeExecutorMap: {}",this.NodeExecutorMap);
 		LOG.info("List of Execs: {}",this.NodeExecutorMap.get(node));
-		for(ExecutorDetails e:this.NodeExecutorMap.get(node)){
+		for(ExecutorDetails e:this.NodeExecutorMap.get(node)){ 
 			LOG.info("Executor: {}",e); 
 			LOG.info("belongs to component: {}",getCompByExec(e));
 			Double orig=ExpectedExecuteRateMap.get(getCompByExec(e));
