@@ -103,7 +103,14 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 		for( Map.Entry<String, HashMap<String, List<Integer>>> i : this._getStats.executeThroughputHistory.entrySet()) {
 			LOG.info("Topology: {}", i.getKey());
 			for(Map.Entry<String, List<Integer>> k : i.getValue().entrySet()) {
-				this.ExecuteRateMap.put(k.getKey(), HelperFuncs.computeMovAvg(k.getValue()));
+				Component self=this._globalState.components.get(this._topo.getId()).get(k.getKey());
+				if(self.parents.size()==0){
+					this.ExecuteRateMap.put(k.getKey(), this.EmitRateMap.get(k.getKey()));
+				}
+				else{
+					this.ExecuteRateMap.put(k.getKey(), HelperFuncs.computeMovAvg(k.getValue()));
+				}
+				
 			}
 		}
 		LOG.info("Execute Rate: {}", ExecuteRateMap);
