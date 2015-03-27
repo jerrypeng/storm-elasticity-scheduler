@@ -294,7 +294,13 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 		for(ExecutorDetails e:this.NodeExecutorMap.get(node)){ 
 			LOG.info("Executor: {}",e); 
 			LOG.info("belongs to component: {}",getCompByExec(e));
-			Double orig=ExpectedExecuteRateMap.get(getCompByExec(e));
+			LOG.info("ExpectedExecuteRateMap: {}",ExpectedExecuteRateMap);
+			LOG.info("ExpectedExecuteRateMap keyset: {}", ExpectedExecuteRateMap.keySet());
+			String comp=getCompByExec(e);
+			LOG.info("belongs to component: {}",comp);
+			Double orig=ExpectedExecuteRateMap.get(comp);
+			if(orig==null)
+				LOG.info("orig is null");
 			LOG.info("original: ", orig);
 			ExpectedExecuteRateMap.put(getCompByExec(e), orig-ExecutorExecuteRateMap.get(e));
 			LOG.info("comp:{} new speed: {} ", getCompByExec(e),orig-ExecutorExecuteRateMap.get(e) );
@@ -498,7 +504,7 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 	
 
 
-	private String getCompByExec(ExecutorDetails e) {
+	public String getCompByExec(ExecutorDetails e) {
 		// TODO Auto-generated method stub
 		return this._topo.getExecutorToComponent().get(e);
 	}
