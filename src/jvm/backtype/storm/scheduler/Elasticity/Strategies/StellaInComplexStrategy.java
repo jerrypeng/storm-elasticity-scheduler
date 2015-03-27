@@ -274,8 +274,12 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 		LOG.info("initialize executor executing speed: executor->speed");
 		HashMap<ExecutorDetails, Double> ExecutorExecuteRateMap=new HashMap<ExecutorDetails, Double>();
 		for(ExecutorDetails e: this._topo.getExecutors()){
+			LOG.info("for executor e: {}", e);
 			int start_id=e.getStartTask();
+			LOG.info("start id : {}", start_id);
 			for(String hash_id:this._getStats.executeStatsTable.keySet()){
+				LOG.info("hash id: {}", hash_id);
+				LOG.info("hash id split: {}", hash_id.split(":"));
 				if(hash_id.split(":")[hash_id.split(":").length-1].equals(start_id)){
 					ExecutorExecuteRateMap.put(e,(double)this._getStats.executeStatsTable.get(hash_id));
 					LOG.info("executor:{} speed: {} ", e,(double)this._getStats.executeStatsTable.get(hash_id) );
@@ -301,7 +305,7 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 			Double orig=ExpectedExecuteRateMap.get(comp);
 			if(orig==null)
 				LOG.info("orig is null");
-			LOG.info("original: ", orig);
+			LOG.info("original: ");
 			ExpectedExecuteRateMap.put(getCompByExec(e), orig-ExecutorExecuteRateMap.get(e));
 			LOG.info("comp:{} new speed: {} ", getCompByExec(e),orig-ExecutorExecuteRateMap.get(e) );
 		}
