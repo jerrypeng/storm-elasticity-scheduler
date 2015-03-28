@@ -192,7 +192,7 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 			Double out=i.getValue();
 			Double in=0.0;
 			Component self=this._globalState.components.get(this._topo.getId()).get(i.getKey());
-			LOG.info("for component {}:", self.id);
+			LOG.info("for component {}", self.id);
 			if(self.parents.size()!=0){
 				for(String parent: self.parents){
 					in+=ExpectedEmitRateMap.get(parent);
@@ -205,8 +205,8 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 				LOG.info("component: {} IO overflow: {}", i.getKey(), io);
 			}	
 		}
-		IORankMap.putAll(IOMap);
-		LOG.info("overload map", IOMap);	
+		//IORankMap.putAll(this.IOMap);
+		LOG.info("overload map:{}", IOMap);	
 		
 		for( Map.Entry<String, Double> i : ExpectedEmitRateMap.entrySet()) {
 			Component self=this._globalState.components.get(this._topo.getId()).get(i.getKey());
@@ -272,8 +272,8 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 		
 		//initialize executor executing speed: executor->speed
 		LOG.info("initialize executor executing speed: executor->speed");
-		LOG.info("emitRatesTable", this._getStats.emitRatesTable);
-		LOG.info("executeRatesTable", this._getStats.executeRatesTable);
+		LOG.info("emitRatesTable: {}", this._getStats.emitRatesTable);
+		LOG.info("executeRatesTable: {}", this._getStats.executeRatesTable);
 		HashMap<ExecutorDetails, Double> ExecutorExecuteRateMap=new HashMap<ExecutorDetails, Double>();
 		for(ExecutorDetails e: this._topo.getExecutors()){
 			Integer start_id=e.getStartTask();
@@ -288,8 +288,7 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 					else{
 						ExecutorExecuteRateMap.put(e,(double)this._getStats.emitRatesTable.get(hash_id));
 						LOG.info("emit:{} speed: {} ", e,(double)this._getStats.emitRatesTable.get(hash_id) );
-					}
-					
+					}	
 				}
 			}
 			//Double rate=this._getStats.executeStatsTable.
@@ -393,7 +392,7 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 		for(Map.Entry<String, Double> e : expectedSinkMap.entrySet()){
 			expectedSinkMap.put(e.getKey(), expectedExecuteRateMap.get(e.getKey()));
 		}
-		LOG.info("sink map", expectedSinkMap);
+		LOG.info("sink map: {}", expectedSinkMap);
 	}
 
 
@@ -419,15 +418,15 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 			}	
 		}
 		//expectedIOMap.putAll(IOMap);
-		LOG.info("overload map", expectedIOMap);
+		LOG.info("overload map:{}", expectedIOMap);
 	}
 
 
-	private void RewindETP( HashMap<String, Double> expectedETPMap,HashMap<String, Double> expectedExecuteRateMap, HashMap<String, Double> expectedIOMap, HashMap<String, Double> SinkMap) {
+	private void RewindETP( HashMap<String, Double> expectedETPMap,HashMap<String, Double> expectedIOMap,HashMap<String, Double> expectedExecuteRateMap,  HashMap<String, Double> SinkMap) {
 		//compute sink total
 		LOG.info("==RewindETP==" );
 		Double sink_total=0.0;
-		for (Map.Entry<String, Double> entry : ExpectedEmitRateMap.entrySet()) {
+		for (Map.Entry<String, Double> entry : expectedExecuteRateMap.entrySet()) {
 			if(SinkMap.get(entry.getKey())!=null){
 				sink_total+=expectedExecuteRateMap.get(entry.getKey());
 			}
