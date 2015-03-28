@@ -82,8 +82,8 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 		for( Map.Entry<String, HashMap<String, List<Integer>>> i : this._getStats.emitThroughputHistory.entrySet()) {
 			LOG.info("Topology: {}", i.getKey());
 			for(Map.Entry<String, List<Integer>> k : i.getValue().entrySet()) {
-				this.EmitRateMap.put(k.getKey(), HelperFuncs.computeMovAvg(k.getValue()));
-
+				//this.EmitRateMap.put(k.getKey(), HelperFuncs.computeMovAvg(k.getValue()));
+				this.EmitRateMap.put(k.getKey(), (double)this._getStats.componentStats.get(this._topo.getId()).get(k.getValue()).total_emit_throughput);
 			}
 		}
 		LOG.info("Emit Rate: {}", EmitRateMap);
@@ -108,7 +108,8 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 					this.ExecuteRateMap.put(k.getKey(), this.EmitRateMap.get(k.getKey()));
 				}
 				else{
-					this.ExecuteRateMap.put(k.getKey(), HelperFuncs.computeMovAvg(k.getValue()));
+					//this.ExecuteRateMap.put(k.getKey(), HelperFuncs.computeMovAvg(k.getValue()));
+					this.ExecuteRateMap.put(k.getKey(), (double)this._getStats.componentStats.get(this._topo.getId()).get(k.getValue()).total_execute_throughput);
 				}
 				
 			}
