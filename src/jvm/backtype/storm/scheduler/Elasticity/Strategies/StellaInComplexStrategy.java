@@ -188,7 +188,7 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 		LOG.info("construct a map for in-out throughput for congested component");
 		ComponentComparatorDouble bvc1 = new ComponentComparatorDouble(this.IOMap);
 		TreeMap<String, Double> IORankMap = new TreeMap<String, Double>(bvc1);
-		for( Map.Entry<String, Double> i : ExpectedExecuteRateMap.entrySet()) {
+		for( Map.Entry<String, Double> i : this.EmitRateMap.entrySet()) {
 			Double out=i.getValue();
 			Double in=0.0;
 			Component self=this._globalState.components.get(this._topo.getId()).get(i.getKey());
@@ -272,18 +272,16 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 		
 		//initialize executor executing speed: executor->speed
 		LOG.info("initialize executor executing speed: executor->speed");
+		LOG.info("emitRatesTable", this._getStats.emitRatesTable);
+		LOG.info("executeRatesTable", this._getStats.executeRatesTable);
 		HashMap<ExecutorDetails, Double> ExecutorExecuteRateMap=new HashMap<ExecutorDetails, Double>();
 		for(ExecutorDetails e: this._topo.getExecutors()){
-			LOG.info("for executor e: {}", e);
 			Integer start_id=e.getStartTask();
 			String startid_str=start_id.toString();
-			LOG.info("start id : {}", start_id);
 			for(String hash_id:this._getStats.emitRatesTable.keySet()){
-				LOG.info("hash id: {}", hash_id);
 				String[] hashid_arr=hash_id.split(":");
-				LOG.info("last entry: {}", hashid_arr[hashid_arr.length-1]);
 				if(hashid_arr[hashid_arr.length-1].equals(startid_str)){
-					if(this._getStats.executeRatesTable.containsKey(hash_id)==true){
+					if(this._globalState.components.get(this._topo.getId()).get(getCompByExec(e)).parents.size()!=0){
 						ExecutorExecuteRateMap.put(e,(double)this._getStats.executeRatesTable.get(hash_id));
 						LOG.info("executor:{} speed: {} ", e,(double)this._getStats.executeRatesTable.get(hash_id) );
 					}
@@ -300,21 +298,15 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 		/****************initial reconstruction**************/
 		
 		//reconstruct execute speed map
-		LOG.info("reconstruct execute speed map");
+		
 		LOG.info("NodeExecutorMap: {}",this.NodeExecutorMap);
-		LOG.info("List of Execs: {}",this.NodeExecutorMap.get(node));
 		LOG.info("ExpectedExecuteRateMap: {}",ExpectedExecuteRateMap);
 		for(ExecutorDetails e:this.NodeExecutorMap.get(node)){ 
 			LOG.info("Executor: {}",e); 
-			LOG.info("belongs to component: {}",getCompByExec(e));
-			LOG.info("ExpectedExecuteRateMap: {}",ExpectedExecuteRateMap);
-			LOG.info("ExpectedExecuteRateMap keyset: {}", ExpectedExecuteRateMap.keySet());
 			String comp=getCompByExec(e);
 			LOG.info("belongs to component: {}",comp);
 			Double orig=ExpectedExecuteRateMap.get(comp);
-			if(orig==null)
-				LOG.info("orig is null");
-			LOG.info("original: ");
+			LOG.info("original: {}",orig);
 			ExpectedExecuteRateMap.put(getCompByExec(e), orig-ExecutorExecuteRateMap.get(e));
 			LOG.info("comp:{} new speed: {} ", getCompByExec(e),orig-ExecutorExecuteRateMap.get(e) );
 		}
