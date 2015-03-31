@@ -294,12 +294,13 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 			}
 			//Double rate=this._getStats.executeStatsTable.
 		}
-		
+		HashMap<ExecutorDetails, Double> ExpectedExecutorExecuteRateMap=new HashMap<ExecutorDetails, Double>();
+		ExpectedExecutorExecuteRateMap.putAll(ExecutorExecuteRateMap);
 		/****************initial reconstruction**************/
 		
 		//reconstruct execute speed map
 		
-		LOG.info("NodeExecutorMap: {}",this.NodeExecutorMap);
+		LOG.info("NodeExecutorMap: {}", ExpectedNodeExecutorMap);
 		LOG.info("ExpectedExecuteRateMap: {}",ExpectedExecuteRateMap);
 		for(ExecutorDetails e:this.NodeExecutorMap.get(node)){ 
 			LOG.info("Executor: {}",e); 
@@ -309,6 +310,8 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 			LOG.info("original: {}",orig);
 			ExpectedExecuteRateMap.put(getCompByExec(e), orig-ExecutorExecuteRateMap.get(e));
 			LOG.info("comp:{} new speed: {} ", getCompByExec(e),orig-ExecutorExecuteRateMap.get(e) );
+			ExpectedExecutorExecuteRateMap.put(e, 0.0);
+			ExpectedNodeExecutorMap.put(node, new ArrayList<ExecutorDetails>());
 		}
 		
 		//rewind executor expectedExecutrRateMap
@@ -328,33 +331,34 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 		for(ExecutorDetails e:this.NodeExecutorMap.get(node)){
 			//assume moving this executor
 			LOG.info("+++for executor {}", e.getStartTask());
-			Node topNode=chkZeroETP(expectedETPMap,ExpectedNodeExecutorMap);
+			Node topNode=chkZeroETP(expectedETPMap,ExpectedNodeExecutorMap,node);
 			LOG.info("+++topNode {}", topNode.hostname);
 			//for each executor on that node, shrink the execution speed
 			for(ExecutorDetails f:this.NodeExecutorMap.get(topNode)){
-				Double cur=ExecutorExecuteRateMap.get(f);
+				Double cur=ExpectedExecutorExecuteRateMap.get(f);
 				Double delta=cur/(ExpectedNodeExecutorMap.get(topNode).size()+1);
 				Double orig=ExpectedExecuteRateMap.get(getCompByExec(f));
 				ExpectedExecuteRateMap.put(getCompByExec(f), orig-delta);//update in component map
-				ExecutorExecuteRateMap.put(f, cur-delta);
+				ExpectedExecutorExecuteRateMap.put(f, cur-delta);
 			}
 			//increase throughput for the current executor
-			Double cur=ExecutorExecuteRateMap.get(e);
-			Double delta=cur-cur*NodeExecutorMap.get(node).size()/(ExpectedNodeExecutorMap.get(topNode).size()+1);
+			Double exec_orig=ExecutorExecuteRateMap.get(e);
+			Double delta=exec_orig*NodeExecutorMap.get(node).size()/(ExpectedNodeExecutorMap.get(topNode).size()+1);
 			Double orig=ExpectedExecuteRateMap.get(getCompByExec(e));
 			LOG.info("+++oldComp {} has speed {}, new speed {}", getCompByExec(e),orig);
 			LOG.info("+++newComp {} has speed {}, new speed {}", getCompByExec(e),orig-delta);
-			ExpectedExecuteRateMap.put(getCompByExec(e), orig-delta);
-			ExecutorExecuteRateMap.put(e, cur-delta);
+			ExpectedExecuteRateMap.put(getCompByExec(e), orig+delta);
+			ExpectedExecutorExecuteRateMap.put(e, exec_orig-delta);
+			ExpectedNodeExecutorMap.get(topNode).add(e);
 			
 			//rewind iomap
 			//reconstruct execute speed map
-			for(ExecutorDetails ed:this.NodeExecutorMap.get(node)){
+			/*for(ExecutorDetails ed:this.NodeExecutorMap.get(node)){
 				orig=ExpectedExecuteRateMap.get(getCompByExec(ed));
 				ExpectedExecuteRateMap.put(getCompByExec(ed), orig-ExecutorExecuteRateMap.get(ed));
-			}
+			}*/
 			
-			//rewind executor expectedExecutrRateMap
+			//rewind executor expectedExecuteRateMap
 			UpdateExecuteRate(ExpectedExecuteRateMap,this.sourceList);
 			
 			//rewind congested component
@@ -367,8 +371,9 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 			RewindETP(expectedETPMap, ExpectedIOMap,ExpectedSinkMap, ExpectedExecuteRateMap);
 			
 			//throughput_remain+=AllSinkThroughput(ExpectedSinkMap);
-			LOG.info("throughput remain {}", throughput_remain);
+			
 			throughput_remain=AllSinkThroughput(ExpectedSinkMap);
+			LOG.info("throughput remain {}", throughput_remain);
 			plan.put(e, topNode);
 		}
 		this.PlanCollection.put(throughput_remain, plan);
@@ -465,7 +470,7 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 	}
 
 
-	private Node chkZeroETP(HashMap<String, Double> ETPMap, HashMap<Node, List<ExecutorDetails>> expectedNodeExecutorMap) {
+	private Node chkZeroETP(HashMap<String, Double> ETPMap, HashMap<Node, List<ExecutorDetails>> expectedNodeExecutorMap, Node node) {
 		// TODO Auto-generated method stub
 		LOG.info("==check the number of ETP zero executors==" );
 		Node top=null;
@@ -473,6 +478,9 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 		Double least_score=0.0;
 
 		for(Node n:expectedNodeExecutorMap.keySet()){
+			if(n.hostname.equals(node.hostname)){
+				continue;
+			}
 			LOG.info("==checking node {}==", n.hostname );
 			Double node_ETP=0.0;
 			int zero_count=0;
