@@ -95,7 +95,7 @@ public class ScaleInETPStrategy {
 			
 			this._globalState.migrateTask(exec, targetSlot, this._topo);
 			
-			LOG.info("migrating {} to ws {} on node {} .... i: {} j: {}", new Object[]{exec, targetSlot.getPort(), targetSlot.getNodeId(), i ,j});
+			LOG.info("migrating {} to ws {} on node {} .... i: {} j: {}", new Object[]{exec, targetSlot.getPort(), targetNode.hostname, i ,j});
 			
 			i++;
 			j++;
