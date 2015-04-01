@@ -43,6 +43,26 @@ public class StellaInStrategy extends TopologyHeuristicStrategy {
 		//topo.getExecutorToComponent()
 	}
 
+	public TreeMap<Node, Integer> StrategyScaleInAll() {
+		init();
+		HashMap<Node, Integer> ret=new HashMap<Node, Integer>();
+		ret=StellaAlg();
+		HashMap<Node, Integer> NodeMap = new HashMap<Node, Integer>();
+		NodeComparator bvc =  new NodeComparator(NodeMap);
+		TreeMap<Node, Integer> RankedNodeMap = new TreeMap<Node, Integer>(bvc);
+		for(Map.Entry<Node,Integer> e:ret.entrySet() ){
+			NodeMap.put(e.getKey(), e.getValue());
+		}
+		RankedNodeMap.putAll(NodeMap);
+		LOG.info("!--------!");
+		//LOG.info("RankedNodeMap: {}", RankedNodeMap);
+		for(Entry<Node, Integer> entry: RankedNodeMap.entrySet()) {
+			LOG.info(entry.getKey().hostname+"-->"+entry.getValue().toString());
+		}
+		LOG.info("!--------!");
+		
+		return RankedNodeMap;
+	}
 	
 	public Node StrategyScaleIn() {
 		

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import backtype.storm.scheduler.Topologies;
 import backtype.storm.scheduler.TopologyDetails;
 import backtype.storm.scheduler.WorkerSlot;
 import backtype.storm.scheduler.Elasticity.MsgServer.MsgServer;
+import backtype.storm.scheduler.Elasticity.Strategies.ScaleInETPStrategy;
 import backtype.storm.scheduler.Elasticity.Strategies.ScaleInProximityBased;
 import backtype.storm.scheduler.Elasticity.Strategies.ScaleInTestStrategy;
 import backtype.storm.scheduler.Elasticity.Strategies.StellaInStrategy;
@@ -73,11 +75,17 @@ public class TestScheduler implements IScheduler{
 			MsgServer.Signal signal = msgServer.getMessage();
 			if (signal == MsgServer.Signal.ScaleIn) {
 				LOG.info("/*** Scaling In ***/");
+				//StellaInStrategy si = new StellaInStrategy(globalState, stats, topo, cluster, topologies);
+				//Node n = si.StrategyScaleIn();
 				StellaInStrategy si = new StellaInStrategy(globalState, stats, topo, cluster, topologies);
-				Node n = si.StrategyScaleIn();
+				TreeMap<Node, Integer> rankMap = si.StrategyScaleInAll();
+
 				
-				ScaleInProximityBased strategy = new ScaleInProximityBased(globalState, stats, topo, cluster, topologies);
+				//ScaleInProximityBased strategy = new ScaleInProximityBased(globalState, stats, topo, cluster, topologies);
 				//ScaleInTestStrategy strategy = new ScaleInTestStrategy(globalState, stats, topo, cluster, topologies);
+				//ScaleInTestStrategy strategy = new ScaleInTestStrategy(globalState, stats, topo, cluster, topologies);
+				ScaleInETPStrategy strategy= new ScaleInETPStrategy(globalState, stats, topo, cluster, topologies, rankMap);
+
 				ArrayList<String> hosts = new ArrayList<String>();
 				//hosts.add(e)
 				hosts.add("pc437.emulab.net");
