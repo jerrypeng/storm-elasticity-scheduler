@@ -283,10 +283,16 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 				String[] hashid_arr=hash_id.split(":");
 				if(hashid_arr[hashid_arr.length-1].equals(startid_str)){
 					if(this._globalState.components.get(this._topo.getId()).get(getCompByExec(e)).parents.size()!=0){
+						if(this._getStats.executeRatesTable.get(hash_id)==0){
+							continue;
+						}
 						ExecutorExecuteRateMap.put(e,(double)this._getStats.executeRatesTable.get(hash_id));
 						LOG.info("executor:{} speed: {} ", e,(double)this._getStats.executeRatesTable.get(hash_id) );
 					}
 					else{
+						if(this._getStats.emitRatesTable.get(hash_id)==0){
+							continue;
+						}
 						ExecutorExecuteRateMap.put(e,(double)this._getStats.emitRatesTable.get(hash_id));
 						LOG.info("emit:{} speed: {} ", e,(double)this._getStats.emitRatesTable.get(hash_id) );
 					}	
@@ -428,7 +434,7 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 	}
 
 
-	private void RewindETP( HashMap<String, Double> expectedETPMap,HashMap<String, Double> expectedIOMap,HashMap<String, Double> expectedExecuteRateMap,  HashMap<String, Double> SinkMap) {
+	private void RewindETP( HashMap<String, Double> expectedETPMap,HashMap<String, Double> expectedIOMap, HashMap<String, Double> SinkMap,HashMap<String, Double> expectedExecuteRateMap ) {
 		//compute sink total
 		LOG.info("==RewindETP==" );
 		Double sink_total=0.0;
