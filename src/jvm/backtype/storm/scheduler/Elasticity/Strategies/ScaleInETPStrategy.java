@@ -46,8 +46,18 @@ public class ScaleInETPStrategy {
 				.getLogger(this.getClass());
 		
 	}
+	public Map<WorkerSlot, List<ExecutorDetails>> getNewScheduling()
+	{
+		return this._globalState.schedState.get(this._topo.getId());
+	}
 	
-	public void removeNodesBySupervisorId(ArrayList<String> supervisorIds) {
+	public void removeNodesBySupervisorId(int top) {
+		ArrayList<String> supervisorIds = new ArrayList<String>();
+		for(int i=0; i<this._rankedList.size(); i++) {
+			if(i>top-1) {
+				supervisorIds.add(this._rankedList.get(i).supervisor_id);
+			}
+		}
 		ArrayList<Node> removeNodes = new ArrayList<Node>();
 		ArrayList<ExecutorDetails> moveExecutors = new ArrayList<ExecutorDetails>();
 		for(String sup : supervisorIds) {
@@ -57,7 +67,7 @@ public class ScaleInETPStrategy {
 		
 		ArrayList<Node> elgibleNodes = new ArrayList<Node>();
 		LOG.info("nodes elgible:");
-		for (Node n: this._globalState.nodes.values()) {
+		for (Node n: this._rankedList) {
 			if(removeNodes.contains(n)==false) {
 				LOG.info("-->{}", n.hostname);
 				elgibleNodes.add(n);
@@ -71,14 +81,14 @@ public class ScaleInETPStrategy {
 		while(true) {
 			if(i>=moveExecutors.size()){
 				break;
-			} else if(j>=this._rankedList.size()) {
+			} else if(j>=elgibleNodes.size()) {
 				j=0;
 			}
 			ExecutorDetails exec = moveExecutors.get(i);
 			
 			//WorkerSlot target = this.findBestSlot2(elgibleNodes.get(j));
 			//WorkerSlot target = slots.get(j);
-			Node targetNode = this._rankedList.get(j);
+			Node targetNode = elgibleNodes.get(j);
 			WorkerSlot targetSlot = this.findBestSlot(targetNode);
 			
 			

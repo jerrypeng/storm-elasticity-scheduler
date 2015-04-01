@@ -86,12 +86,12 @@ public class TestScheduler implements IScheduler{
 				//ScaleInTestStrategy strategy = new ScaleInTestStrategy(globalState, stats, topo, cluster, topologies);
 				ScaleInETPStrategy strategy= new ScaleInETPStrategy(globalState, stats, topo, cluster, topologies, rankMap);
 
-				ArrayList<String> hosts = new ArrayList<String>();
+				//ArrayList<String> hosts = new ArrayList<String>();
 				//hosts.add(e)
-				hosts.add("pc437.emulab.net");
-                hosts.add("pc429.emulab.net");
-				strategy.removeNodesByHostname(hosts);
-				//strategy.removeNodeBySupervisorId(n.supervisor_id);
+				//hosts.add("pc437.emulab.net");
+                //hosts.add("pc429.emulab.net");
+				//strategy.removeNodesByHostname(2);
+				strategy.removeNodesBySupervisorId(1);
 				
 				Map<WorkerSlot, List<ExecutorDetails>> schedMap = strategy
 						.getNewScheduling();
