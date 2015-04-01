@@ -100,11 +100,13 @@ public class ScaleInTestStrategy {
 			ExecutorDetails exec = moveExecutors.get(i);
 			
 			//WorkerSlot target = this.findBestSlot2(elgibleNodes.get(j));
-			WorkerSlot target = slots.get(j);
+			Node targetNode = elgibleNodes.get(j);
+			WorkerSlot targetSlot = this.findBestSlot(targetNode);
+			//WorkerSlot target = slots.get(j);
 			
-			this._globalState.migrateTask(exec, target, this._topo);
+			this._globalState.migrateTask(exec, targetSlot, this._topo);
 			
-			LOG.info("migrating {} to ws {} on node {} .... i: {} j: {}", new Object[]{exec, slots.get(j).getNodeId(), target.getPort(), i ,j});
+			LOG.info("migrating {} to ws {} on node {} .... i: {} j: {}", new Object[]{exec, targetSlot, targetNode.hostname, i ,j});
 			
 			i++;
 			j++;
