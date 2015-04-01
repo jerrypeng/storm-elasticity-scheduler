@@ -54,7 +54,7 @@ public class ScaleInETPStrategy {
 	public void removeNodesBySupervisorId(int top) {
 		ArrayList<String> supervisorIds = new ArrayList<String>();
 		for(int i=0; i<this._rankedList.size(); i++) {
-			if(i>top-1) {
+			if(i<=top-1) {
 				supervisorIds.add(this._rankedList.get(i).supervisor_id);
 			}
 		}
