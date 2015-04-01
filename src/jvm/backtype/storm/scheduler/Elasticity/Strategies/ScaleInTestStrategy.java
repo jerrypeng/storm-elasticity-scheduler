@@ -94,7 +94,7 @@ public class ScaleInTestStrategy {
 		while(true) {
 			if(i>=moveExecutors.size()){
 				break;
-			} else if(j>=slots.size()) {
+			} else if(j>=elgibleNodes.size()) {
 				j=0;
 			}
 			ExecutorDetails exec = moveExecutors.get(i);
