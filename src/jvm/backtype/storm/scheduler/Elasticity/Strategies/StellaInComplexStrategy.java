@@ -454,8 +454,16 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 			//check whether there is an overflow
 			Component source=this._globalState.components.get(this._topo.getId()).get(source_id);
 			Double CurrentSelfRate=expectedExecuteRateMap.get(source.id);
-			Double ChildrenRateSum=0.0;
-			for(String c:source.children){
+			Double ParentRateSum=0.0;
+			if(source.parents.size()!=0){
+				for(String c:source.parents){
+					ParentRateSum+=expectedExecuteRateMap.get(c);
+				}
+				if(ParentRateSum<CurrentSelfRate){
+					expectedExecuteRateMap.put(source.id, ParentRateSum);
+				}
+			}
+			/*for(String c:source.children){
 				ChildrenRateSum+=expectedExecuteRateMap.get(c);
 			}
 			if(ChildrenRateSum>CurrentSelfRate){
@@ -463,7 +471,7 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 				for(String c: source.children){
 					expectedExecuteRateMap.put(c,expectedExecuteRateMap.get(c)*CurrentSelfRate/ChildrenRateSum );
 				}	
-			}
+			}*/
 			UpdateExecuteRate(expectedExecuteRateMap, source.children);
 		}
 		LOG.info("Execute rate map: {}", expectedExecuteRateMap);
