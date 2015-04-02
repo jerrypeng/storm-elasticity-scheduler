@@ -113,7 +113,7 @@ public class ScaleInETPStrategy {
 				if(execs.size()<least) {
 					
 					target = entry.getKey();
-					least = entry.getValue().size();
+					least = execs.size();
 				}
 			}
 		}
