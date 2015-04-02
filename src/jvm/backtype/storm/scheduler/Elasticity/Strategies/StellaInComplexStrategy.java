@@ -143,11 +143,14 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 
 	private Double RecursiveFind(Component self, HashMap<String, Double> sinkMap, HashMap<String, Double> iOMap) {
 		LOG.info("checking component: {}", self.id);
+		LOG.info("children size: {}", self.children.size());
 		if(self.children.size()==0){
+			LOG.info("final value: {}", sinkMap.get(self.id));
 			return sinkMap.get(self.id);//this branch leads to a final value with no overflowed node between
 		}
 		Double sum=0.0;
 		for (int i=0; i<self.children.size();i++){
+			LOG.info("children list: {}", self.children);
 			if(iOMap.get(self.children.get(i))!=null){//if child is also overflowed, return 0 on this branch
 				continue;//ignore this branch move forward
 			}
