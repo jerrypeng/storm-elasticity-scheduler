@@ -60,9 +60,16 @@ public class ScaleInETPStrategy {
 		}
 		ArrayList<Node> removeNodes = new ArrayList<Node>();
 		ArrayList<ExecutorDetails> moveExecutors = new ArrayList<ExecutorDetails>();
+		ArrayList<ExecutorDetails> moveSysExecutors = new ArrayList<ExecutorDetails>();
 		for(String sup : supervisorIds) {
 			removeNodes.add(this._globalState.nodes.get(sup));
-			moveExecutors.addAll(this._globalState.nodes.get(sup).execs);
+			for(ExecutorDetails exec : this._globalState.nodes.get(sup).execs) {
+				if(this._topo.getExecutorToComponent().get(exec).matches("(__).*")==false) {
+					moveExecutors.add(exec);
+				} else {
+					moveSysExecutors.add(exec);
+				}
+			}
 		}
 		
 		ArrayList<Node> elgibleNodes = new ArrayList<Node>();
@@ -95,12 +102,43 @@ public class ScaleInETPStrategy {
 			
 			this._globalState.migrateTask(exec, targetSlot, this._topo);
 			
-			LOG.info("migrating {} to ws {} on node {} .... i: {} j: {}", new Object[]{exec, targetSlot.getPort(), targetNode.hostname, i ,j});
+			LOG.info("migrating {}:{} to ws {} on node {} .... i: {} j: {}", new Object[]{this._topo.getExecutorToComponent().get(exec), exec, targetSlot.getPort(), targetNode.hostname, i ,j});
 			
 			i++;
 			j++;
 		}
+		
+		this.scheduleSysTasks(moveSysExecutors, elgibleNodes);
+		
 	}
+	public void scheduleSysTasks(ArrayList<ExecutorDetails> moveSysExecutors, ArrayList<Node> elgibleNodes) {
+		//roundrobin acks tasks
+		int i = 0;
+		int j = 0;
+				while(true) {
+					if(i>=moveSysExecutors.size()){
+						break;
+					} else if(j>=elgibleNodes.size()) {
+						j=0;
+					}
+					ExecutorDetails exec = moveSysExecutors.get(i);
+					
+					//WorkerSlot target = this.findBestSlot2(elgibleNodes.get(j));
+					//WorkerSlot target = slots.get(j);
+					Node targetNode = elgibleNodes.get(j);
+					WorkerSlot targetSlot = this.findBestSlot3(targetNode);
+					
+					
+					
+					this._globalState.migrateTask(exec, targetSlot, this._topo);
+					
+					LOG.info("migrating {}:{} to ws {} on node {} .... i: {} j: {}", new Object[]{this._topo.getExecutorToComponent().get(exec), exec, targetSlot.getPort(), targetNode.hostname, i ,j});
+					
+					i++;
+					j++;
+				}
+	}
+	
 	public WorkerSlot findBestSlot3(Node node) {
 		
 		LOG.info("Node: "+node.hostname);
