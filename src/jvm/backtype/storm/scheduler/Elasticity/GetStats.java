@@ -203,7 +203,7 @@ public class GetStats {
 						.get_executors();
 				// iterate all executors
 				for (ExecutorSummary executorSummary : executorSummaries) {
-					if(executorSummary.get_component_id().matches("(__).*") == false) {
+					if(executorSummary.get_component_id().matches("(__).*") == true) {
 						continue;
 					}
 					// getting general info
