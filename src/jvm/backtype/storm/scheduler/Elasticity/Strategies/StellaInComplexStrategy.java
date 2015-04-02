@@ -142,6 +142,7 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 	}
 
 	private Double RecursiveFind(Component self, HashMap<String, Double> sinkMap, HashMap<String, Double> iOMap) {
+		LOG.info("checking component: {}", self.id);
 		if(self.children.size()==0){
 			return sinkMap.get(self.id);//this branch leads to a final value with no overflowed node between
 		}
@@ -445,8 +446,9 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 		}
 		for (Map.Entry<String, Double> entry : ExpectedEmitRateMap.entrySet()) {
 			Component self=this._globalState.components.get(this._topo.getId()).get(entry.getKey());
+			LOG.info("start checking component {}", self.id);
 			Double score=RecursiveFind(self,expectedIOMap,SinkMap)*100;
-			LOG.info("sink: {} effective throughput percentage: {}", self.id, score.intValue());
+			LOG.info("comp: {} effective throughput percentage: {}", self.id, score.intValue());
 			expectedETPMap.put(self.id, score/sink_total);
 		}
 		LOG.info("expectedETP map: {}", expectedETPMap);
