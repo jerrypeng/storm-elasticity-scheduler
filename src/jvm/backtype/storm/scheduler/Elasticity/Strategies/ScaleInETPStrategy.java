@@ -108,7 +108,7 @@ public class ScaleInETPStrategy {
 		int least = Integer.MAX_VALUE;
 		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : node.slot_to_exec.entrySet()) {
 			List<ExecutorDetails> execs = this._globalState.schedState.get(this._topo.getId()).get(entry.getKey());
-			if(execs.size()>0) {
+			if(execs!=null && execs.size()>0) {
 				LOG.info("-->slots: {} execs {}",entry.getKey().getPort(), execs.size());
 				if(execs.size()<least) {
 					
