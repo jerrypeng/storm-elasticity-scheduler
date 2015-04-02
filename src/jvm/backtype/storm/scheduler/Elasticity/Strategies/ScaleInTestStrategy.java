@@ -101,7 +101,7 @@ public class ScaleInTestStrategy {
 			
 			//WorkerSlot target = this.findBestSlot2(elgibleNodes.get(j));
 			Node targetNode = elgibleNodes.get(j);
-			WorkerSlot targetSlot = this.findBestSlot3(targetNode);
+			WorkerSlot targetSlot = this.findBestSlot2(targetNode);
 			//WorkerSlot target = slots.get(j);
 			
 			this._globalState.migrateTask(exec, targetSlot, this._topo);
