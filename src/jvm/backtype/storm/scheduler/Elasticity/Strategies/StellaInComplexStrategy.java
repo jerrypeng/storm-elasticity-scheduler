@@ -290,14 +290,20 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 				String[] hashid_arr=hash_id.split(":");
 				if(hashid_arr[hashid_arr.length-1].equals(startid_str)){
 					if(this._globalState.components.get(this._topo.getId()).get(getCompByExec(e)).parents.size()!=0){
-						if(this._getStats.executeRatesTable.get(hash_id)==0){
+						/*if(this._getStats.executeRatesTable.get(hash_id)==0){
+							continue;
+						}*/
+						if(ExecutorExecuteRateMap.get(hash_id)!=null&&this._getStats.executeRatesTable.get(hash_id)<ExecutorExecuteRateMap.get(hash_id)){
 							continue;
 						}
 						ExecutorExecuteRateMap.put(e,(double)this._getStats.executeRatesTable.get(hash_id));
 						LOG.info("executor:{} speed: {} ", e,(double)this._getStats.executeRatesTable.get(hash_id) );
 					}
 					else{
-						if(this._getStats.emitRatesTable.get(hash_id)==0){
+						/*if(this._getStats.emitRatesTable.get(hash_id)==0){
+							continue;
+						}*/
+						if(ExecutorExecuteRateMap.get(hash_id)!=null&&this._getStats.emitRatesTable.get(hash_id)<ExecutorExecuteRateMap.get(hash_id)){
 							continue;
 						}
 						ExecutorExecuteRateMap.put(e,(double)this._getStats.emitRatesTable.get(hash_id));
