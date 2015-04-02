@@ -101,7 +101,7 @@ public class ScaleInTestStrategy {
 			
 			//WorkerSlot target = this.findBestSlot2(elgibleNodes.get(j));
 			Node targetNode = elgibleNodes.get(j);
-			WorkerSlot targetSlot = this.findBestSlot(targetNode);
+			WorkerSlot targetSlot = this.findBestSlot3(targetNode);
 			//WorkerSlot target = slots.get(j);
 			
 			this._globalState.migrateTask(exec, targetSlot, this._topo);
@@ -157,6 +157,20 @@ public class ScaleInTestStrategy {
 			}
 		}
 		return slots;
+	}
+	
+	public WorkerSlot findBestSlot3(Node node) {
+		WorkerSlot target =null;
+		int least = Integer.MAX_VALUE;
+		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : node.slot_to_exec.entrySet()) {
+			if(entry.getValue().size()>0) {
+				if(entry.getValue().size()<least) {
+					target = entry.getKey();
+					least = entry.getValue().size();
+				}
+			}
+		}
+		return target;
 	}
 	
 	public WorkerSlot findBestSlot2(Node node) {
