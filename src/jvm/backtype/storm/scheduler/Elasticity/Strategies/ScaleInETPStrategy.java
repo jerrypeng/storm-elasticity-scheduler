@@ -89,7 +89,7 @@ public class ScaleInETPStrategy {
 			//WorkerSlot target = this.findBestSlot2(elgibleNodes.get(j));
 			//WorkerSlot target = slots.get(j);
 			Node targetNode = elgibleNodes.get(j);
-			WorkerSlot targetSlot = this.findBestSlot(targetNode);
+			WorkerSlot targetSlot = this.findBestSlot3(targetNode);
 			
 			
 			
@@ -100,6 +100,19 @@ public class ScaleInETPStrategy {
 			i++;
 			j++;
 		}
+	}
+	public WorkerSlot findBestSlot3(Node node) {
+		WorkerSlot target =null;
+		int least = Integer.MAX_VALUE;
+		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : node.slot_to_exec.entrySet()) {
+			if(entry.getValue().size()>0) {
+				if(entry.getValue().size()<least) {
+					target = entry.getKey();
+					least = entry.getValue().size();
+				}
+			}
+		}
+		return target;
 	}
 	
 	public WorkerSlot findBestSlot(Node node) {
