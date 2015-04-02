@@ -203,6 +203,9 @@ public class GetStats {
 						.get_executors();
 				// iterate all executors
 				for (ExecutorSummary executorSummary : executorSummaries) {
+					if(executorSummary.get_component_id().matches("(__).*") == false) {
+						continue;
+					}
 					// getting general info
 					String host = executorSummary.get_host();
 					String port = String.valueOf(executorSummary.get_port());

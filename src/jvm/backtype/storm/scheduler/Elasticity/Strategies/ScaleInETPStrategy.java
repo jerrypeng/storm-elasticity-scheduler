@@ -102,11 +102,13 @@ public class ScaleInETPStrategy {
 		}
 	}
 	public WorkerSlot findBestSlot3(Node node) {
+		LOG.info("Node: "+node.hostname);
 		WorkerSlot target =null;
 		int least = Integer.MAX_VALUE;
 		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : node.slot_to_exec.entrySet()) {
 			if(entry.getValue().size()>0) {
 				if(entry.getValue().size()<least) {
+					LOG.info("-->slots: {} execs {}",entry.getKey().getPort(), entry.getValue().size());
 					target = entry.getKey();
 					least = entry.getValue().size();
 				}
