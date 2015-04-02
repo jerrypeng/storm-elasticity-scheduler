@@ -447,7 +447,7 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 	}
 
 
-	private void RewindETP( HashMap<String, Double> expectedETPMap,HashMap<String, Double> expectedIOMap, HashMap<String, Double> SinkMap,HashMap<String, Double> expectedExecuteRateMap ) {
+	private void RewindETP( HashMap<String, Double> expectedETPMap,HashMap<String, Double> expectedIOMap, HashMap<String, Double> expectedSinkMap,HashMap<String, Double> expectedExecuteRateMap ) {
 		//compute sink total
 		LOG.info("==RewindETP==" );
 		Double sink_total=0.0;
@@ -459,7 +459,7 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 		for (Map.Entry<String, Double> entry : ExpectedEmitRateMap.entrySet()) {
 			Component self=this._globalState.components.get(this._topo.getId()).get(entry.getKey());
 			LOG.info("start checking component {}", self.id);
-			Double score=RecursiveFind(self,expectedIOMap,SinkMap)*100;
+			Double score=RecursiveFind(self,expectedIOMap,expectedSinkMap)*100;
 			LOG.info("comp: {} effective throughput percentage: {}", self.id, score.intValue());
 			expectedETPMap.put(self.id, score/sink_total);
 		}
