@@ -22,9 +22,9 @@ import backtype.storm.scheduler.Elasticity.Strategies.ScaleInTestStrategy;
 import backtype.storm.scheduler.Elasticity.Strategies.StellaInStrategy;
 import backtype.storm.scheduler.Elasticity.Strategies.UnevenScheduler;
 
-public class TestScheduler implements IScheduler{
+public class ScaleInScheduler implements IScheduler{
 	private static final Logger LOG = LoggerFactory
-			.getLogger(TestScheduler.class);
+			.getLogger(ScaleInScheduler.class);
 	@SuppressWarnings("rawtypes")
 	private Map _conf;
 
@@ -83,15 +83,15 @@ public class TestScheduler implements IScheduler{
 				
 				//ScaleInProximityBased strategy = new ScaleInProximityBased(globalState, stats, topo, cluster, topologies);
 				//ScaleInTestStrategy strategy = new ScaleInTestStrategy(globalState, stats, topo, cluster, topologies);
-				ScaleInTestStrategy strategy = new ScaleInTestStrategy(globalState, stats, topo, cluster, topologies);
-				//ScaleInETPStrategy strategy= new ScaleInETPStrategy(globalState, stats, topo, cluster, topologies, rankMap);
+				//ScaleInTestStrategy strategy = new ScaleInTestStrategy(globalState, stats, topo, cluster, topologies);
+				ScaleInETPStrategy strategy= new ScaleInETPStrategy(globalState, stats, topo, cluster, topologies, rankMap);
 
-				ArrayList<String> hosts = new ArrayList<String>();
+				//ArrayList<String> hosts = new ArrayList<String>();
 				//hosts.add(e)
 				//hosts.add("pc437.emulab.net");
                 //hosts.add("pc429.emulab.net");
-				strategy.removeNodesByHostname(hosts);
-				//strategy.removeNodesBySupervisorId(1);
+				//strategy.removeNodesByHostname(2);
+				strategy.removeNodesBySupervisorId(1);
 				
 				Map<WorkerSlot, List<ExecutorDetails>> schedMap = strategy
 						.getNewScheduling();
