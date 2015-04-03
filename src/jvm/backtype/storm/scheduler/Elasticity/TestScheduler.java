@@ -83,13 +83,13 @@ public class TestScheduler implements IScheduler{
 				
 				//ScaleInProximityBased strategy = new ScaleInProximityBased(globalState, stats, topo, cluster, topologies);
 				//ScaleInTestStrategy strategy = new ScaleInTestStrategy(globalState, stats, topo, cluster, topologies);
-				ScaleInTestStrategy strategy = new ScaleInTestStrategy(globalState, stats, topo, cluster, topologies);
+				ScaleInTestStrategy strategy = new ScaleInTestStrategy(globalState, stats, topo, cluster, topologies, rankMap);
 				//ScaleInETPStrategy strategy= new ScaleInETPStrategy(globalState, stats, topo, cluster, topologies, rankMap);
 
 				ArrayList<String> hosts = new ArrayList<String>();
 				//hosts.add(e)
-				//hosts.add("pc437.emulab.net");
-                //hosts.add("pc429.emulab.net");
+				 hosts.add("pc442.emulab.net");
+                 hosts.add("pc413.emulab.net");
 				strategy.removeNodesByHostname(hosts);
 				//strategy.removeNodesBySupervisorId(1);
 				

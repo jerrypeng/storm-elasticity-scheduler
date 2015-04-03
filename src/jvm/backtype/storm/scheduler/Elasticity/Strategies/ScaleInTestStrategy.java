@@ -3,6 +3,7 @@ package backtype.storm.scheduler.Elasticity.Strategies;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.Map.Entry;
 
 import org.slf4j.Logger;
@@ -26,14 +27,20 @@ public class ScaleInTestStrategy {
 	protected Cluster _cluster;
 	protected Topologies _topologies;
 	protected TopologyDetails _topo;
+	protected TreeMap<Node, Integer> _rankedMap;
+	protected ArrayList<Node> _rankedList = new ArrayList<Node>();
 
 	public ScaleInTestStrategy(GlobalState globalState, GetStats getStats,
-			TopologyDetails topo, Cluster cluster, Topologies topologies) {
+			TopologyDetails topo, Cluster cluster, Topologies topologies, TreeMap<Node, Integer> rankedMap) {
 		this._globalState = globalState;
 		this._getStats = getStats;
 		this._cluster = cluster;
 		this._topologies = topologies;
 		this._topo = topo;
+		this._rankedMap = rankedMap;
+		for(Entry<Node, Integer> entry : rankedMap.entrySet()) {
+			this._rankedList.add(entry.getKey());
+		}
 		this.LOG = LoggerFactory
 				.getLogger(this.getClass());
 		
@@ -64,7 +71,66 @@ public class ScaleInTestStrategy {
 				}
 			}
 		}
-		this.removeNodesBySupervisorId2(sups);
+		this.removeNodesBySupervisorId3(sups);
+	}
+	public void removeNodesBySupervisorId3(ArrayList<String> supervisorIds) {
+//		ArrayList<String> supervisorIds = new ArrayList<String>();
+//		for(int i=0; i<this._rankedList.size(); i++) {
+//			if(i<=top-1) {
+//				supervisorIds.add(this._rankedList.get(i).supervisor_id);
+//			}
+//		}
+		ArrayList<Node> removeNodes = new ArrayList<Node>();
+		ArrayList<ExecutorDetails> moveExecutors = new ArrayList<ExecutorDetails>();
+		ArrayList<ExecutorDetails> moveSysExecutors = new ArrayList<ExecutorDetails>();
+		for(String sup : supervisorIds) {
+			removeNodes.add(this._globalState.nodes.get(sup));
+			for(ExecutorDetails exec : this._globalState.nodes.get(sup).execs) {
+				if(this._topo.getExecutorToComponent().get(exec).matches("(__).*")==false) {
+					moveExecutors.add(exec);
+				} else {
+					moveSysExecutors.add(exec);
+				}
+			}
+		}
+		
+		ArrayList<Node> elgibleNodes = new ArrayList<Node>();
+		LOG.info("nodes elgible:");
+		for (Node n: this._rankedList) {
+			if(removeNodes.contains(n)==false) {
+				LOG.info("-->{}", n.hostname);
+				elgibleNodes.add(n);
+			}
+		}
+		
+		
+		//ArrayList<WorkerSlot> slots = this.findBestSlots(elgibleNodes);
+		int i = 0;
+		int j = 0;
+		while(true) {
+			if(i>=moveExecutors.size()){
+				break;
+			} else if(j>=elgibleNodes.size()) {
+				j=0;
+			}
+			ExecutorDetails exec = moveExecutors.get(i);
+			
+			//WorkerSlot target = this.findBestSlot2(elgibleNodes.get(j));
+			//WorkerSlot target = slots.get(j);
+			Node targetNode = elgibleNodes.get(j);
+			WorkerSlot targetSlot = this.findBestSlot3(targetNode);
+			
+			
+			
+			this._globalState.migrateTask(exec, targetSlot, this._topo);
+			
+			LOG.info("migrating {}:{} to ws {} on node {} .... i: {} j: {}", new Object[]{this._topo.getExecutorToComponent().get(exec), exec, targetSlot.getPort(), targetNode.hostname, i ,j});
+			
+			i++;
+			j++;
+		}
+		
+		this.scheduleSysTasks(moveSysExecutors, elgibleNodes);
 	}
 	
 	public void removeNodesBySupervisorId(ArrayList<String> supervisorIds) {
