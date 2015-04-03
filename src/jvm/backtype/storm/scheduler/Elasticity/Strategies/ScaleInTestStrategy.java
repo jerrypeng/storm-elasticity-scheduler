@@ -160,13 +160,21 @@ public class ScaleInTestStrategy {
 	}
 	
 	public WorkerSlot findBestSlot3(Node node) {
-		WorkerSlot target =null;
+
+		LOG.info("Node: " + node.hostname);
+		WorkerSlot target = null;
 		int least = Integer.MAX_VALUE;
-		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : node.slot_to_exec.entrySet()) {
-			if(entry.getValue().size()>0) {
-				if(entry.getValue().size()<least) {
+		for (Entry<WorkerSlot, List<ExecutorDetails>> entry : node.slot_to_exec
+				.entrySet()) {
+			List<ExecutorDetails> execs = this._globalState.schedState.get(
+					this._topo.getId()).get(entry.getKey());
+			if (execs != null && execs.size() > 0) {
+				LOG.info("-->slots: {} execs {}", entry.getKey().getPort(),
+						execs.size());
+				if (execs.size() < least) {
+
 					target = entry.getKey();
-					least = entry.getValue().size();
+					least = execs.size();
 				}
 			}
 		}
