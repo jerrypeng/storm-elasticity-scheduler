@@ -78,11 +78,13 @@ public class ElasticityScheduler implements IScheduler {
 			} else if (signal == MsgServer.Signal.ScaleIn) {
 				LOG.info("/*** Scaling In ***/");
 				StellaInStrategy si = new StellaInStrategy(globalState, stats, topo, cluster, topologies);
-				Node n = si.StrategyScaleIn();
+				//Node n = si.StrategyScaleIn();
+				TreeMap<Node, Integer> rankMap = si.StrategyScaleInAll();
+
 				
-				ScaleInTestStrategy strategy = new ScaleInTestStrategy(globalState, stats, topo, cluster, topologies);
+				ScaleInTestStrategy strategy = new ScaleInTestStrategy(globalState, stats, topo, cluster, topologies, rankMap);
 				//strategy.removeNodeByHostname("pc345.emulab.net");
-				strategy.removeNodeBySupervisorId(n.supervisor_id);
+				//strategy.removeNodeBySupervisorId(n.supervisor_id);
 				Map<WorkerSlot, List<ExecutorDetails>> schedMap = strategy
 						.getNewScheduling();
 				LOG.info("SchedMap: {}", schedMap);
