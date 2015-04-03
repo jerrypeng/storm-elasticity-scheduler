@@ -113,6 +113,88 @@ public class ScaleInTestStrategy {
 		}
 	}
 	
+public void removeNodesBySupervisorId2(ArrayList<String> supervisorIds) {
+		
+		//Node node = this._globalState.nodes.get(supervisorId);
+		
+	ArrayList<Node> removeNodes = new ArrayList<Node>();
+	ArrayList<ExecutorDetails> moveExecutors = new ArrayList<ExecutorDetails>();
+	ArrayList<ExecutorDetails> moveSysExecutors = new ArrayList<ExecutorDetails>();
+	for(String sup : supervisorIds) {
+		removeNodes.add(this._globalState.nodes.get(sup));
+		for(ExecutorDetails exec : this._globalState.nodes.get(sup).execs) {
+			if(this._topo.getExecutorToComponent().get(exec).matches("(__).*")==false) {
+				moveExecutors.add(exec);
+			} else {
+				moveSysExecutors.add(exec);
+			}
+		}
+	}
+		
+		ArrayList<Node> elgibleNodes = new ArrayList<Node>();
+		LOG.info("nodes elgible:");
+		for (Node n: this._globalState.nodes.values()) {
+			if(removeNodes.contains(n)==false) {
+				LOG.info("-->{}", n.hostname);
+				elgibleNodes.add(n);
+			}
+		}
+		
+		
+		ArrayList<WorkerSlot> slots = this.findBestSlots(elgibleNodes);
+		int i = 0;
+		int j = 0;
+		while(true) {
+			if(i>=moveExecutors.size()){
+				break;
+			} else if(j>=elgibleNodes.size()) {
+				j=0;
+			}
+			ExecutorDetails exec = moveExecutors.get(i);
+			
+			//WorkerSlot target = this.findBestSlot2(elgibleNodes.get(j));
+			Node targetNode = elgibleNodes.get(j);
+			WorkerSlot targetSlot = this.findBestSlot3(targetNode);
+			//WorkerSlot target = slots.get(j);
+			
+			this._globalState.migrateTask(exec, targetSlot, this._topo);
+			
+			LOG.info("migrating {} to ws {} on node {} .... i: {} j: {}", new Object[]{exec, targetSlot, targetNode.hostname, i ,j});
+			
+			i++;
+			j++;
+		}
+		this.scheduleSysTasks(moveSysExecutors, elgibleNodes);
+	}
+
+	public void scheduleSysTasks(ArrayList<ExecutorDetails> moveSysExecutors, ArrayList<Node> elgibleNodes) {
+	//roundrobin acks tasks
+	int i = 0;
+	int j = 0;
+			while(true) {
+				if(i>=moveSysExecutors.size()){
+					break;
+				} else if(j>=elgibleNodes.size()) {
+					j=0;
+				}
+				ExecutorDetails exec = moveSysExecutors.get(i);
+				
+				//WorkerSlot target = this.findBestSlot2(elgibleNodes.get(j));
+				//WorkerSlot target = slots.get(j);
+				Node targetNode = elgibleNodes.get(j);
+				WorkerSlot targetSlot = this.findBestSlot3(targetNode);
+				
+				
+				
+				this._globalState.migrateTask(exec, targetSlot, this._topo);
+				
+				LOG.info("migrating {}:{} to ws {} on node {} .... i: {} j: {}", new Object[]{this._topo.getExecutorToComponent().get(exec), exec, targetSlot.getPort(), targetNode.hostname, i ,j});
+				
+				i++;
+				j++;
+			}
+}
+
 	public void removeNodeBySupervisorId(String supervisorId) {
 		Node node = this._globalState.nodes.get(supervisorId);
 		
