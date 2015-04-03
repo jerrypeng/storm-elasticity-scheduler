@@ -64,7 +64,7 @@ public class ScaleInTestStrategy {
 				}
 			}
 		}
-		this.removeNodesBySupervisorId(sups);
+		this.removeNodesBySupervisorId2(sups);
 	}
 	
 	public void removeNodesBySupervisorId(ArrayList<String> supervisorIds) {
