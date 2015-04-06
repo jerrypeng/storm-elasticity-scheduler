@@ -479,9 +479,7 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 		LOG.info("checking component: {}", self);
 		LOG.info("children size: {}", self.children.size());
 		LOG.info("sink map: {}", ExpectedSinkMap);
-		if(self.children==null){
-			LOG.info("children list empty");
-		}
+
 		if(self.children.size()==0){
 			LOG.info("final value: {}", ExpectedSinkMap.get(self.id));
 			return ExpectedSinkMap.get(self.id);//this branch leads to a final value with no overflowed node between
@@ -494,7 +492,7 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 			}
 			else{
 				Component child=this._globalState.components.get(this._topo.getId()).get(self.children.get(i));//lookup child's component
-				sum+=RecursiveFind(child,ExpectedSinkMap,ExpectediOMap);
+				sum+=RecursiveFind(child,ExpectediOMap,ExpectedSinkMap);
 			}	
 		}
 		return sum;
