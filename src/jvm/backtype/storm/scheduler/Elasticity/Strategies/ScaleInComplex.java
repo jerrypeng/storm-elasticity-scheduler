@@ -73,7 +73,7 @@ public class ScaleInComplex {
 		WorkerSlot target = null;
 		LOG.info("workerslot map: {}",n.slot_to_exec);
 		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : n.slot_to_exec.entrySet()) {
-			if(entry.getValue().size()>0) {
+			//if(entry.getValue().size()>0) {
 				if(target == null) {
 					target = entry.getKey();
 					leastUsed = entry.getValue().size();
@@ -82,7 +82,7 @@ public class ScaleInComplex {
 					target = entry.getKey();
 					leastUsed = entry.getValue().size();
 				}
-			}
+			//}
 		}
 		return target;
 		
