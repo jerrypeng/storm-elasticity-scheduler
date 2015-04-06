@@ -542,7 +542,7 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 							outputcount++;
 						}
 					}
-					if(outputcount!=0){
+					if(outputcount==0){
 						top=n;
 						least_score=node_ETP;
 						best_count=zero_count;
