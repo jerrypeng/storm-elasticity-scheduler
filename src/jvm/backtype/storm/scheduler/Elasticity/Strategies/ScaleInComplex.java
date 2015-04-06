@@ -71,6 +71,7 @@ public class ScaleInComplex {
 		
 		Integer leastUsed = Integer.MAX_VALUE;
 		WorkerSlot target = null;
+		LOG.info("workerslot map: {}",n.slot_to_exec);
 		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : n.slot_to_exec.entrySet()) {
 			if(entry.getValue().size()>0) {
 				if(target == null) {
