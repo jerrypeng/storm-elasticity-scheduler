@@ -50,11 +50,13 @@ public class ScaleInComplex {
 	public void removeNodeBySupervisorId(String supervisorId, HashMap<ExecutorDetails, Node> planDetail) {
 		ArrayList<Node> elgibleNodes = this.getElgibleNodes(supervisorId);
 		LOG.info("ElgibleNodes: {}", elgibleNodes);
-		HashMap<String, ArrayList<ExecutorDetails>>compToExecs = this.getCompToExecs(this._globalState.nodes.get(supervisorId).execs);
-		
-		for(Entry<String, ArrayList<ExecutorDetails>> entry : compToExecs.entrySet()) {
-			Component comp = this.getComponent(entry.getKey());
-			for(ExecutorDetails exec : entry.getValue()) {
+		LOG.info("plan detail", planDetail);
+		//HashMap<String, ArrayList<ExecutorDetails>>compToExecs = this.getCompToExecs(this._globalState.nodes.get(supervisorId).execs);
+		for(ExecutorDetails e:planDetail.keySet()){
+			/*for(Entry<String, ArrayList<ExecutorDetails>> entry : compToExecs.entrySet()) {
+			//Component comp = this.getComponent(entry.getKey());
+			//Component comp = this.getComponent(e);
+			//for(ExecutorDetails exec : entry.getValue()) {
 				Node n = planDetail.get(exec);
 				WorkerSlot target = this.getBestSlot(n);
 				this._globalState.migrateTask(exec, target, this._topo);
@@ -63,7 +65,13 @@ public class ScaleInComplex {
 				LOG.info("migrating {} to ws {} on node {}", new Object[]{exec, target, n.hostname});
 
 
-			}
+			//}*/
+			Node n = planDetail.get(e);
+			WorkerSlot target = this.getBestSlot(n);
+			this._globalState.migrateTask(e, target, this._topo);
+			n.execs.add(e);
+			n.slot_to_exec.get(target).add(e);
+			LOG.info("migrating {} to ws {} on node {}", new Object[]{e, target, n.hostname});
 		}		
 	}
 	
