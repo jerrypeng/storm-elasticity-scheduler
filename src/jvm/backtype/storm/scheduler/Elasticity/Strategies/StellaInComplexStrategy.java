@@ -535,6 +535,19 @@ public class StellaInComplexStrategy extends TopologyHeuristicStrategy {
 					least_score=node_ETP;
 					best_count=zero_count;
 				}
+				else if(node_ETP==least_score){
+					int outputcount=0;
+					for(ExecutorDetails e:expectedNodeExecutorMap.get(n)){
+						if(this._globalState.components.get(this._topo.getId()).get(getCompByExec(e)).children.size()==0){
+							outputcount++;
+						}
+					}
+					if(outputcount!=0){
+						top=n;
+						least_score=node_ETP;
+						best_count=zero_count;
+					}
+				}
 			}
 			LOG.info("==node {} has zero count {}==", n.hostname, zero_count );
 		}
