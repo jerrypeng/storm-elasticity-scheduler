@@ -43,6 +43,26 @@ public class StellaInStrategy extends TopologyHeuristicStrategy {
 		//topo.getExecutorToComponent()
 	}
 
+	public TreeMap<Node, Integer> StrategyScaleInAll() {
+		init();
+		HashMap<Node, Integer> ret=new HashMap<Node, Integer>();
+		ret=StellaAlg();
+		HashMap<Node, Integer> NodeMap = new HashMap<Node, Integer>();
+		NodeComparator bvc =  new NodeComparator(NodeMap);
+		TreeMap<Node, Integer> RankedNodeMap = new TreeMap<Node, Integer>(bvc);
+		for(Map.Entry<Node,Integer> e:ret.entrySet() ){
+			NodeMap.put(e.getKey(), e.getValue());
+		}
+		RankedNodeMap.putAll(NodeMap);
+		LOG.info("!--------!");
+		//LOG.info("RankedNodeMap: {}", RankedNodeMap);
+		for(Entry<Node, Integer> entry: RankedNodeMap.entrySet()) {
+			LOG.info(entry.getKey().hostname+"-->"+entry.getValue().toString());
+		}
+		LOG.info("!--------!");
+		
+		return RankedNodeMap;
+	}
 	
 	public Node StrategyScaleIn() {
 		
@@ -238,6 +258,9 @@ public class StellaInStrategy extends TopologyHeuristicStrategy {
 				int org=ret.get(node);
 				String c_name=this._topo.getExecutorToComponent().get(e);
 				LOG.info("*****executor: {} maps to component: {}",e,c_name);
+				if(c_name.matches("(__).*") == true) {
+					continue;
+				}
 				Component self=this._globalState.components.get(this._topo.getId()).get(c_name);
 				LOG.info("*****component: {} has score: {}", self.id, rankMap.get(self).intValue());
 				ret.put(node, org+rankMap.get(self).intValue());
@@ -246,6 +269,7 @@ public class StellaInStrategy extends TopologyHeuristicStrategy {
 			LOG.info("*****node: {} has final score: {}", node.hostname, ret.get(node));
 		}
 	
+		LOG.info("List of components that need to be parallelized:{}",ret);
 		return ret;
 	}
 

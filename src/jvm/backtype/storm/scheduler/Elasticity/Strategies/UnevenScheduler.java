@@ -3,6 +3,7 @@ package backtype.storm.scheduler.Elasticity.Strategies;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -45,8 +46,16 @@ public class UnevenScheduler {
 
 			Map<String, Component> comps = this._globalState.components
 					.get(topo.getId());
-			ArrayList<ExecutorDetails> unassigned = new ArrayList<ExecutorDetails>(
-					this._cluster.getUnassignedExecutors(topo));
+			
+			ArrayList<ExecutorDetails> unassigned = new ArrayList<ExecutorDetails>();
+			ArrayList<ExecutorDetails> unassignedSysExecs = new ArrayList<ExecutorDetails>();
+			for(ExecutorDetails exec : this._cluster.getUnassignedExecutors(topo)){
+				if(topo.getExecutorToComponent().get(exec).matches("(__).*") == false) {
+					unassigned.add(exec);
+				} else {
+					unassignedSysExecs.add(exec);
+				}
+			}
 			
 			if (unassigned.size() == 0) {
 				continue;
@@ -150,6 +159,17 @@ public class UnevenScheduler {
 						i++;
 					}
 				}
+			}
+			
+			//round robin sys tasks
+			Iterator it = schedMap.entrySet().iterator();
+			for(ExecutorDetails exec : unassignedSysExecs) {
+				if(it.hasNext()==false) {
+					it = schedMap.entrySet().iterator();
+				} 
+				Entry<WorkerSlot, ArrayList<ExecutorDetails>>  pair = (Entry<WorkerSlot, ArrayList<ExecutorDetails>>) it.next();
+				pair.getValue().add(exec);
+				
 			}
 		
 			LOG.info("SchedMap: {}", schedMap);

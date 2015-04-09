@@ -1,8 +1,10 @@
 package backtype.storm.scheduler.Elasticity;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,11 +16,9 @@ import backtype.storm.scheduler.Topologies;
 import backtype.storm.scheduler.TopologyDetails;
 import backtype.storm.scheduler.WorkerSlot;
 import backtype.storm.scheduler.Elasticity.MsgServer.MsgServer;
-import backtype.storm.scheduler.Elasticity.Strategies.ScaleInComplex;
+import backtype.storm.scheduler.Elasticity.Strategies.ScaleInETPStrategy;
 import backtype.storm.scheduler.Elasticity.Strategies.ScaleInProximityBased;
 import backtype.storm.scheduler.Elasticity.Strategies.ScaleInTestStrategy;
-import backtype.storm.scheduler.Elasticity.Strategies.StellaInComplexStrategy;
-import backtype.storm.scheduler.Elasticity.Strategies.StellaInComplexStrategy.Plan;
 import backtype.storm.scheduler.Elasticity.Strategies.StellaInStrategy;
 import backtype.storm.scheduler.Elasticity.Strategies.UnevenScheduler;
 
@@ -75,16 +75,26 @@ public class TestScheduler implements IScheduler{
 			MsgServer.Signal signal = msgServer.getMessage();
 			if (signal == MsgServer.Signal.ScaleIn) {
 				LOG.info("/*** Scaling In ***/");
-				StellaInComplexStrategy si = new StellaInComplexStrategy(globalState, stats, topo, cluster, topologies);
+				//StellaInStrategy si = new StellaInStrategy(globalState, stats, topo, cluster, topologies);
 				//Node n = si.StrategyScaleIn();
-				Plan p=si.StrategyScaleIn();
-				//ScaleInProximityBased strategy = new ScaleInProximityBased(globalState, stats, topo, cluster, topologies);
-				ScaleInComplex strategy = new ScaleInComplex(globalState, stats, topo, cluster, topologies);
-				//strategy.removeNodeByHostname("pc494.emulab.net");
-				//remove
-				strategy.removeNodeBySupervisorId(p.target.supervisor_id,p.PlanDetail);
-				Map<WorkerSlot, List<ExecutorDetails>> schedMap = strategy.getNewScheduling();
+				StellaInStrategy si = new StellaInStrategy(globalState, stats, topo, cluster, topologies);
+				TreeMap<Node, Integer> rankMap = si.StrategyScaleInAll();
+
 				
+				//ScaleInProximityBased strategy = new ScaleInProximityBased(globalState, stats, topo, cluster, topologies);
+				//ScaleInTestStrategy strategy = new ScaleInTestStrategy(globalState, stats, topo, cluster, topologies);
+				ScaleInTestStrategy strategy = new ScaleInTestStrategy(globalState, stats, topo, cluster, topologies, rankMap);
+				//ScaleInETPStrategy strategy= new ScaleInETPStrategy(globalState, stats, topo, cluster, topologies, rankMap);
+
+				ArrayList<String> hosts = new ArrayList<String>();
+				//hosts.add(e)
+				 hosts.add("pc442.emulab.net");
+                 hosts.add("pc413.emulab.net");
+				strategy.removeNodesByHostname(hosts);
+				//strategy.removeNodesBySupervisorId(1);
+				
+				Map<WorkerSlot, List<ExecutorDetails>> schedMap = strategy
+						.getNewScheduling();
 				LOG.info("SchedMap: {}", schedMap);
 				if (schedMap != null) {
 					cluster.freeSlots(schedMap.keySet());
