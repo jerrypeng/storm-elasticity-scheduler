@@ -150,7 +150,7 @@ public class UnevenScheduler2 {
 			}
 			
 			for(Entry<String, ArrayList<ExecutorDetails>> entry : nodeExecs.entrySet()) {
-				LOG.info("n: {}--{}", this._globalState.nodes.get(entry.getValue()).hostname, entry.getValue());
+				LOG.info("n: {}--{}", this._globalState.nodes.get(entry.getKey()).hostname, entry.getValue());
 				String str="";
 				for(ExecutorDetails exec : entry.getValue()) {
 					String comp = topo.getExecutorToComponent().get(exec);
