@@ -67,7 +67,6 @@ public class UnevenScheduler2 {
 			Integer distribution = (int)Math.ceil((double) unassigned.size()
 					/ (double) numWorkers.intValue());
 			LOG.info("distribution: {}", distribution);
-			Map<WorkerSlot, Integer>workerCountMap = new HashMap<WorkerSlot, Integer> ();
 			Map<String, Integer>nodeCountMap = new HashMap<String, Integer> ();
 			Map<String, Integer>nodeWorkerCount = new HashMap<String, Integer>();
 			
@@ -119,20 +118,7 @@ public class UnevenScheduler2 {
 //					}
 //				}
 //			}
-			x = 0;
-			for(int i=0; i< unassigned.size(); i++) {
-				if(x>=slots.size()) {
-					x=0;
-				}
-				LOG.info("x: {} -- {}", x, slots.get(x));
-				if(workerCountMap.containsKey(slots.get(x))==false) {
-					workerCountMap.put(slots.get(x), 0);
-				}
-				workerCountMap.put(slots.get(x), workerCountMap.get(slots.get(x)) + 1);
-				x++;
-			}
-			
-			LOG.info("workerCountMap: {}", workerCountMap);
+		
 			
 			Map<String, ArrayList<ExecutorDetails>> compToExec = new HashMap<String, ArrayList<ExecutorDetails>>();
 			for(ExecutorDetails exec: unassigned) {
@@ -161,6 +147,16 @@ public class UnevenScheduler2 {
 						nodeExecs.get(n.supervisor_id).add((ExecutorDetails)it1.next());
 					}
 				}
+			}
+			
+			for(Entry<String, ArrayList<ExecutorDetails>> entry : nodeExecs.entrySet()) {
+				LOG.info("n: {}--{}", this._globalState.nodes.get(entry.getValue()).hostname, entry.getValue());
+				String str="";
+				for(ExecutorDetails exec : entry.getValue()) {
+					String comp = topo.getExecutorToComponent().get(exec);
+					str+= "{"+exec.toString()+"->"+comp+"} ";
+				}
+				LOG.info("-->{}", str);
 			}
 	
 			
