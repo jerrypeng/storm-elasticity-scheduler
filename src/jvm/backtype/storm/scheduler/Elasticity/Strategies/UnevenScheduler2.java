@@ -150,7 +150,7 @@ public class UnevenScheduler2 {
 			}
 			
 			for(Entry<String, ArrayList<ExecutorDetails>> entry : nodeExecs.entrySet()) {
-				LOG.info("n: {}--{}", this._globalState.nodes.get(entry.getKey()).hostname, entry.getValue());
+				LOG.info("n: {}--{}", this._globalState.nodes.get(entry.getKey()).hostname, entry.getKey());
 				String str="";
 				for(ExecutorDetails exec : entry.getValue()) {
 					String comp = topo.getExecutorToComponent().get(exec);
@@ -159,12 +159,35 @@ public class UnevenScheduler2 {
 				LOG.info("-->{}", str);
 			}
 	
-			
 			Map<WorkerSlot, ArrayList<ExecutorDetails>> schedMap = new HashMap<WorkerSlot, ArrayList<ExecutorDetails>>();
-				
+
+			
+			Map<String, ArrayList<WorkerSlot>> nodeWorker = new HashMap<String, ArrayList<WorkerSlot>>();
+			Iterator it2 = this._globalState.nodes.values().iterator();
+			for(int i=0; i<topo.getNumWorkers();i++) {
+				if(it2.hasNext() == false){
+					it2 = this._globalState.nodes.values().iterator();
+				}
+				Node n = (Node) it2.next();
+				if(nodeWorker.containsKey(n.supervisor_id) ==false){
+					nodeWorker.put(n.supervisor_id, new ArrayList<WorkerSlot>());
+				}
+				List<WorkerSlot> assignable = this._cluster.getAssignableSlots(this._cluster.getSupervisorById(n.supervisor_id));
+				for(WorkerSlot ws : assignable) {
+					if(nodeWorker.get(n.supervisor_id).contains(ws)==false) {
+						nodeWorker.get(n.supervisor_id).add(ws);
+						schedMap.put(ws, new ArrayList<ExecutorDetails>());
+						break;
+					}
+				}
+			}
+			
+			LOG.info("nodeWorker: {}", nodeWorker);
+			
+
 			for(Entry<String, ArrayList<ExecutorDetails>> entry : nodeExecs.entrySet()) {
 				
-				List<WorkerSlot> assignable = this._cluster.getAssignableSlots(this._cluster.getSupervisorById(entry.getKey()));
+				List<WorkerSlot> assignable = nodeWorker.get(entry.getKey());
 				Iterator iterator1 = assignable.iterator();
 				for(ExecutorDetails exec : entry.getValue()) {
 					if(iterator1.hasNext() == false) {
