@@ -119,13 +119,6 @@ public class TestScheduler implements IScheduler{
 					LOG.info("{} -> {}", k.getKey(), k.getValue());
 				}
 
-<<<<<<< HEAD
-				LOG.info("running UnEvenScheduler now...");
-				//new backtype.storm.scheduler.EvenScheduler().schedule(
-				//		topologies, cluster);
-				UnevenScheduler2 ns = new UnevenScheduler2(globalState, stats, cluster, topologies);
-				ns.schedule();
-=======
 				
 				//new backtype.storm.scheduler.EvenScheduler().schedule(
 				//		topologies, cluster);
@@ -138,7 +131,6 @@ public class TestScheduler implements IScheduler{
 					UnevenScheduler2 ns = new UnevenScheduler2(globalState, stats, cluster, topologies);
 					ns.schedule();
 				}
->>>>>>> 8450a822f88b113d23f6d40ed23989f6246566c1
 
 				globalState.storeState(cluster, topologies);
 				globalState.isBalanced = false;
