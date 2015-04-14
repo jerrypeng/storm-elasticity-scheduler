@@ -135,8 +135,12 @@ public class GlobalState {
 
 		for (Map.Entry<WorkerSlot, List<ExecutorDetails>> k : sched_state
 				.entrySet()) {
+			if (node_to_worker.containsKey(k.getKey().getNodeId()) == true
+					&& node_to_worker.get(k.getKey().getNodeId()).containsKey(
+							k.getKey()) == true) {
 			node_to_worker.get(k.getKey().getNodeId()).get(k.getKey())
 					.addAll(k.getValue());
+			}
 		}
 
 		String data = "\n\n<!---Scheduling Change---!>\n";
