@@ -21,6 +21,7 @@ import backtype.storm.scheduler.Elasticity.Strategies.ScaleInProximityBased;
 import backtype.storm.scheduler.Elasticity.Strategies.ScaleInTestStrategy;
 import backtype.storm.scheduler.Elasticity.Strategies.StellaInStrategy;
 import backtype.storm.scheduler.Elasticity.Strategies.UnevenScheduler;
+import backtype.storm.scheduler.Elasticity.Strategies.UnevenScheduler2;
 
 public class ScaleInScheduler implements IScheduler{
 	private static final Logger LOG = LoggerFactory
