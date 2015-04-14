@@ -119,11 +119,15 @@ public class ScaleInScheduler implements IScheduler{
 					LOG.info("{} -> {}", k.getKey(), k.getValue());
 				}
 
-				LOG.info("running UnEvenScheduler now...");
-				//new backtype.storm.scheduler.EvenScheduler().schedule(
-				//		topologies, cluster);
-				UnevenScheduler2 ns = new UnevenScheduler2(globalState, stats, cluster, topologies);
-				ns.schedule();
+				if(cluster.getUnassignedExecutors(topo).size()<topo.getExecutors().size()) {
+					LOG.info("running EvenScheduler now...");
+					new backtype.storm.scheduler.EvenScheduler().schedule(
+							topologies, cluster);
+				} else {
+					LOG.info("running UnEvenScheduler now...");
+					UnevenScheduler2 ns = new UnevenScheduler2(globalState, stats, cluster, topologies);
+					ns.schedule();
+				}
 
 				globalState.storeState(cluster, topologies);
 				globalState.isBalanced = false;

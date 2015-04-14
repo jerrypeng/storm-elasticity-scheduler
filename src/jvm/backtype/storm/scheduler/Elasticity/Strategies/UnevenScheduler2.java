@@ -173,7 +173,12 @@ public class UnevenScheduler2 {
 					nodeWorker.put(n.supervisor_id, new ArrayList<WorkerSlot>());
 				}
 				List<WorkerSlot> assignable = this._cluster.getAssignableSlots(this._cluster.getSupervisorById(n.supervisor_id));
+				int ws_count=0;
 				for(WorkerSlot ws : assignable) {
+					ws_count++;
+					if(ws_count>2){
+						break;
+					}
 					if(nodeWorker.get(n.supervisor_id).contains(ws)==false) {
 						nodeWorker.get(n.supervisor_id).add(ws);
 						schedMap.put(ws, new ArrayList<ExecutorDetails>());
