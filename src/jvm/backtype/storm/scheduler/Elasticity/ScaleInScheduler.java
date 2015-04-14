@@ -121,7 +121,7 @@ public class ScaleInScheduler implements IScheduler{
 				LOG.info("running UnEvenScheduler now...");
 				//new backtype.storm.scheduler.EvenScheduler().schedule(
 				//		topologies, cluster);
-				UnevenScheduler ns = new UnevenScheduler(globalState, stats, cluster, topologies);
+				UnevenScheduler2 ns = new UnevenScheduler2(globalState, stats, cluster, topologies);
 				ns.schedule();
 
 				globalState.storeState(cluster, topologies);
