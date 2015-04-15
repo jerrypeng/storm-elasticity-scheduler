@@ -88,10 +88,14 @@ public class ScaleInExecutorStrategy {
 		LOG.info("execs1: {}", execs1);
 		LOG.info("execs2: {}", execs2);
 		LOG.info("sched: {}", schedMap);
+		
+		for(Entry<WorkerSlot, List<ExecutorDetails>> tmp : schedMap.entrySet()) {
+			LOG.info("tmp: {}", tmp);
+		}
 		//execs1: [[7, 7], [10, 10], [8, 8], [9, 9]]
 		//execs2: [[7, 8], [9, 10]]
 		
-		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : schedMap.entrySet()) {
+		for(Map.Entry<WorkerSlot, List<ExecutorDetails>> entry : schedMap.entrySet()) {
 			
 			newSchedMap.put(entry.getKey(), new ArrayList<ExecutorDetails> ());
 			String hname = this._globalState.nodes.get(entry.getKey().getNodeId()).hostname + ":" + entry.getKey().getPort();
