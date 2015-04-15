@@ -96,7 +96,8 @@ public class ScaleInExecutorStrategy {
 			newSchedMap.put(entry.getKey(), new ArrayList<ExecutorDetails> ());
 			String hname = this._globalState.nodes.get(entry.getKey().getNodeId()).hostname + ":" + entry.getKey().getPort();
 			LOG.info("hname: {}", hname);
-			if(supsRm.contains(entry.getKey().getNodeId()) == false){
+			LOG.info("{} -- {}", supsRm, entry.getKey().getNodeId());
+			if(this.supExists(entry.getKey().getNodeId(), supsRm) == false){
 				LOG.info("-> {}", entry.getKey().getNodeId());
 				for(ExecutorDetails exec : entry.getValue()) {
 					LOG.info("--> {}", exec);
@@ -141,6 +142,15 @@ public class ScaleInExecutorStrategy {
 		
 		LOG.info("!-------Exit getNewScheduling----------! ");
 		return newSchedMap;
+	}
+	
+	public boolean supExists(String sup, ArrayList<String> sups) {
+		for(String s : sups) {
+			if(s.equals(sup)==true) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public boolean execExist(ExecutorDetails exec, Collection<ExecutorDetails> execs) {
