@@ -17,6 +17,7 @@ import backtype.storm.scheduler.TopologyDetails;
 import backtype.storm.scheduler.WorkerSlot;
 import backtype.storm.scheduler.Elasticity.MsgServer.MsgServer;
 import backtype.storm.scheduler.Elasticity.Strategies.ScaleInETPStrategy;
+import backtype.storm.scheduler.Elasticity.Strategies.ScaleInExecutorStrategy;
 import backtype.storm.scheduler.Elasticity.Strategies.ScaleInProximityBased;
 import backtype.storm.scheduler.Elasticity.Strategies.ScaleInTestStrategy;
 import backtype.storm.scheduler.Elasticity.Strategies.StellaInStrategy;
@@ -81,7 +82,7 @@ public class ScaleInExecutorsScheduler implements IScheduler{
 				TreeMap<Node, Integer> rankMap = si.StrategyScaleInAll();
 
 				
-				ScaleInTestStrategy strategy = new ScaleInTestStrategy(globalState, stats, topo, cluster, topologies, rankMap);
+				ScaleInExecutorStrategy strategy = new ScaleInExecutorStrategy(globalState, stats, topo, cluster, topologies, rankMap);
 
 				ArrayList<String> hosts = new ArrayList<String>();
 				 hosts.add("pc402.emulab.net");

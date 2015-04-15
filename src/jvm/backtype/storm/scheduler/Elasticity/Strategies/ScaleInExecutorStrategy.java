@@ -47,23 +47,6 @@ public class ScaleInExecutorStrategy {
 		
 	}
 	
-	public Map<Component, Integer> findComponentsOnNode(ArrayList<String>supervisorIds) {
-		HashMap<Component, Integer> comps = new HashMap<Component, Integer>();
-		for(String supervisorId : supervisorIds) {
-			Node n = this._globalState.nodes.get(supervisorId);
-			for(ExecutorDetails exec : n.execs) {
-				String comp = this._topo.getExecutorToComponent().get(exec);
-				Component component = this._globalState.components.get(this._topo.getId()).get(comp);
-				if(comps.containsKey(comp) == false) {
-					comps.put(component, 0);
-				}
-				comps.put(component, comps.get(component)+1);
-			}
-		}
-		return comps;
-		
-	} 
-	
 	public void removeNodesBySupervisorId(ArrayList<String> supervisorIds) {
 		
 		
@@ -104,6 +87,37 @@ public class ScaleInExecutorStrategy {
 			e.printStackTrace();
 		}
 
+	}
+	
+	public Map<Component, Integer> findComponentsOnNode(ArrayList<String>supervisorIds) {
+		HashMap<Component, Integer> comps = new HashMap<Component, Integer>();
+		for(String supervisorId : supervisorIds) {
+			Node n = this._globalState.nodes.get(supervisorId);
+			for(ExecutorDetails exec : n.execs) {
+				String comp = this._topo.getExecutorToComponent().get(exec);
+				Component component = this._globalState.components.get(this._topo.getId()).get(comp);
+				if(comps.containsKey(comp) == false) {
+					comps.put(component, 0);
+				}
+				comps.put(component, comps.get(component)+1);
+			}
+		}
+		return comps;
+		
+	} 
+	
+	public void removeNodesByHostname(ArrayList<String> hostname) {
+		ArrayList<String> sups = new ArrayList<String>();
+		for(String host : hostname) {
+			for(Node n : this._globalState.nodes.values()) {
+				if(n.hostname.equals(host)==true) {
+					LOG.info("Found Hostname: {} with sup id: {}", hostname, n.supervisor_id);
+					//this.removeNodeBySupervisorId(n.supervisor_id);
+					sups.add(n.supervisor_id);
+				}
+			}
+		}
+		this.removeNodesBySupervisorId(sups);
 	}
 	
 	public WorkerSlot findBestSlot3(Node node) {
