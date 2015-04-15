@@ -49,6 +49,149 @@ public class ScaleInExecutorStrategy {
 		
 	}
 	
+	public Map<WorkerSlot, List<ExecutorDetails>> getNewScheduling(ArrayList<String> supRm) {
+		LOG.info("!-------Entering getNewScheduling----------! ");
+		Collection<ExecutorDetails> unassigned = this._cluster.getUnassignedExecutors(this._topo);
+		Map<WorkerSlot, List<ExecutorDetails>> schedMap = this._globalState.schedState.get(this._topo.getId());
+		Map<WorkerSlot, List<ExecutorDetails>> newSchedMap = this._globalState.schedState.get(this._topo.getId());
+		Map<ExecutorDetails, WorkerSlot> ExecutorToSlot = new HashMap<ExecutorDetails, WorkerSlot>();
+		Collection<ExecutorDetails> topoExecutors = new ArrayList<ExecutorDetails>();
+		
+		Map<String, Map<String, Integer>> nodeCompMap = this.getComponentToNodeScheduling(schedMap);
+		Map<WorkerSlot, Map<String, Integer>> workerCompMap = this.getComponentWorkerScheduler(schedMap);
+		
+	
+		
+		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : schedMap.entrySet()) {
+			for(ExecutorDetails exec : entry.getValue()) {
+				topoExecutors.add(exec);
+				ExecutorToSlot.put(exec, entry.getKey());
+			}
+		}
+		
+		
+		List<ExecutorDetails> execs1 = this.diff(unassigned, topoExecutors);
+		List<ExecutorDetails> execs2 = this.diff(topoExecutors, unassigned);
+		LOG.info("execs1: {}", execs1);
+		LOG.info("execs2: {}", execs2);
+		//execs1: [[7, 7], [10, 10], [8, 8], [9, 9]]
+		//execs2: [[7, 8], [9, 10]]
+		
+		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : schedMap.entrySet()) {
+			
+			if(newSchedMap.containsKey(entry.getKey())==false) {
+				newSchedMap.put(entry.getKey(), new ArrayList<ExecutorDetails> ());
+			}
+			if(supRm.contains(entry.getKey().getNodeId()) == false){
+				for(ExecutorDetails exec : entry.getValue()) {
+					if(unassigned.contains(exec) == true) {
+						newSchedMap.get(entry.getKey()).add(exec);
+					}
+				}
+			}
+		}
+		
+		LOG.info("initial: ");
+
+		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : newSchedMap.entrySet()) {
+			String hostname = this._globalState.nodes.get(entry.getKey().getNodeId()).hostname + ":" + entry.getKey().getPort();
+			LOG.info("Slot: {} execs: {}", hostname, entry.getValue());
+		}
+		
+		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : newSchedMap.entrySet()) {
+			Map<String, Integer> compNum = workerCompMap.get(entry.getKey());
+			for(Entry<String, Integer> e : compNum.entrySet()) {
+				Integer count = this.findCompInstancs(e.getKey(), entry.getValue());
+				int diff = e.getValue()-count;
+				for(int i=0; i<diff; i++) {
+					
+					ExecutorDetails ed = this.getAndRmExecsOfComp(e.getKey(), execs1);
+					if(ed == null) {
+						LOG.info("ERROR: Cannot find another instance of {}", e.getKey());
+						return null;
+					}
+					newSchedMap.get(entry.getKey()).add(ed);
+				}
+			}
+
+		}
+
+		LOG.info("Final: ");
+		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : newSchedMap.entrySet()) {
+			String hostname = this._globalState.nodes.get(entry.getKey().getNodeId()).hostname + ":" + entry.getKey().getPort();
+			LOG.info("Slot: {} execs: {}", hostname, entry.getValue());
+		}
+		
+		LOG.info("!-------Exit getNewScheduling----------! ");
+		return newSchedMap;
+	}
+	
+	public ExecutorDetails getAndRmExecsOfComp(String comp, List<ExecutorDetails> execs) {
+		for (Iterator<ExecutorDetails> iterator = execs.iterator(); iterator.hasNext();) {
+			ExecutorDetails exec = iterator.next();
+			if(this._topo.getExecutorToComponent().get(exec).equals(comp) == true) {
+				iterator.remove();
+				return exec;
+			}
+		}
+		return null;
+	}
+	
+	public Integer findCompInstancs(String comp, List<ExecutorDetails> execs) {
+		int count=0;
+		for(ExecutorDetails exec : execs) {
+			if(this._topo.getExecutorToComponent().get(exec).equals(comp) ==true) {
+				count++;
+			}
+		}
+		return count;
+	}
+	
+	List<ExecutorDetails> diff(Collection<ExecutorDetails> execs1, Collection<ExecutorDetails> execs2) {
+		List<ExecutorDetails> retList = new ArrayList<ExecutorDetails>();
+		for (ExecutorDetails exec : execs1) {
+			if(execs2.contains(exec)==false) {
+				retList.add(exec);
+			}
+		}
+		return retList;
+	}
+	
+	public void removeNodesBySupervisorId(ArrayList<String> supervisorIds) {
+		
+		
+			Map<Component, Integer> compExecRm = this.findComponentsOnNode(supervisorIds);
+			LOG.info("Nodes: {} has Components: {}", supervisorIds, compExecRm);
+			
+			HelperFuncs.decreaseParallelism(compExecRm, this._topo);
+			
+	}
+	
+	public Map<WorkerSlot, Map<String, Integer>> getComponentWorkerScheduler(Map<WorkerSlot, List<ExecutorDetails>> schedMap) {
+		
+		Map<WorkerSlot, Map<String, Integer>> workerCompMap = new HashMap<WorkerSlot, Map<String, Integer>>();
+
+		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : schedMap.entrySet()) {
+			if(workerCompMap.containsKey(entry.getKey())==false) {
+				workerCompMap.put(entry.getKey(), new HashMap<String, Integer>());
+			}
+			for(ExecutorDetails exec : entry.getValue()) {
+				Map<ExecutorDetails, String> compToExecutor = this._globalState.storedCompToExecMapping.get(this._topo.getId());
+				String comp=compToExecutor.get(exec);
+				if (workerCompMap.get(entry.getKey()).containsKey(comp) == false) {
+					workerCompMap.get(entry.getKey()).put(comp, 0);
+				}
+				int curr = workerCompMap.get(entry.getKey()).get(comp);
+				workerCompMap.get(entry.getKey()).put(comp, curr+1);
+			}
+		}
+		for(Entry<WorkerSlot, Map<String, Integer>> entry : workerCompMap.entrySet()) {
+			String hostname = this._globalState.nodes.get(entry.getKey().getNodeId()).hostname + ":" + entry.getKey().getPort();
+			LOG.info("Slot: {} Components: {}", hostname, entry.getValue());
+		}
+		return workerCompMap;
+	}
+	
 	public Map<String, Map<String, Integer>> getComponentToNodeScheduling(Map<WorkerSlot, List<ExecutorDetails>> schedMap) {
 		//supId->{compId->numOfInstances}
 		Map<String, Map<String, Integer>> nodeCompMap = new HashMap<String, Map<String, Integer>>();
@@ -73,79 +216,6 @@ public class ScaleInExecutorStrategy {
 			LOG.info("node: {} Components: {}", hostname, entry.getValue());
 		}
 		return nodeCompMap;
-	}
-	
-	public Map<WorkerSlot, List<ExecutorDetails>> getNewScheduling() {
-		LOG.info("!-------Entering getNewScheduling----------! ");
-		Collection<ExecutorDetails> unassigned = this._cluster.getUnassignedExecutors(this._topo);
-		Map<WorkerSlot, List<ExecutorDetails>> schedMap = this._globalState.schedState.get(this._topo.getId());
-		Map<ExecutorDetails, WorkerSlot> ExecutorToSlot = new HashMap<ExecutorDetails, WorkerSlot>();
-		Collection<ExecutorDetails> topoExecutors = new ArrayList<ExecutorDetails>();
-		
-		Map<String, Map<String, Integer>> nodeCompMap = this.getComponentToNodeScheduling(schedMap);
-		
-	
-		
-		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : schedMap.entrySet()) {
-			for(ExecutorDetails exec : entry.getValue()) {
-				topoExecutors.add(exec);
-				ExecutorToSlot.put(exec, entry.getKey());
-			}
-		}
-		
-		
-		List<ExecutorDetails> execs1 = this.diff(unassigned, topoExecutors);
-		List<ExecutorDetails> execs2 = this.diff(topoExecutors, unassigned);
-		LOG.info("execs1: {}", execs1);
-		LOG.info("execs2: {}", execs2);
-		//execs1: [[7, 7], [10, 10], [8, 8], [9, 9]]
-		//execs2: [[7, 8], [9, 10]]
-
-		
-		for (Iterator<ExecutorDetails> iterator = execs2.iterator(); iterator.hasNext();) {
-			ExecutorDetails exec = iterator.next();
-			for (Iterator<ExecutorDetails> iterator2 = execs1.iterator(); iterator2.hasNext();) {
-				ExecutorDetails TopoExec = iterator2.next();
-				if((TopoExec.getEndTask()==exec.getEndTask() && TopoExec.getStartTask() != exec.getStartTask())
-						||
-						(TopoExec.getEndTask()!=exec.getEndTask() && TopoExec.getStartTask() == exec.getStartTask())) {
-					WorkerSlot ws = ExecutorToSlot.get(exec);
-					schedMap.get(ws).remove(exec);
-					schedMap.get(ws).add(TopoExec);
-					iterator.remove();
-					iterator2.remove();
-					break;
-				}
-			}
-		}
-		
-		LOG.info("After execs1: {}", execs1);
-		LOG.info("After execs2: {}", execs2);
-
-		
-		
-		LOG.info("!-------Exit getNewScheduling----------! ");
-		return schedMap;
-	}
-	
-	List<ExecutorDetails> diff(Collection<ExecutorDetails> execs1, Collection<ExecutorDetails> execs2) {
-		List<ExecutorDetails> retList = new ArrayList<ExecutorDetails>();
-		for (ExecutorDetails exec : execs1) {
-			if(execs2.contains(exec)==false) {
-				retList.add(exec);
-			}
-		}
-		return retList;
-	}
-	
-	public void removeNodesBySupervisorId(ArrayList<String> supervisorIds) {
-		
-		
-			Map<Component, Integer> compExecRm = this.findComponentsOnNode(supervisorIds);
-			LOG.info("Nodes: {} has Components: {}", supervisorIds, compExecRm);
-			
-			HelperFuncs.decreaseParallelism(compExecRm, this._topo);
-			
 	}
 	
 	public static void decreaseParallelism(Map<Component, Integer> compMap, TopologyDetails topo) {
