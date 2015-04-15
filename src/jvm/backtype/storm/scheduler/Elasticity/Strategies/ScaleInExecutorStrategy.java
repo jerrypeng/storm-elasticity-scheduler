@@ -41,9 +41,9 @@ public class ScaleInExecutorStrategy {
 		this._topologies = topologies;
 		this._topo = topo;
 		this._rankedMap = rankedMap;
-		for(Entry<Node, Integer> entry : rankedMap.entrySet()) {
-			this._rankedList.add(entry.getKey());
-		}
+//		for(Entry<Node, Integer> entry : rankedMap.entrySet()) {
+//			this._rankedList.add(entry.getKey());
+//		}
 		this.LOG = LoggerFactory
 				.getLogger(this.getClass());
 		
