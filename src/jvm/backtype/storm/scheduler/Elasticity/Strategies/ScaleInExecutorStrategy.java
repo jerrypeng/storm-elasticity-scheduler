@@ -79,9 +79,8 @@ public class ScaleInExecutorStrategy {
 		
 		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : schedMap.entrySet()) {
 			
-			if(newSchedMap.containsKey(entry.getKey())==false) {
-				newSchedMap.put(entry.getKey(), new ArrayList<ExecutorDetails> ());
-			}
+			newSchedMap.put(entry.getKey(), new ArrayList<ExecutorDetails> ());
+			
 			if(supRm.contains(entry.getKey().getNodeId()) == false){
 				for(ExecutorDetails exec : entry.getValue()) {
 					if(unassigned.contains(exec) == true) {
