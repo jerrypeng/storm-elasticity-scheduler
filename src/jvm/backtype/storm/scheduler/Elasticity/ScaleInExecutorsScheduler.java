@@ -76,6 +76,12 @@ public class ScaleInExecutorsScheduler implements IScheduler{
 			LOG.info("status: {}", status);
 			MsgServer.Signal signal = msgServer.getMessage();
 			if (signal == MsgServer.Signal.ScaleIn || (globalState.rebalancingState == MsgServer.Signal.ScaleIn && status.equals("REBALANCING"))) {
+				
+				ScaleInExecutorStrategy strategy = new ScaleInExecutorStrategy(globalState, stats, topo, cluster, topologies, rankMap);
+				ArrayList<String> hosts = new ArrayList<String>();
+				hosts.add("pc402.emulab.net");
+                hosts.add("pc408.emulab.net");
+               
 				if(signal == MsgServer.Signal.ScaleIn ) {
 					LOG.info("/*** Scaling In ***/");
 				
@@ -83,15 +89,15 @@ public class ScaleInExecutorsScheduler implements IScheduler{
 					TreeMap<Node, Integer> rankMap = si.StrategyScaleInAll();
 	
 					
-					ScaleInExecutorStrategy strategy = new ScaleInExecutorStrategy(globalState, stats, topo, cluster, topologies, rankMap);
-	
-					ArrayList<String> hosts = new ArrayList<String>();
-					 hosts.add("pc402.emulab.net");
-	                 hosts.add("pc408.emulab.net");
+					
 					strategy.removeNodesByHostname(hosts);
 					globalState.rebalancingState = MsgServer.Signal.ScaleIn;
 				} else if((globalState.rebalancingState == MsgServer.Signal.ScaleIn && status.equals("REBALANCING"))) {
 					LOG.info("After Rebalancing...");
+					LOG.info("Unassigned Executors for {}: ", topo.getName());
+					
+					strategy.getNewScheduling();
+					
 					
 					
 					globalState.rebalancingState =null;
