@@ -54,16 +54,16 @@ public class ScaleInExecutorStrategy {
 			LOG.info("Nodes: {} has Components: {}", supervisorIds, compExecRm);
 			
 			HelperFuncs.decreaseParallelism(compExecRm, this._topo);
-			
-			LOG.info("Status: {}", HelperFuncs.getStatus(this._topo.getId()));
-			while(HelperFuncs.getStatus(this._topo.getId()).equals("ACTIVE")){
-				
-			}
-			LOG.info("Status: {}", HelperFuncs.getStatus(this._topo.getId()));
-
-			while(HelperFuncs.getStatus(this._topo.getId()).equals( "REBALANCING")) {
-				
-			}
+//			
+//			LOG.info("Status: {}", HelperFuncs.getStatus(this._topo.getId()));
+//			while(HelperFuncs.getStatus(this._topo.getId()).equals("ACTIVE")){
+//				
+//			}
+//			LOG.info("Status: {}", HelperFuncs.getStatus(this._topo.getId()));
+//
+//			while(HelperFuncs.getStatus(this._topo.getId()).equals( "REBALANCING")) {
+//				
+//			}
 				
 				
 				
@@ -75,7 +75,7 @@ public class ScaleInExecutorStrategy {
 		for(Entry<Component, Integer> entry : compMap.entrySet()) {
 			Integer parallelism_hint = entry.getKey().execs.size() - entry.getValue();
 			String component_id = entry.getKey().id;
-			LOG.info("Increasing parallelism to {} of component {} in topo {}", new Object[]{parallelism_hint, component_id, topo.getName()});
+			LOG.info("decreasing parallelism to {} of component {} in topo {}", new Object[]{parallelism_hint, component_id, topo.getName()});
 			cmd+=" -e "+component_id+"="+parallelism_hint;
 		}
 
@@ -111,7 +111,7 @@ public class ScaleInExecutorStrategy {
 		for(String host : hostname) {
 			for(Node n : this._globalState.nodes.values()) {
 				if(n.hostname.equals(host)==true) {
-					LOG.info("Found Hostname: {} with sup id: {}", hostname, n.supervisor_id);
+					LOG.info("Found Hostname: {} with sup id: {}", host, n.supervisor_id);
 					//this.removeNodeBySupervisorId(n.supervisor_id);
 					sups.add(n.supervisor_id);
 				}

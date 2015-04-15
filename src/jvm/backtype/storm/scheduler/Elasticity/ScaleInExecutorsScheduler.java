@@ -76,25 +76,27 @@ public class ScaleInExecutorsScheduler implements IScheduler{
 			LOG.info("status: {}", status);
 			MsgServer.Signal signal = msgServer.getMessage();
 			if (signal == MsgServer.Signal.ScaleIn || (globalState.rebalancingState == MsgServer.Signal.ScaleIn && status.equals("REBALANCING"))) {
-				LOG.info("/*** Scaling In ***/");
-			
-				StellaInStrategy si = new StellaInStrategy(globalState, stats, topo, cluster, topologies);
-				TreeMap<Node, Integer> rankMap = si.StrategyScaleInAll();
-
+				if(signal == MsgServer.Signal.ScaleIn ) {
+					LOG.info("/*** Scaling In ***/");
 				
-				ScaleInExecutorStrategy strategy = new ScaleInExecutorStrategy(globalState, stats, topo, cluster, topologies, rankMap);
-
-				ArrayList<String> hosts = new ArrayList<String>();
-				 hosts.add("pc402.emulab.net");
-                 hosts.add("pc408.emulab.net");
-				strategy.removeNodesByHostname(hosts);
+					StellaInStrategy si = new StellaInStrategy(globalState, stats, topo, cluster, topologies);
+					TreeMap<Node, Integer> rankMap = si.StrategyScaleInAll();
+	
+					
+					ScaleInExecutorStrategy strategy = new ScaleInExecutorStrategy(globalState, stats, topo, cluster, topologies, rankMap);
+	
+					ArrayList<String> hosts = new ArrayList<String>();
+					 hosts.add("pc402.emulab.net");
+	                 hosts.add("pc408.emulab.net");
+					strategy.removeNodesByHostname(hosts);
+					globalState.rebalancingState = MsgServer.Signal.ScaleIn;
+				} else if((globalState.rebalancingState == MsgServer.Signal.ScaleIn && status.equals("REBALANCING"))) {
+					LOG.info("After Rebalancing...");
+					
+					
+					globalState.rebalancingState =null;
+				}
 				
-
-
-
-				
-				
-				globalState.rebalancingState = MsgServer.Signal.ScaleIn;
 			} else {
 				LOG.info("ID: {} NAME: {}", topo.getId(), topo.getName());
 				LOG.info("Unassigned Executors for {}: ", topo.getName());
