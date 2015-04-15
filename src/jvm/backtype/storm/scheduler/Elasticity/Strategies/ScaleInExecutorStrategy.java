@@ -96,7 +96,7 @@ public class ScaleInExecutorStrategy {
 			for(ExecutorDetails exec : n.execs) {
 				String comp = this._topo.getExecutorToComponent().get(exec);
 				Component component = this._globalState.components.get(this._topo.getId()).get(comp);
-				if(comps.containsKey(comp) == false) {
+				if(comps.containsKey(component) == false) {
 					comps.put(component, 0);
 				}
 				comps.put(component, comps.get(component)+1);
