@@ -40,6 +40,8 @@ public class GlobalState {
 	 * Topology id -> <worker slot -> collection<executors>>
 	 */
 	public Map<String, Map<WorkerSlot, List<ExecutorDetails>>> schedState;
+	
+	public Map<String, Map<ExecutorDetails, String>> storedCompToExecMapping = new HashMap<String, Map<ExecutorDetails, String>>();
 
 	/**
 	 * Topology id -> num of workers
@@ -101,7 +103,7 @@ public class GlobalState {
 				sched_state.put(topo.getId(), topoSched);
 
 			}
-
+			this.storedCompToExecMapping.put(topo.getId(), topo.getExecutorToComponent());
 		}
 		for (Map.Entry<String, Map<WorkerSlot, List<ExecutorDetails>>> i : sched_state
 				.entrySet()) {
