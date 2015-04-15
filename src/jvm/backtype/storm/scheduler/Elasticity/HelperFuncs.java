@@ -283,6 +283,7 @@ public class HelperFuncs {
 
 		//LOG.info(output.toString());
 	}
+	
 	public static void changeParallelism(TopologyDetails topo, String component_id, Integer parallelism_hint) {
 		LOG.info("Increasing parallelism to {} of component {} in topo {}", new Object[]{parallelism_hint, component_id, topo.getName()});
 		TSocket tsocket = new TSocket("localhost", 6627);
