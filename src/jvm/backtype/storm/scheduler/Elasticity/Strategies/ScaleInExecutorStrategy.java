@@ -49,7 +49,7 @@ public class ScaleInExecutorStrategy {
 		
 	}
 	
-	public Map<WorkerSlot, List<ExecutorDetails>> getNewScheduling(ArrayList<String> supRm) {
+	public Map<WorkerSlot, List<ExecutorDetails>> getNewScheduling(ArrayList<String> hostname) {
 		LOG.info("!-------Entering getNewScheduling----------! ");
 		Collection<ExecutorDetails> unassigned = this._cluster.getUnassignedExecutors(this._topo);
 		Map<WorkerSlot, List<ExecutorDetails>> schedMap = this._globalState.schedState.get(this._topo.getId());
@@ -59,6 +59,17 @@ public class ScaleInExecutorStrategy {
 		
 		Map<String, Map<String, Integer>> nodeCompMap = this.getComponentToNodeScheduling(schedMap);
 		Map<WorkerSlot, Map<String, Integer>> workerCompMap = this.getComponentWorkerScheduler(schedMap);
+		
+		ArrayList<String> supsRm = new ArrayList<String>();
+		for(String host : hostname) {
+			for(Node n : this._globalState.nodes.values()) {
+				if(n.hostname.equals(host)==true) {
+					LOG.info("Found Hostname: {} with sup id: {}", host, n.supervisor_id);
+					//this.removeNodeBySupervisorId(n.supervisor_id);
+					supsRm.add(n.supervisor_id);
+				}
+			}
+		}
 		
 	
 		
@@ -81,7 +92,7 @@ public class ScaleInExecutorStrategy {
 			
 			newSchedMap.put(entry.getKey(), new ArrayList<ExecutorDetails> ());
 			
-			if(supRm.contains(entry.getKey().getNodeId()) == false){
+			if(supsRm.contains(entry.getKey().getNodeId()) == false){
 				for(ExecutorDetails exec : entry.getValue()) {
 					if(unassigned.contains(exec) == true) {
 						newSchedMap.get(entry.getKey()).add(exec);
@@ -93,8 +104,8 @@ public class ScaleInExecutorStrategy {
 		LOG.info("initial: ");
 
 		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : newSchedMap.entrySet()) {
-			String hostname = this._globalState.nodes.get(entry.getKey().getNodeId()).hostname + ":" + entry.getKey().getPort();
-			LOG.info("Slot: {} execs: {}", hostname, entry.getValue());
+			String hname = this._globalState.nodes.get(entry.getKey().getNodeId()).hostname + ":" + entry.getKey().getPort();
+			LOG.info("Slot: {} execs: {}", hname, entry.getValue());
 		}
 		
 		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : newSchedMap.entrySet()) {
@@ -117,8 +128,8 @@ public class ScaleInExecutorStrategy {
 
 		LOG.info("Final: ");
 		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : newSchedMap.entrySet()) {
-			String hostname = this._globalState.nodes.get(entry.getKey().getNodeId()).hostname + ":" + entry.getKey().getPort();
-			LOG.info("Slot: {} execs: {}", hostname, entry.getValue());
+			String hname = this._globalState.nodes.get(entry.getKey().getNodeId()).hostname + ":" + entry.getKey().getPort();
+			LOG.info("Slot: {} execs: {}", hname, entry.getValue());
 		}
 		
 		LOG.info("!-------Exit getNewScheduling----------! ");
