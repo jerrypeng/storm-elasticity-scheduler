@@ -99,6 +99,7 @@ public class ScaleInExecutorStrategy {
 			LOG.info("{} -- {}", supsRm, entry.getKey().getNodeId());
 			if(this.supExists(entry.getKey().getNodeId(), supsRm) == false){
 				LOG.info("-> {}", entry.getKey().getNodeId());
+				LOG.info("-> {}", entry.getValue());
 				for(ExecutorDetails exec : entry.getValue()) {
 					LOG.info("--> {}", exec);
 					if(this.execExist(exec, unassigned)==true) {
