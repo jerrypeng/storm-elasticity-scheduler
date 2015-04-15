@@ -83,8 +83,11 @@ public class ScaleInExecutorStrategy {
 		
 		List<ExecutorDetails> execs1 = this.diff(unassigned, topoExecutors);
 		List<ExecutorDetails> execs2 = this.diff(topoExecutors, unassigned);
+		LOG.info("unassigned: {}", unassigned);
+		LOG.info("topoExecutors {}", topoExecutors);
 		LOG.info("execs1: {}", execs1);
 		LOG.info("execs2: {}", execs2);
+		LOG.info("sched: {}", schedMap);
 		//execs1: [[7, 7], [10, 10], [8, 8], [9, 9]]
 		//execs2: [[7, 8], [9, 10]]
 		
@@ -94,7 +97,7 @@ public class ScaleInExecutorStrategy {
 			
 			if(supsRm.contains(entry.getKey().getNodeId()) == false){
 				for(ExecutorDetails exec : entry.getValue()) {
-					if(unassigned.contains(exec) == true) {
+					if(this.execExist(exec, unassigned)==true) {
 						newSchedMap.get(entry.getKey()).add(exec);
 					}
 				}
@@ -134,6 +137,15 @@ public class ScaleInExecutorStrategy {
 		
 		LOG.info("!-------Exit getNewScheduling----------! ");
 		return newSchedMap;
+	}
+	
+	public boolean execExist(ExecutorDetails exec, Collection<ExecutorDetails> execs) {
+		for(ExecutorDetails e : execs) {
+			if(e.getStartTask() == exec.getEndTask() && e.getEndTask() == exec.getEndTask()) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	public ExecutorDetails getAndRmExecsOfComp(String comp, List<ExecutorDetails> execs) {
