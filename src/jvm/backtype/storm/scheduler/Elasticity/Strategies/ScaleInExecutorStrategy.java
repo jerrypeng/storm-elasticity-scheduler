@@ -94,11 +94,15 @@ public class ScaleInExecutorStrategy {
 		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : schedMap.entrySet()) {
 			
 			newSchedMap.put(entry.getKey(), new ArrayList<ExecutorDetails> ());
-			
+			String hname = this._globalState.nodes.get(entry.getKey().getNodeId()).hostname + ":" + entry.getKey().getPort();
+			LOG.info("hname: {}", hname);
 			if(supsRm.contains(entry.getKey().getNodeId()) == false){
+				LOG.info("-> {}", entry.getKey().getNodeId());
 				for(ExecutorDetails exec : entry.getValue()) {
+					LOG.info("--> {}", exec);
 					if(this.execExist(exec, unassigned)==true) {
 						newSchedMap.get(entry.getKey()).add(exec);
+						LOG.info("-->true");
 					}
 				}
 			}
@@ -141,7 +145,7 @@ public class ScaleInExecutorStrategy {
 	
 	public boolean execExist(ExecutorDetails exec, Collection<ExecutorDetails> execs) {
 		for(ExecutorDetails e : execs) {
-			if(e.getStartTask() == exec.getEndTask() && e.getEndTask() == exec.getEndTask()) {
+			if(e.getStartTask() == exec.getStartTask() && e.getEndTask() == exec.getEndTask()) {
 				return true;
 			}
 		}
