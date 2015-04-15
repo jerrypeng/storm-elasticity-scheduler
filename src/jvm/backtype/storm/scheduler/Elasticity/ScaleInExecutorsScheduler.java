@@ -77,7 +77,7 @@ public class ScaleInExecutorsScheduler implements IScheduler{
 			MsgServer.Signal signal = msgServer.getMessage();
 			if (signal == MsgServer.Signal.ScaleIn || (globalState.rebalancingState == MsgServer.Signal.ScaleIn && status.equals("REBALANCING"))) {
 				
-				ScaleInExecutorStrategy strategy = new ScaleInExecutorStrategy(globalState, stats, topo, cluster, topologies, rankMap);
+				ScaleInExecutorStrategy strategy = new ScaleInExecutorStrategy(globalState, stats, topo, cluster, topologies, null);
 				ArrayList<String> hosts = new ArrayList<String>();
 				hosts.add("pc402.emulab.net");
                 hosts.add("pc408.emulab.net");
