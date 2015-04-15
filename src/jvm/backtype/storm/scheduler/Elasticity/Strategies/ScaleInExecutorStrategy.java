@@ -56,8 +56,14 @@ public class ScaleInExecutorStrategy {
 			if(nodeCompMap.containsKey(entry.getKey().getNodeId())==false) {
 				nodeCompMap.put(entry.getKey().getNodeId(), new HashMap<String, Integer>());
 			}
+			String comp=null;
 			for(ExecutorDetails exec : entry.getValue()) {
-				String comp = this._topo.getExecutorToComponent().get(exec);
+				for(Map.Entry<ExecutorDetails, String> e : this._topo.getExecutorToComponent().entrySet()) {
+					if(e.getKey().getStartTask() == exec.getStartTask() || e.getKey().getEndTask() == exec.getEndTask()) {
+						comp = e.getValue();
+						break;
+					}
+				}
 				if(nodeCompMap.get(entry.getKey().getNodeId()).containsKey(comp) == false) {
 					nodeCompMap.get(entry.getKey().getNodeId()).put(comp, 0);
 				}
