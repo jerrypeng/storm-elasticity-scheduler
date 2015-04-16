@@ -75,7 +75,7 @@ public class GlobalState {
 		return instance;
 	}
 
-	public void storeState(Cluster cluster, Topologies topologies) {
+	public void storeState(Cluster cluster, Topologies topologies) throws IOException {
 		this.storeSchedState(cluster, topologies);
 	}
 
@@ -83,7 +83,7 @@ public class GlobalState {
 		return this.schedState.isEmpty();
 	}
 
-	public void storeSchedState(Cluster cluster, Topologies topologies) {
+	public void storeSchedState(Cluster cluster, Topologies topologies) throws IOException {
 		HashMap<String, Map<WorkerSlot, List<ExecutorDetails>>> sched_state = new HashMap<String, Map<WorkerSlot, List<ExecutorDetails>>>();
 		for (TopologyDetails topo : topologies.getTopologies()) {
 			if (cluster.getAssignmentById(topo.getId()) != null) {
