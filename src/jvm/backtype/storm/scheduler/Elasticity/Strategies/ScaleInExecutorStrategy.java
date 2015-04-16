@@ -95,19 +95,21 @@ public class ScaleInExecutorStrategy {
 		//execs1: [[7, 7], [10, 10], [8, 8], [9, 9]]
 		//execs2: [[7, 8], [9, 10]]
 		
-		for(Map.Entry<WorkerSlot, List<ExecutorDetails>> entry : schedMap.entrySet()) {
+		for(Map.Entry<WorkerSlot, List<ExecutorDetails>> tmp : schedMap.entrySet()) {
 			
-			newSchedMap.put(entry.getKey(), new ArrayList<ExecutorDetails> ());
-			String hname = this._globalState.nodes.get(entry.getKey().getNodeId()).hostname + ":" + entry.getKey().getPort();
+			newSchedMap.put(tmp.getKey(), new ArrayList<ExecutorDetails> ());
+			LOG.info("tmp: {}", tmp);
+			LOG.info("tmp.getValue(): {}",tmp.getValue());
+			String hname = this._globalState.nodes.get(tmp.getKey().getNodeId()).hostname + ":" + tmp.getKey().getPort();
 			LOG.info("hname: {}", hname);
-			LOG.info("{} -- {}", supsRm, entry.getKey().getNodeId());
-			if(this.supExists(entry.getKey().getNodeId(), supsRm) == false){
-				LOG.info("-> {}", entry.getKey().getNodeId());
-				LOG.info("-> {}", entry.getValue());
-				for(ExecutorDetails exec : entry.getValue()) {
+			LOG.info("{} -- {}", supsRm, tmp.getKey().getNodeId());
+			if(this.supExists(tmp.getKey().getNodeId(), supsRm) == false){
+				LOG.info("-> {}", tmp.getKey().getNodeId());
+				LOG.info("-> {}", tmp.getValue());
+				for(ExecutorDetails exec : tmp.getValue()) {
 					LOG.info("--> {}", exec);
 					if(this.execExist(exec, unassigned)==true) {
-						newSchedMap.get(entry.getKey()).add(exec);
+						newSchedMap.get(tmp.getKey()).add(exec);
 						LOG.info("-->true");
 					}
 				}
