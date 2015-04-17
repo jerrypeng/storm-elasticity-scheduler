@@ -1,7 +1,6 @@
 package backtype.storm.scheduler.Elasticity;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -75,7 +74,7 @@ public class GlobalState {
 		return instance;
 	}
 
-	public void storeState(Cluster cluster, Topologies topologies) throws IOException {
+	public void storeState(Cluster cluster, Topologies topologies) {
 		this.storeSchedState(cluster, topologies);
 	}
 
@@ -83,7 +82,7 @@ public class GlobalState {
 		return this.schedState.isEmpty();
 	}
 
-	public void storeSchedState(Cluster cluster, Topologies topologies) throws IOException {
+	public void storeSchedState(Cluster cluster, Topologies topologies) {
 		HashMap<String, Map<WorkerSlot, List<ExecutorDetails>>> sched_state = new HashMap<String, Map<WorkerSlot, List<ExecutorDetails>>>();
 		for (TopologyDetails topo : topologies.getTopologies()) {
 			if (cluster.getAssignmentById(topo.getId()) != null) {
@@ -123,7 +122,7 @@ public class GlobalState {
 
 	public void logSchedChange(
 			Map<WorkerSlot, List<ExecutorDetails>> sched_state,
-			TopologyDetails topo) throws IOException {
+			TopologyDetails topo) {
 		Map<String, Map<WorkerSlot, List<ExecutorDetails>>> node_to_worker = new HashMap<String, Map<WorkerSlot, List<ExecutorDetails>>>();
 		for (Node n : this.nodes.values()) {
 			node_to_worker.put(n.supervisor_id,
@@ -178,10 +177,6 @@ public class GlobalState {
 			}
 			data += "->Overall Component Count:"
 					+ componentOnNodeCount.toString() + "\n\n";
-			if(componentOnNodeCount.size()==0){
-				String[] cmd = {"ssh",this.nodes.get(i.getKey()).hostname,"sudo killall java"};
-			    Process pb = Runtime.getRuntime().exec(cmd);
-			}
 
 		}
 
