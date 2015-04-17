@@ -89,9 +89,7 @@ public class ScaleInExecutorStrategy {
 		LOG.info("execs2: {}", execs2);
 		LOG.info("sched: {}", schedMap);
 		
-		for(Entry<WorkerSlot, List<ExecutorDetails>> tmp : schedMap.entrySet()) {
-			LOG.info("tmp: {}", tmp);
-		}
+		
 		//execs1: [[7, 7], [10, 10], [8, 8], [9, 9]]
 		//execs2: [[7, 8], [9, 10]]
 		
@@ -100,19 +98,19 @@ public class ScaleInExecutorStrategy {
 		for(Map.Entry<WorkerSlot, List<ExecutorDetails>> tmp : schedMap.entrySet()) {
 			
 			newSchedMap.put(tmp.getKey(), new ArrayList<ExecutorDetails> ());
-			LOG.info("tmp: {}", tmp);
-			LOG.info("tmp.getValue(): {}",tmp.getValue());
+			//LOG.info("tmp: {}", tmp);
+			//LOG.info("tmp.getValue(): {}",tmp.getValue());
 			String hname = this._globalState.nodes.get(tmp.getKey().getNodeId()).hostname + ":" + tmp.getKey().getPort();
-			LOG.info("hname: {}", hname);
-			LOG.info("{} -- {}", supsRm, tmp.getKey().getNodeId());
+			//LOG.info("hname: {}", hname);
+			//LOG.info("{} -- {}", supsRm, tmp.getKey().getNodeId());
 			if(this.supExists(tmp.getKey().getNodeId(), supsRm) == false){
-				LOG.info("-> {}", tmp.getKey().getNodeId());
-				LOG.info("-> {}", tmp.getValue());
+				//LOG.info("-> {}", tmp.getKey().getNodeId());
+				//LOG.info("-> {}", tmp.getValue());
 				for(ExecutorDetails exec : tmp.getValue()) {
-					LOG.info("--> {}", exec);
+				//	LOG.info("--> {}", exec);
 					if(this.execExist(exec, unassigned)==true) {
 						newSchedMap.get(tmp.getKey()).add(exec);
-						LOG.info("-->true");
+					//	LOG.info("-->true");
 					}
 				}
 			}
@@ -127,12 +125,16 @@ public class ScaleInExecutorStrategy {
 		
 		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : newSchedMap.entrySet()) {
 			Map<String, Integer> compNum = workerCompMap.get(entry.getKey());
+			String hname = this._globalState.nodes.get(entry.getKey().getNodeId()).hostname + ":" + entry.getKey().getPort();
+			LOG.info("{}->{}", hname, compNum);
 			for(Entry<String, Integer> e : compNum.entrySet()) {
 				Integer count = this.findCompInstancs(e.getKey(), entry.getValue());
 				int diff = e.getValue()-count;
+				LOG.info("{} - {} = {}", new Object[]{count, e.getValue(), diff});
 				for(int i=0; i<diff; i++) {
 					
 					ExecutorDetails ed = this.getAndRmExecsOfComp(e.getKey(), execs1);
+					LOG.info("--> {}", ed);
 					if(ed == null) {
 						LOG.info("ERROR: Cannot find another instance of {}", e.getKey());
 						return null;
