@@ -53,7 +53,7 @@ public class ScaleInExecutorStrategy {
 		LOG.info("!-------Entering getNewScheduling----------! ");
 		Collection<ExecutorDetails> unassigned = this._cluster.getUnassignedExecutors(this._topo);
 		Map<WorkerSlot, List<ExecutorDetails>> schedMap = this._globalState.schedState.get(this._topo.getId());
-		Map<WorkerSlot, List<ExecutorDetails>> newSchedMap = this._globalState.schedState.get(this._topo.getId());
+		Map<WorkerSlot, List<ExecutorDetails>> newSchedMap = new HashMap<WorkerSlot, List<ExecutorDetails>>();
 		Map<ExecutorDetails, WorkerSlot> ExecutorToSlot = new HashMap<ExecutorDetails, WorkerSlot>();
 		Collection<ExecutorDetails> topoExecutors = new ArrayList<ExecutorDetails>();
 		
@@ -94,6 +94,8 @@ public class ScaleInExecutorStrategy {
 		}
 		//execs1: [[7, 7], [10, 10], [8, 8], [9, 9]]
 		//execs2: [[7, 8], [9, 10]]
+		
+	
 		
 		for(Map.Entry<WorkerSlot, List<ExecutorDetails>> tmp : schedMap.entrySet()) {
 			
