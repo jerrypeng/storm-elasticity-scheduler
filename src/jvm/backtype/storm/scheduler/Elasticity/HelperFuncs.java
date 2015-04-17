@@ -238,6 +238,9 @@ public class HelperFuncs {
 		String cmd = "/var/storm/storm_0/bin/storm rebalance -w 0 "+topo.getName();
 		for(Entry<Component, Integer> entry : compMap.entrySet()) {
 			Integer parallelism_hint = entry.getKey().execs.size() - entry.getValue();
+			if(parallelism_hint==0) {
+				parallelism_hint = 1;
+			}
 			String component_id = entry.getKey().id;
 			LOG.info("Increasing parallelism to {} of component {} in topo {}", new Object[]{parallelism_hint, component_id, topo.getName()});
 			cmd+=" -e "+component_id+"="+parallelism_hint;
