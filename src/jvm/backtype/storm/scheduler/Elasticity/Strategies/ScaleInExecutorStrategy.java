@@ -125,7 +125,7 @@ public class ScaleInExecutorStrategy {
 		
 		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : newSchedMap.entrySet()) {
 			if(this.supExists(entry.getKey().getNodeId(), supsRm) == false) {
-
+				LOG.info("entry: {}", entry);
 				Map<String, Integer> compNum = workerCompMap.get(entry.getKey());
 				String hname = this._globalState.nodes.get(entry.getKey().getNodeId()).hostname + ":" + entry.getKey().getPort();
 				LOG.info("{}->{}", hname, compNum);
