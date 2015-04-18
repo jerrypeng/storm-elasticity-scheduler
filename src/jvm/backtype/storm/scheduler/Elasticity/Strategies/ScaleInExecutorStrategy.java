@@ -89,6 +89,19 @@ public class ScaleInExecutorStrategy {
 		LOG.info("execs2: {}", execs2);
 		LOG.info("sched: {}", schedMap);
 		
+		List<ExecutorDetails> execPool = new ArrayList<ExecutorDetails>();
+		execPool.addAll(execs1);
+		for(Map.Entry<WorkerSlot, List<ExecutorDetails>> entry : schedMap.entrySet()) {
+			if(this.supExists(entry.getKey().getNodeId(), supsRm) == true){
+				for(ExecutorDetails exec : entry.getValue()) {
+					if(topoExecutors.contains(exec)==true && unassigned.contains(exec)==true) {
+						execPool.add(exec);
+					}
+				}
+			}
+		}
+		LOG.info("execPool: {}", execPool);
+		
 		
 		//execs1: [[7, 7], [10, 10], [8, 8], [9, 9]]
 		//execs2: [[7, 8], [9, 10]]
@@ -131,7 +144,7 @@ public class ScaleInExecutorStrategy {
 				LOG.info("{}->{}", hname, compNum);
 				for(Entry<String, Integer> e : compNum.entrySet()) {
 					Integer count = this.findCompInstancs(e.getKey(), entry.getValue());
-					int diff = e.getValue()-count;
+					Integer diff = e.getValue() - count;
 					LOG.info("{} - {} = {}", new Object[]{count, e.getValue(), diff});
 					for(int i=0; i<diff; i++) {
 						
