@@ -60,6 +60,8 @@ public class ScaleInExecutorStrategy {
 		Map<String, Map<String, Integer>> nodeCompMap = this.getComponentToNodeScheduling(schedMap);
 		Map<WorkerSlot, Map<String, Integer>> workerCompMap = this.getComponentWorkerScheduler(schedMap);
 		
+		ArrayList<Node> elgibleNodes = new ArrayList<Node>();
+		
 		ArrayList<String> supsRm = new ArrayList<String>();
 		for(String host : hostname) {
 			for(Node n : this._globalState.nodes.values()) {
@@ -68,6 +70,14 @@ public class ScaleInExecutorStrategy {
 					//this.removeNodeBySupervisorId(n.supervisor_id);
 					supsRm.add(n.supervisor_id);
 				}
+			}
+		}
+		
+		LOG.info("nodes elgible:");
+		for (Node n: this._globalState.nodes.values()) {
+			if(supsRm.contains(n.supervisor_id)==false) {
+				LOG.info("-->{}", n.hostname);
+				elgibleNodes.add(n);
 			}
 		}
 		
@@ -165,11 +175,76 @@ public class ScaleInExecutorStrategy {
 		LOG.info("Final: ");
 		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : newSchedMap.entrySet()) {
 			String hname = this._globalState.nodes.get(entry.getKey().getNodeId()).hostname + ":" + entry.getKey().getPort();
-			LOG.info("Slot: {} execs: {}", hname, entry.getValue());
+			String str = "";
+			for(ExecutorDetails exec : entry.getValue()) {
+				str+="{"+exec+"->"+this._topo.getExecutorToComponent().get(exec)+"}";
+			}
+			LOG.info("Slot: {}--{}", entry.getValue(), str);
 		}
+		
+		//round robin remaining tasks
+		this.scheduleTasksRoundRobin(execPool, elgibleNodes, newSchedMap);
+		
+		LOG.info("remaining: ");
+		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : newSchedMap.entrySet()) {
+			String hname = this._globalState.nodes.get(entry.getKey().getNodeId()).hostname + ":" + entry.getKey().getPort();
+			String str = "";
+			for(ExecutorDetails exec : entry.getValue()) {
+				str+="{"+exec+"->"+this._topo.getExecutorToComponent().get(exec)+"}";
+			}
+			LOG.info("Slot: {}--{}", entry.getValue(), str);
+		}
+		
 		
 		LOG.info("!-------Exit getNewScheduling----------! ");
 		return newSchedMap;
+	}
+	
+	public void scheduleTasksRoundRobin(List<ExecutorDetails> execs, List<Node> elgibleNodes, Map<WorkerSlot, List<ExecutorDetails>> newSchedMap) {
+		//roundrobin acks tasks
+		int i = 0;
+		int j = 0;
+				while(true) {
+					if(i>=execs.size()){
+						break;
+					} else if(j>=elgibleNodes.size()) {
+						j=0;
+					}
+					ExecutorDetails exec = execs.get(i);
+					
+					//WorkerSlot target = this.findBestSlot2(elgibleNodes.get(j));
+					//WorkerSlot target = slots.get(j);
+					Node targetNode = elgibleNodes.get(j);
+					WorkerSlot targetSlot = this.findBestSlot(targetNode, newSchedMap);
+					newSchedMap.get(targetSlot).add(exec);
+					
+					
+					
+					//this._globalState.migrateTask(exec, targetSlot, this._topo);
+					
+					//LOG.info("migrating {}:{} to ws {} on node {} .... i: {} j: {}", new Object[]{this._topo.getExecutorToComponent().get(exec), exec, targetSlot.getPort(), targetNode.hostname, i ,j});
+					
+					i++;
+					j++;
+				}
+	}
+	
+	WorkerSlot findBestSlot(Node n, Map<WorkerSlot, List<ExecutorDetails>> newSchedMap)  {
+		WorkerSlot target = null;
+		int least = 0;
+		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : newSchedMap.entrySet()) {
+			if(entry.getKey().getNodeId().equals(n.supervisor_id) == true) {
+				if(target == null) {
+					target = entry.getKey();
+					least = entry.getValue().size();
+				}
+				if(least > entry.getValue().size()) {
+					target = entry.getKey();
+					least = entry.getValue().size();
+				}
+			}
+		}
+		return target;
 	}
 	
 	public boolean supExists(String sup, ArrayList<String> sups) {
