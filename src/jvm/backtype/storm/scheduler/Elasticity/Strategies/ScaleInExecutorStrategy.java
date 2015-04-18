@@ -145,10 +145,11 @@ public class ScaleInExecutorStrategy {
 				for(Entry<String, Integer> e : compNum.entrySet()) {
 					Integer count = this.findCompInstancs(e.getKey(), entry.getValue());
 					Integer diff = e.getValue() - count;
-					LOG.info("{} - {} = {}", new Object[]{count, e.getValue(), diff});
+					LOG.info("{}: {} - {} = {}", new Object[]{e.getKey(), count, e.getValue(), diff});
 					for(int i=0; i<diff; i++) {
 						
-						ExecutorDetails ed = this.getAndRmExecsOfComp(e.getKey(), execs1);
+						ExecutorDetails ed = this.getAndRmExecsOfComp(e.getKey(), execPool);
+						LOG.info("execPool: {}", execPool);
 						LOG.info("--> {}", ed);
 						if(ed == null) {
 							LOG.info("ERROR: Cannot find another instance of {}", e.getKey());
