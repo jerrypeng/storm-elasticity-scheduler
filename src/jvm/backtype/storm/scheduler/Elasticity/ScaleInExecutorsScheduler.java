@@ -79,7 +79,7 @@ public class ScaleInExecutorsScheduler implements IScheduler{
 				
 				ScaleInExecutorStrategy strategy = new ScaleInExecutorStrategy(globalState, stats, topo, cluster, topologies, null);
 				ArrayList<String> hosts = new ArrayList<String>();
-				hosts.add("pc402.emulab.net");
+				hosts.add("pc284.emulab.net");
                 //hosts.add("pc408.emulab.net");
                
 				if(signal == MsgServer.Signal.ScaleIn ) {
