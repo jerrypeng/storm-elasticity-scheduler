@@ -124,22 +124,25 @@ public class ScaleInExecutorStrategy {
 		}
 		
 		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : newSchedMap.entrySet()) {
-			Map<String, Integer> compNum = workerCompMap.get(entry.getKey());
-			String hname = this._globalState.nodes.get(entry.getKey().getNodeId()).hostname + ":" + entry.getKey().getPort();
-			LOG.info("{}->{}", hname, compNum);
-			for(Entry<String, Integer> e : compNum.entrySet()) {
-				Integer count = this.findCompInstancs(e.getKey(), entry.getValue());
-				int diff = e.getValue()-count;
-				LOG.info("{} - {} = {}", new Object[]{count, e.getValue(), diff});
-				for(int i=0; i<diff; i++) {
-					
-					ExecutorDetails ed = this.getAndRmExecsOfComp(e.getKey(), execs1);
-					LOG.info("--> {}", ed);
-					if(ed == null) {
-						LOG.info("ERROR: Cannot find another instance of {}", e.getKey());
-						return null;
+			if(this.supExists(entry.getKey().getNodeId(), supsRm) == false) {
+
+				Map<String, Integer> compNum = workerCompMap.get(entry.getKey());
+				String hname = this._globalState.nodes.get(entry.getKey().getNodeId()).hostname + ":" + entry.getKey().getPort();
+				LOG.info("{}->{}", hname, compNum);
+				for(Entry<String, Integer> e : compNum.entrySet()) {
+					Integer count = this.findCompInstancs(e.getKey(), entry.getValue());
+					int diff = e.getValue()-count;
+					LOG.info("{} - {} = {}", new Object[]{count, e.getValue(), diff});
+					for(int i=0; i<diff; i++) {
+						
+						ExecutorDetails ed = this.getAndRmExecsOfComp(e.getKey(), execs1);
+						LOG.info("--> {}", ed);
+						if(ed == null) {
+							LOG.info("ERROR: Cannot find another instance of {}", e.getKey());
+							return null;
+						}
+						newSchedMap.get(entry.getKey()).add(ed);
 					}
-					newSchedMap.get(entry.getKey()).add(ed);
 				}
 			}
 
