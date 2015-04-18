@@ -96,7 +96,18 @@ public class ScaleInExecutorsScheduler implements IScheduler{
 					LOG.info("After Rebalancing...");
 					LOG.info("Unassigned Executors for {}: ", topo.getName());
 					
-					strategy.getNewScheduling(hosts);
+					Map<WorkerSlot, List<ExecutorDetails>> schedMap = strategy.getNewScheduling(hosts);
+					LOG.info("SchedMap: {}", schedMap);
+					if (schedMap != null) {
+						cluster.freeSlots(schedMap.keySet());
+						for (Map.Entry<WorkerSlot, List<ExecutorDetails>> sched : schedMap
+								.entrySet()) {
+							cluster.assign(sched.getKey(),
+									topo.getId(), sched.getValue());
+							LOG.info("Assigning {}=>{}",
+									sched.getKey(), sched.getValue());
+						}
+					}
 					
 					
 					
