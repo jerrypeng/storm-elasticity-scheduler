@@ -175,11 +175,12 @@ public class ScaleInExecutorStrategy {
 		LOG.info("Final: ");
 		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : newSchedMap.entrySet()) {
 			String hname = this._globalState.nodes.get(entry.getKey().getNodeId()).hostname + ":" + entry.getKey().getPort();
+			
 			String str = "";
 			for(ExecutorDetails exec : entry.getValue()) {
 				str+="{"+exec+"->"+this._topo.getExecutorToComponent().get(exec)+"}";
 			}
-			LOG.info("Slot: {}--{}", entry.getValue(), str);
+			LOG.info("{}--{}", hname, str);
 		}
 		
 		//round robin remaining tasks
@@ -192,7 +193,7 @@ public class ScaleInExecutorStrategy {
 			for(ExecutorDetails exec : entry.getValue()) {
 				str+="{"+exec+"->"+this._topo.getExecutorToComponent().get(exec)+"}";
 			}
-			LOG.info("Slot: {}--{}", entry.getValue(), str);
+			LOG.info("{}--{}", hname, str);
 		}
 		
 		
