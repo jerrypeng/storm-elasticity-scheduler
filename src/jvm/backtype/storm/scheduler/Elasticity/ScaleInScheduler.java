@@ -92,7 +92,8 @@ public class ScaleInScheduler implements IScheduler{
 				//hosts.add("pc437.emulab.net");
                 //hosts.add("pc429.emulab.net");
 				//strategy.removeNodesByHostname(2);
-				strategy.removeNodesBySupervisorId(1);
+				//strategy.removeNodesBySupervisorId(1);
+				strategy.removeNodesBySupervisorId(4);
 				
 				Map<WorkerSlot, List<ExecutorDetails>> schedMap = strategy
 						.getNewScheduling();
