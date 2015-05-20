@@ -19,7 +19,6 @@ import backtype.storm.scheduler.Elasticity.Component;
 import backtype.storm.scheduler.Elasticity.GetStats;
 import backtype.storm.scheduler.Elasticity.GlobalState;
 import backtype.storm.scheduler.Elasticity.Node;
-import backtype.storm.scheduler.Elasticity.Strategies.ScaleInProximityBased.ValueComparator;
 
 public class ScaleInETPStrategy {
 	protected Logger LOG = null;

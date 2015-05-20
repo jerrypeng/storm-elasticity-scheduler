@@ -17,10 +17,8 @@ import backtype.storm.scheduler.TopologyDetails;
 import backtype.storm.scheduler.WorkerSlot;
 import backtype.storm.scheduler.Elasticity.MsgServer.MsgServer;
 import backtype.storm.scheduler.Elasticity.Strategies.ScaleInETPStrategy;
-import backtype.storm.scheduler.Elasticity.Strategies.ScaleInProximityBased;
 import backtype.storm.scheduler.Elasticity.Strategies.ScaleInTestStrategy;
 import backtype.storm.scheduler.Elasticity.Strategies.StellaInStrategy;
-import backtype.storm.scheduler.Elasticity.Strategies.UnevenScheduler;
 import backtype.storm.scheduler.Elasticity.Strategies.UnevenScheduler;
 
 public class ScaleInScheduler implements IScheduler{
