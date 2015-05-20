@@ -20,7 +20,7 @@ import backtype.storm.scheduler.Elasticity.GetStats;
 import backtype.storm.scheduler.Elasticity.GlobalState;
 import backtype.storm.scheduler.Elasticity.Node;
 
-public abstract class TopologyHeuristicStrategy implements IStrategy{
+public abstract class TopologyHeuristicStrategy {
 	protected Logger LOG = null;
 	protected GlobalState _globalState;
 	protected GetStats _getStats;
