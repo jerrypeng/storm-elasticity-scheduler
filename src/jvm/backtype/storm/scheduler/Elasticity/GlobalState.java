@@ -52,6 +52,7 @@ public class GlobalState {
 	public TreeMap<List<Component>, Integer> edgeThroughput;
 
 	private File scheduling_log;
+	private File remove_node_list;
 
 	public boolean isBalanced = false;
 
@@ -61,8 +62,11 @@ public class GlobalState {
 		this.schedState = new HashMap<String, Map<WorkerSlot, List<ExecutorDetails>>>();
 		this.scheduling_log = new File(Config.LOG_PATH + filename
 				+ "_SchedulingInfo");
+		this.remove_node_list = new File(Config.LOG_PATH + filename
+				+ "_Nodelist");
 		try {
 			this.scheduling_log.delete();
+			this.remove_node_list.delete();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -137,11 +141,16 @@ public class GlobalState {
 
 		for (Map.Entry<WorkerSlot, List<ExecutorDetails>> k : sched_state
 				.entrySet()) {
+			if (node_to_worker.containsKey(k.getKey().getNodeId()) == true
+					&& node_to_worker.get(k.getKey().getNodeId()).containsKey(
+							k.getKey()) == true) {
 			node_to_worker.get(k.getKey().getNodeId()).get(k.getKey())
 					.addAll(k.getValue());
+			}
 		}
 
 		String data = "\n\n<!---Scheduling Change---!>\n";
+		String removehost="";
 		for (Map.Entry<String, Map<WorkerSlot, List<ExecutorDetails>>> i : node_to_worker
 				.entrySet()) {
 			data += "->hostname: " + this.nodes.get(i.getKey()).hostname
@@ -175,10 +184,13 @@ public class GlobalState {
 			}
 			data += "->Overall Component Count:"
 					+ componentOnNodeCount.toString() + "\n\n";
-
+			if(componentOnNodeCount.size()==0){
+				removehost+=this.nodes.get(i.getKey()).hostname+"\n";
+			}
 		}
 
 		HelperFuncs.writeToFile(this.scheduling_log, data);
+		HelperFuncs.writeToFile(this.remove_node_list, removehost);
 
 	}
 
