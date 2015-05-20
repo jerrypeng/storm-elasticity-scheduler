@@ -21,7 +21,7 @@ import backtype.storm.scheduler.Elasticity.Strategies.ScaleInProximityBased;
 import backtype.storm.scheduler.Elasticity.Strategies.ScaleInTestStrategy;
 import backtype.storm.scheduler.Elasticity.Strategies.StellaInStrategy;
 import backtype.storm.scheduler.Elasticity.Strategies.UnevenScheduler;
-import backtype.storm.scheduler.Elasticity.Strategies.UnevenScheduler2;
+import backtype.storm.scheduler.Elasticity.Strategies.UnevenScheduler;
 
 public class ScaleInScheduler implements IScheduler{
 	private static final Logger LOG = LoggerFactory
@@ -61,10 +61,6 @@ public class ScaleInScheduler implements IScheduler{
 		//LOG.info(stats.printTransferThroughputHistory());
 		//LOG.info(stats.printEmitThroughputHistory());
 		//LOG.info(stats.printExecuteThroughputHistory());
-		/**
-		 * Start hardware monitoring server
-		 */
-		Master server = Master.getInstance();
 		
 		/**
 		 * Start Scheduling
@@ -126,7 +122,7 @@ public class ScaleInScheduler implements IScheduler{
 							topologies, cluster);
 				} else {
 					LOG.info("running UnEvenScheduler now...");
-					UnevenScheduler2 ns = new UnevenScheduler2(globalState, stats, cluster, topologies);
+					UnevenScheduler ns = new UnevenScheduler(globalState, stats, cluster, topologies);
 					ns.schedule();
 				}
 

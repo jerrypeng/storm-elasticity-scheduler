@@ -67,9 +67,10 @@ public class UnevenScheduler {
 			Integer distribution = (int)Math.ceil((double) unassigned.size()
 					/ (double) numWorkers.intValue());
 			LOG.info("distribution: {}", distribution);
-			Map<WorkerSlot, Integer>workerCountMap = new HashMap<WorkerSlot, Integer> ();
 			Map<String, Integer>nodeCountMap = new HashMap<String, Integer> ();
 			Map<String, Integer>nodeWorkerCount = new HashMap<String, Integer>();
+			
+		
 			
 			//distribution = Math.ceil(distribution);
 			ArrayList<Node> nodes = new ArrayList<Node>(
@@ -117,20 +118,7 @@ public class UnevenScheduler {
 //					}
 //				}
 //			}
-			x = 0;
-			for(int i=0; i< unassigned.size(); i++) {
-				if(x>=slots.size()) {
-					x=0;
-				}
-				LOG.info("x: {} -- {}", x, slots.get(x));
-				if(workerCountMap.containsKey(slots.get(x))==false) {
-					workerCountMap.put(slots.get(x), 0);
-				}
-				workerCountMap.put(slots.get(x), workerCountMap.get(slots.get(x)) + 1);
-				x++;
-			}
-			
-			LOG.info("workerCountMap: {}", workerCountMap);
+		
 			
 			Map<String, ArrayList<ExecutorDetails>> compToExec = new HashMap<String, ArrayList<ExecutorDetails>>();
 			for(ExecutorDetails exec: unassigned) {
@@ -141,25 +129,102 @@ public class UnevenScheduler {
 				compToExec.get(comp).add(exec);
 			}
 			
-			Map<WorkerSlot, ArrayList<ExecutorDetails>> schedMap = new HashMap<WorkerSlot, ArrayList<ExecutorDetails>>();
-			int i = 0;
+			ArrayList<ExecutorDetails> groupedExecs = new ArrayList<ExecutorDetails>();
 			for(Entry<String, ArrayList<ExecutorDetails>> entry : compToExec.entrySet()) {
-				for(ExecutorDetails exec : entry.getValue()) {
-					if (i >= slots.size()) {
-						i = 0;
+				groupedExecs.addAll(entry.getValue());
+			}
+			
+			
+			Iterator it1 = groupedExecs.iterator();
+			HashMap<String, ArrayList<ExecutorDetails>> nodeExecs = new HashMap<String, ArrayList<ExecutorDetails>>();
+			
+			for(Node n : this._globalState.nodes.values()){
+				if(nodeExecs.containsKey(n.supervisor_id) == false) {
+					nodeExecs.put(n.supervisor_id, new ArrayList<ExecutorDetails> ());
+				}
+				while(nodeCountMap.get(n.supervisor_id)>nodeExecs.get(n.supervisor_id).size()) {
+					if(it1.hasNext()==true) {
+						nodeExecs.get(n.supervisor_id).add((ExecutorDetails)it1.next());
 					}
+				}
+			}
+			
+			for(Entry<String, ArrayList<ExecutorDetails>> entry : nodeExecs.entrySet()) {
+				LOG.info("n: {}--{}", this._globalState.nodes.get(entry.getKey()).hostname, entry.getKey());
+				String str="";
+				for(ExecutorDetails exec : entry.getValue()) {
+					String comp = topo.getExecutorToComponent().get(exec);
+					str+= "{"+exec.toString()+"->"+comp+"} ";
+				}
+				LOG.info("-->{}", str);
+			}
+	
+			Map<WorkerSlot, ArrayList<ExecutorDetails>> schedMap = new HashMap<WorkerSlot, ArrayList<ExecutorDetails>>();
 
-					//WorkerSlot ws = this.findBestSlot2(nodes.get(i));
-					WorkerSlot ws = slots.get(i);
+			
+			Map<String, ArrayList<WorkerSlot>> nodeWorker = new HashMap<String, ArrayList<WorkerSlot>>();
+			Iterator it2 = this._globalState.nodes.values().iterator();
+			for(int i=0; i<topo.getNumWorkers();i++) {
+				if(it2.hasNext() == false){
+					it2 = this._globalState.nodes.values().iterator();
+				}
+				Node n = (Node) it2.next();
+				if(nodeWorker.containsKey(n.supervisor_id) ==false){
+					nodeWorker.put(n.supervisor_id, new ArrayList<WorkerSlot>());
+				}
+				List<WorkerSlot> assignable = this._cluster.getAssignableSlots(this._cluster.getSupervisorById(n.supervisor_id));
+				int ws_count=0;
+				for(WorkerSlot ws : assignable) {
+					ws_count++;
+					if(ws_count>2){
+						break;
+					}
+					if(nodeWorker.get(n.supervisor_id).contains(ws)==false) {
+						nodeWorker.get(n.supervisor_id).add(ws);
+						schedMap.put(ws, new ArrayList<ExecutorDetails>());
+						break;
+					}
+				}
+			}
+			
+			LOG.info("nodeWorker: {}", nodeWorker);
+			
+
+			for(Entry<String, ArrayList<ExecutorDetails>> entry : nodeExecs.entrySet()) {
+				
+				List<WorkerSlot> assignable = nodeWorker.get(entry.getKey());
+				Iterator iterator1 = assignable.iterator();
+				for(ExecutorDetails exec : entry.getValue()) {
+					if(iterator1.hasNext() == false) {
+						iterator1 = assignable.iterator();
+					}
+					WorkerSlot ws = (WorkerSlot)iterator1.next();
 					if (schedMap.containsKey(ws) == false) {
 						schedMap.put(ws, new ArrayList<ExecutorDetails>());
 					}
 					schedMap.get(ws).add(exec);
-					if (schedMap.get(ws).size() >= workerCountMap.get(ws)) {
-						i++;
-					}
 				}
+
 			}
+			
+//			int i = 0;
+//			for(Entry<String, ArrayList<ExecutorDetails>> entry : compToExec.entrySet()) {
+//				for(ExecutorDetails exec : entry.getValue()) {
+//					if (i >= slots.size()) {
+//						i = 0;
+//					}
+//
+//					//WorkerSlot ws = this.findBestSlot2(nodes.get(i));
+//					WorkerSlot ws = slots.get(i);
+//					if (schedMap.containsKey(ws) == false) {
+//						schedMap.put(ws, new ArrayList<ExecutorDetails>());
+//					}
+//					schedMap.get(ws).add(exec);
+//					if (schedMap.get(ws).size() >= workerCountMap.get(ws)) {
+//						i++;
+//					}
+//				}
+//			}
 			
 			//round robin sys tasks
 			Iterator it = schedMap.entrySet().iterator();

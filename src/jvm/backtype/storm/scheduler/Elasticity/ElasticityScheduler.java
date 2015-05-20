@@ -58,10 +58,6 @@ public class ElasticityScheduler implements IScheduler {
 		//LOG.info(stats.printTransferThroughputHistory());
 		//LOG.info(stats.printEmitThroughputHistory());
 		//LOG.info(stats.printExecuteThroughputHistory());
-		/**
-		 * Start hardware monitoring server
-		 */
-		Master server = Master.getInstance();
 
 		/**
 		 * Start Scheduling
