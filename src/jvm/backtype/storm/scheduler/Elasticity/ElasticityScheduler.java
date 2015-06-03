@@ -25,6 +25,12 @@ public class ElasticityScheduler implements IScheduler {
 	private static final Logger LOG = LoggerFactory
 			.getLogger(ElasticityScheduler.class);
 	@SuppressWarnings("rawtypes")
+	
+	/**
+	 * Number of machines to remove during scale-in
+	 */
+	private final Integer NUM_MACHINES_REMOVE_FOR_SCALE_IN = 4;
+	
 	private Map _conf;
 
 	@Override
@@ -54,10 +60,6 @@ public class ElasticityScheduler implements IScheduler {
 		 * Get stats
 		 */
 		GetStats stats = GetStats.getInstance("ElasticityScheduler");
-		stats.getStatistics();
-		//LOG.info(stats.printTransferThroughputHistory());
-		//LOG.info(stats.printEmitThroughputHistory());
-		//LOG.info(stats.printExecuteThroughputHistory());
 
 		/**
 		 * Start Scheduling
@@ -67,35 +69,23 @@ public class ElasticityScheduler implements IScheduler {
 			String status = HelperFuncs.getStatus(topo.getId());
 			LOG.info("status: {}", status);
 
+			/**
+			 * get message if any form client
+			 */
 			MsgServer.Signal signal = msgServer.getMessage();
+			
+			/**
+			 * check if scale-out operation needs to occur
+			 */
 			if(signal == MsgServer.Signal.ScaleOut || (globalState.rebalancingState == MsgServer.Signal.ScaleOut && status.equals("REBALANCING"))){
 				this.scaleOut(msgServer, topo, topologies, globalState, stats, cluster);
 				globalState.rebalancingState = MsgServer.Signal.ScaleOut;
-			} else if (signal == MsgServer.Signal.ScaleIn) {
-				LOG.info("/*** Scaling In ***/");
-				StellaInStrategy si = new StellaInStrategy(globalState, stats, topo, cluster, topologies);
-				//Node n = si.StrategyScaleIn();
-				TreeMap<Node, Integer> rankMap = si.StrategyScaleInAll();
-
-				
-				ScaleInTestStrategy strategy = new ScaleInTestStrategy(globalState, stats, topo, cluster, topologies, rankMap);
-				//strategy.removeNodeByHostname("pc345.emulab.net");
-				//strategy.removeNodeBySupervisorId(n.supervisor_id);
-				Map<WorkerSlot, List<ExecutorDetails>> schedMap = strategy
-						.getNewScheduling();
-				LOG.info("SchedMap: {}", schedMap);
-				if (schedMap != null) {
-					cluster.freeSlots(schedMap.keySet());
-					for (Map.Entry<WorkerSlot, List<ExecutorDetails>> sched : schedMap
-							.entrySet()) {
-						cluster.assign(sched.getKey(),
-								topo.getId(), sched.getValue());
-						LOG.info("Assigning {}=>{}",
-								sched.getKey(), sched.getValue());
-					}
-				}
-				
-				globalState.rebalancingState = MsgServer.Signal.ScaleIn;
+			} 
+			/**
+			 * check if scale-in operation needs to occur
+			 */
+			else if (signal == MsgServer.Signal.ScaleIn) {
+				this.scaleIn(msgServer, topo, topologies, globalState, stats, cluster);
 			} else {
 				LOG.info("ID: {} NAME: {}", topo.getId(), topo.getName());
 				LOG.info("Unassigned Executors for {}: ", topo.getName());
@@ -121,6 +111,34 @@ public class ElasticityScheduler implements IScheduler {
 			globalState.clearStoreState();
 		}
 
+	}
+	
+	public void scaleIn(MsgServer msgServer, TopologyDetails topo, Topologies topologies, GlobalState globalState, GetStats stats, Cluster cluster) {
+		LOG.info("/*** Scaling In ***/");
+		
+		StellaInStrategy si = new StellaInStrategy(globalState, stats, topo, cluster, topologies);
+		TreeMap<Node, Integer> rankMap = si.StrategyScaleInAll();
+
+		ScaleInETPStrategy strategy= new ScaleInETPStrategy(globalState, stats, topo, cluster, topologies, rankMap);
+
+		
+		strategy.removeNodesBySupervisorId(NUM_MACHINES_REMOVE_FOR_SCALE_IN);
+		
+		Map<WorkerSlot, List<ExecutorDetails>> schedMap = strategy
+				.getNewScheduling();
+		LOG.info("SchedMap: {}", schedMap);
+		if (schedMap != null) {
+			cluster.freeSlots(schedMap.keySet());
+			for (Map.Entry<WorkerSlot, List<ExecutorDetails>> sched : schedMap
+					.entrySet()) {
+				cluster.assign(sched.getKey(),
+						topo.getId(), sched.getValue());
+				LOG.info("Assigning {}=>{}",
+						sched.getKey(), sched.getValue());
+			}
+		}
+		
+		globalState.rebalancingState = MsgServer.Signal.ScaleIn;
 	}
 	
 	public void scaleOut(MsgServer msgServer, TopologyDetails topo, Topologies topologies, GlobalState globalState, GetStats stats, Cluster cluster) {

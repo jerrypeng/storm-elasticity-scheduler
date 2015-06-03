@@ -1,4 +1,4 @@
-package backtype.storm.scheduler.Elasticity.Strategies;
+package backtype.storm.scheduler.Elasticity;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,10 +17,6 @@ import backtype.storm.scheduler.ExecutorDetails;
 import backtype.storm.scheduler.Topologies;
 import backtype.storm.scheduler.TopologyDetails;
 import backtype.storm.scheduler.WorkerSlot;
-import backtype.storm.scheduler.Elasticity.Component;
-import backtype.storm.scheduler.Elasticity.GetStats;
-import backtype.storm.scheduler.Elasticity.GlobalState;
-import backtype.storm.scheduler.Elasticity.Node;
 
 public class UnevenScheduler {
 	protected Logger LOG = null;
