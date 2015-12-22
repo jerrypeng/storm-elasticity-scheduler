@@ -73,8 +73,23 @@ public class ElasticityScheduler implements IScheduler {
 
 			MsgServer.Signal signal = msgServer.getMessage();
 			if(signal == MsgServer.Signal.ScaleOut || (globalState.rebalancingState == MsgServer.Signal.ScaleOut && status.equals("REBALANCING"))){
-				this.scaleOut(msgServer, topo, topologies, globalState, stats, cluster);
-				globalState.rebalancingState = MsgServer.Signal.ScaleOut;
+				if(signal == MsgServer.Signal.ScaleOut) {
+					if (globalState.stateEmpty() == false) {
+						List<Node> newNodes = globalState.getNewNode();
+
+						if (newNodes.size() > 0) {
+
+							LOG.info("Increasing parallelism...");
+							StellaOutStrategy strategy = new StellaOutStrategy(globalState, stats, topo, cluster, topologies);
+							HashMap<Component, Integer> compMap = strategy.StellaStrategy(new HashMap<String, Component>());
+							HelperFuncs.changeParallelism2(compMap, topo);
+						}
+
+					}
+					globalState.rebalancingState = MsgServer.Signal.ScaleOut;
+				} else {
+					this.scaleOut(msgServer, topo, topologies, globalState, stats, cluster);
+				}
 			} else if (signal == MsgServer.Signal.ScaleIn) {
 				LOG.info("/*** Scaling In ***/");
 				StellaInStrategy si = new StellaInStrategy(globalState, stats, topo, cluster, topologies);
@@ -129,22 +144,7 @@ public class ElasticityScheduler implements IScheduler {
 	
 	public void scaleOut(MsgServer msgServer, TopologyDetails topo, Topologies topologies, GlobalState globalState, GetStats stats, Cluster cluster) {
 		String status = HelperFuncs.getStatus(topo.getId());
-		if (msgServer.isRebalance() == true) {
-			if (globalState.stateEmpty() == false) {
-				List<Node> newNodes = globalState.getNewNode();
-				
-				if (newNodes.size() > 0) {
-
-					LOG.info("Increasing parallelism...");
-					StellaOutStrategy strategy = new StellaOutStrategy(globalState, stats, topo, cluster, topologies);
-					HashMap<Component, Integer> compMap = strategy.StellaStrategy(new HashMap<String, Component>());
-					
-					HelperFuncs.changeParallelism2(compMap, topo);
-
-				}
-
-			}
-		} else if (status.equals("REBALANCING")) {
+		 if (status.equals("REBALANCING")) {
 			if (globalState.isBalanced == false) {
 				LOG.info("Rebalancing...{}=={}", cluster
 						.getUnassignedExecutors(topo).size(), topo
