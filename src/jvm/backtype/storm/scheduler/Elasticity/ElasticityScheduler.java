@@ -160,7 +160,7 @@ public class ElasticityScheduler implements IScheduler {
 								globalState, stats, topo, cluster,
 								topologies);
 						Map<WorkerSlot, List<ExecutorDetails>> schedMap = strategy
-								.getNewScheduling();
+								.getNewScheduling2();
 						LOG.info("SchedMap: {}", schedMap);
 						if (schedMap != null) {
 							for (Map.Entry<WorkerSlot, List<ExecutorDetails>> sched : schedMap

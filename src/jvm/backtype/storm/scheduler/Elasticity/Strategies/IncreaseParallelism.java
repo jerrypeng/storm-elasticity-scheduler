@@ -95,6 +95,75 @@ public class IncreaseParallelism extends TopologyHeuristicStrategy{
 		LOG.info("!-------Exit IncreaseParallelism----------! ");
 		return schedMap;
 	}
+
+	public Map<WorkerSlot, List<ExecutorDetails>> getNewScheduling2() {
+		LOG.info("!-------Entering IncreaseParallelism----------! ");
+		Collection<ExecutorDetails> unassigned = this._cluster.getUnassignedExecutors(this._topo);
+		Map<WorkerSlot, List<ExecutorDetails>> schedMap = this._globalState.schedState.get(this._topo.getId());
+		Map<ExecutorDetails, WorkerSlot> ExecutorToSlot = new HashMap<ExecutorDetails, WorkerSlot>();
+		Collection<ExecutorDetails> topoExecutors = new ArrayList<ExecutorDetails>();
+		List<Node> newNodes = this._globalState.getNewNode();
+
+		if(newNodes.size()<=0) {
+			LOG.error("No new Nodes!");
+			return null;
+		}
+
+		Node targetNode = newNodes.get(0);
+
+		for(Entry<WorkerSlot, List<ExecutorDetails>> entry : schedMap.entrySet()) {
+			for(ExecutorDetails exec : entry.getValue()) {
+				topoExecutors.add(exec);
+				ExecutorToSlot.put(exec, entry.getKey());
+			}
+		}
+
+
+		List<ExecutorDetails> execs1 = this.diff(unassigned, topoExecutors);
+		List<ExecutorDetails> execs2 = this.diff(topoExecutors, unassigned);
+		LOG.info("execs1: {}", execs1);
+		LOG.info("execs2: {}", execs2);
+		//execs1: [[7, 7], [10, 10], [8, 8], [9, 9]]
+		//execs2: [[7, 8], [9, 10]]
+
+
+		for (Iterator<ExecutorDetails> iterator = execs2.iterator(); iterator.hasNext();) {
+			ExecutorDetails exec = iterator.next();
+			for (Iterator<ExecutorDetails> iterator2 = execs1.iterator(); iterator2.hasNext();) {
+				ExecutorDetails TopoExec = iterator2.next();
+				if((TopoExec.getEndTask()==exec.getEndTask() && TopoExec.getStartTask() != exec.getStartTask())
+						||
+						(TopoExec.getEndTask()!=exec.getEndTask() && TopoExec.getStartTask() == exec.getStartTask())) {
+					WorkerSlot ws = ExecutorToSlot.get(exec);
+					schedMap.get(ws).remove(exec);
+					schedMap.get(ws).add(TopoExec);
+					iterator.remove();
+					iterator2.remove();
+					break;
+				}
+			}
+		}
+
+		LOG.info("After execs1: {}", execs1);
+		LOG.info("After execs2: {}", execs2);
+
+		Integer i=0;
+		for(ExecutorDetails exec : execs1) {
+			if(i>=newNodes.size()) {
+				i=0;
+			}
+			WorkerSlot target_ws = newNodes.get(i).slots.get(0);
+			LOG.info("target location: {}:{}", targetNode.hostname, target_ws.getPort());
+			if(schedMap.containsKey(target_ws)==false) {
+				schedMap.put(target_ws, new ArrayList<ExecutorDetails>());
+			}
+			schedMap.get(target_ws).add(exec);
+			i++;
+		}
+
+		LOG.info("!-------Exit IncreaseParallelism----------! ");
+		return schedMap;
+	}
 	
 	List<ExecutorDetails> diff(Collection<ExecutorDetails> execs1, Collection<ExecutorDetails> execs2) {
 		List<ExecutorDetails> retList = new ArrayList<ExecutorDetails>();
