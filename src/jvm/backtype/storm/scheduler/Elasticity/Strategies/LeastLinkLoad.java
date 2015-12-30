@@ -1,8 +1,10 @@
 package backtype.storm.scheduler.Elasticity.Strategies;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -38,8 +40,7 @@ public class LeastLinkLoad extends LinkLoadBasedStrategy{
 		LOG.info("ComponentThroughputRankLeast: {}", HelperFuncs.printRank(this.ComponentThroughputRankLeast));
 	}
 
-	@Override
-	public Map<WorkerSlot, List<ExecutorDetails>> getNewScheduling() {
+	public Map<WorkerSlot, List<ExecutorDetails>> getNewScheduling2() {
 		Map<String, Component> components = this._globalState.components.get(this._topo.getId());
 		List<Node> newNodes = this._globalState.getNewNode();
 		
@@ -48,19 +49,25 @@ public class LeastLinkLoad extends LinkLoadBasedStrategy{
 			return null;
 		}
 		
-		Node targetNode = newNodes.get(0);
+		Node targetNode = newNodes.iterator().next();
 		WorkerSlot target_ws = targetNode.slots.get(0);
 		LOG.info("target location: {}:{}", targetNode.hostname, target_ws.getPort());
 		
 		int THRESHOLD = this.thresholdFunction();
 		LOG.info("Threshold: {}", THRESHOLD);
-		List<ExecutorDetails> migratedTasks = new ArrayList<ExecutorDetails>();
-		
-		
-		
+		//List<ExecutorDetails> migratedTasks = new ArrayList<ExecutorDetails>();
+		Map<Node, Collection<ExecutorDetails>> migratedTasks = new HashMap<Node, Collection<ExecutorDetails>> ();
+		migratedTasks.put(targetNode, new LinkedList<ExecutorDetails>());
+
 		for (Component comp : this.ComponentThroughputRankLeast.keySet()) {
-			if(migratedTasks.size() >= THRESHOLD) {
-				break;
+			if(migratedTasks.get(targetNode).size() >= THRESHOLD) {
+				if (newNodes.iterator().hasNext()) {
+					targetNode = newNodes.iterator().next();
+					target_ws = targetNode.slots.get(0);
+					migratedTasks.put(targetNode, new LinkedList<ExecutorDetails>());
+				} else {
+					break;
+				}
 			}
 			List<ExecutorDetails> compTasks = new ArrayList<ExecutorDetails>();
 			compTasks.addAll(comp.execs);
@@ -77,33 +84,45 @@ public class LeastLinkLoad extends LinkLoadBasedStrategy{
 			while(migratedTasks.size()<THRESHOLD && (compTasksItr.hasNext() || childrenTasksItr.hasNext() || parentTaskItr.hasNext())){
 				if(compTasksItr.hasNext()){
 					ExecutorDetails exec = compTasksItr.next();
-					if(migratedTasks.contains(exec) == false) {
+					if(migratedTasks.get(targetNode).contains(exec) == false) {
 						this._globalState.migrateTask(exec, target_ws, this._topo);
-						migratedTasks.add(exec);
+						migratedTasks.get(targetNode).add(exec);
 					}
 				}
-				
-				if(migratedTasks.size()>= THRESHOLD) {
-					break;
+
+				if(migratedTasks.get(targetNode).size() >= THRESHOLD) {
+					if (newNodes.iterator().hasNext()) {
+						targetNode = newNodes.iterator().next();
+						target_ws = targetNode.slots.get(0);
+						migratedTasks.put(targetNode, new LinkedList<ExecutorDetails>());
+					} else {
+						break;
+					}
 				}
 				
 				if(childrenTasksItr.hasNext()) {
 					ExecutorDetails exec = childrenTasksItr.next();
-					if(migratedTasks.contains(exec) == false) {
+					if(migratedTasks.get(targetNode).contains(exec) == false) {
 						this._globalState.migrateTask(exec, target_ws, this._topo);
-						migratedTasks.add(exec);
+						migratedTasks.get(targetNode).add(exec);
 					}
 				}
-				
-				if(migratedTasks.size()>= THRESHOLD) {
-					break;
+
+				if(migratedTasks.get(targetNode).size() >= THRESHOLD) {
+					if (newNodes.iterator().hasNext()) {
+						targetNode = newNodes.iterator().next();
+						target_ws = targetNode.slots.get(0);
+						migratedTasks.put(targetNode, new LinkedList<ExecutorDetails>());
+					} else {
+						break;
+					}
 				}
 				
 				if (parentTaskItr.hasNext()) {
 					ExecutorDetails exec = parentTaskItr.next();
-					if(migratedTasks.contains(exec) == false) {
+					if(migratedTasks.get(targetNode).contains(exec) == false) {
 						this._globalState.migrateTask(exec, target_ws, this._topo);
-						migratedTasks.add(exec);
+						migratedTasks.get(targetNode).add(exec);
 					}
 				}
 			}
@@ -113,6 +132,80 @@ public class LeastLinkLoad extends LinkLoadBasedStrategy{
 		Map<WorkerSlot, List<ExecutorDetails>> schedMap = this._globalState.schedState.get(this._topo.getId());
 		return schedMap;
 	}
-	
+
+	public Map<WorkerSlot, List<ExecutorDetails>> getNewScheduling() {
+		Map<String, Component> components = this._globalState.components.get(this._topo.getId());
+		List<Node> newNodes = this._globalState.getNewNode();
+
+		if(newNodes.size()<=0) {
+			LOG.error("No new Nodes!");
+			return null;
+		}
+
+		Node targetNode = newNodes.get(0);
+		WorkerSlot target_ws = targetNode.slots.get(0);
+		LOG.info("target location: {}:{}", targetNode.hostname, target_ws.getPort());
+
+		int THRESHOLD = this.thresholdFunction();
+		LOG.info("Threshold: {}", THRESHOLD);
+		List<ExecutorDetails> migratedTasks = new ArrayList<ExecutorDetails>();
+
+
+
+		for (Component comp : this.ComponentThroughputRankLeast.keySet()) {
+			if(migratedTasks.size() >= THRESHOLD) {
+				break;
+			}
+			List<ExecutorDetails> compTasks = new ArrayList<ExecutorDetails>();
+			compTasks.addAll(comp.execs);
+			List<ExecutorDetails> childrenTasks = this.getChildrenTasks(comp);
+			List<ExecutorDetails> parentTasks = this.getParentTasks(comp);
+
+			LOG.info("comp: {}", comp.id);
+			LOG.info("comTasks: {}", compTasks);
+			LOG.info("childrenTasks: {}", childrenTasks);
+
+			Iterator<ExecutorDetails> compTasksItr = compTasks.iterator();
+			Iterator<ExecutorDetails> childrenTasksItr = childrenTasks.iterator();
+			Iterator<ExecutorDetails> parentTaskItr = parentTasks.iterator();
+			while(migratedTasks.size()<THRESHOLD && (compTasksItr.hasNext() || childrenTasksItr.hasNext() || parentTaskItr.hasNext())){
+				if(compTasksItr.hasNext()){
+					ExecutorDetails exec = compTasksItr.next();
+					if(migratedTasks.contains(exec) == false) {
+						this._globalState.migrateTask(exec, target_ws, this._topo);
+						migratedTasks.add(exec);
+					}
+				}
+
+				if(migratedTasks.size()>= THRESHOLD) {
+					break;
+				}
+
+				if(childrenTasksItr.hasNext()) {
+					ExecutorDetails exec = childrenTasksItr.next();
+					if(migratedTasks.contains(exec) == false) {
+						this._globalState.migrateTask(exec, target_ws, this._topo);
+						migratedTasks.add(exec);
+					}
+				}
+
+				if(migratedTasks.size()>= THRESHOLD) {
+					break;
+				}
+
+				if (parentTaskItr.hasNext()) {
+					ExecutorDetails exec = parentTaskItr.next();
+					if(migratedTasks.contains(exec) == false) {
+						this._globalState.migrateTask(exec, target_ws, this._topo);
+						migratedTasks.add(exec);
+					}
+				}
+			}
+
+		}
+		LOG.info("Tasks migrated: {}", migratedTasks);
+		Map<WorkerSlot, List<ExecutorDetails>> schedMap = this._globalState.schedState.get(this._topo.getId());
+		return schedMap;
+	}
 
 }
